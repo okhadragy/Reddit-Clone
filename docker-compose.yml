@@ -1,0 +1,37 @@
+version: '3.9'
+
+services:
+  backend:
+    build: ./backend
+    container_name: reddit-backend
+    env_file: ./backend/.env
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./backend/uploads:/app/uploads
+    depends_on:
+      - mongo
+
+  frontend:
+    build: ./frontend
+    container_name: reddit-frontend
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+
+  mongo:
+    image: mongo:7
+    container_name: reddit-mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: okhadragy
+      MONGO_INITDB_ROOT_PASSWORD: Omar2005
+      MONGO_INITDB_DATABASE: RedditClone
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:
