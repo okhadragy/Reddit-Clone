@@ -73,8 +73,8 @@ npm run insert -- user ./users.json
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/okhadragy/RedditClone
-cd "NTI-BACKEND\Course Management"
+git clone https://github.com/okhadragy/Reddit-Clone
+cd "Reddit-Clone\Reddit"
 ```
 
 ### 2. Install Dependencies
@@ -85,7 +85,7 @@ npm install
 
 ### 3. Set Up Environment Variables
 
-Create a .env file in the course-management folder with:
+Create a .env file in the Reddit folder with:
 
 ```bash
 MONGO_URI=your_mongodb_connection_string
