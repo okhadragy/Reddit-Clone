@@ -14,14 +14,37 @@ router
     multerErrorHandler,
     postControllers.createPost
   )
-  .get(protectRoutes, postControllers.getAllPosts);
+  .get(
+    protectRoutes, 
+    postControllers.getAllPosts
+  );
 
 router
   .route("/:id")
-  .get(protectRoutes, postControllers.getPost);
-
+  .get(
+    protectRoutes, 
+    postControllers.getPost
+  )
+  .patch(
+    protectRoutes, 
+    uploadTo("posts").array("media", 5), // up to 5 files
+    multerErrorHandler,
+    postControllers.updatePost
+  )
+  .delete(
+    protectRoutes, 
+    postControllers.deletePost
+  );
 router
   .route("/:id/vote")
-  .post(protectRoutes, postControllers.votePost);
-
+  .post(
+    protectRoutes, 
+    postControllers.votePost
+  );
+router
+  .route("/:id/save")
+  .get(
+    protectRoutes, 
+    postControllers.toggleSavePost
+  );
 module.exports = router;

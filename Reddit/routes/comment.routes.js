@@ -6,15 +6,27 @@ const router = express.Router();
 
 router
   .route("/post/:postId")
-  .post(protectRoutes, commentControllers.addComment);
+  .post(
+    protectRoutes, 
+    commentControllers.addComment
+  );
 
 router
   .route("/:commentId")
-  .patch(protectRoutes, commentControllers.updateComment)
-  .delete(protectRoutes, commentControllers.deleteComment);
+  .patch(
+    protectRoutes, 
+    commentControllers.updateComment
+  )
+  .delete(
+    protectRoutes, 
+    commentControllers.deleteComment
+  );
 
 router
   .route("/:commentId/vote")
-  .post(protectRoutes, commentControllers.voteComment);
+  .post(
+    protectRoutes, 
+    commentControllers.voteComment
+  );
 
 module.exports = router;

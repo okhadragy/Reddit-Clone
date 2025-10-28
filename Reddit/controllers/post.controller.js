@@ -163,6 +163,85 @@ const getPost = async (req, res) => {
   }
 };
 
+// -------------------- Update Post --------------------
+const updatePost = async (req, res) => {
+  const uploadedFiles = req.files?.map(f => f.filename) || [];
+  try {
+    const { id } = req.params;
+    const userId = req.userId;
+    if (!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({ status: 'fail', message: 'Invalid Post ID' });
+
+    const post = await Post.findById(id);
+    if (!post) return res.status(404).json({ status: 'fail', message: 'Post not found' });
+
+    if (post.author.toString() !== userId && req.userRole !== 'admin') {
+      uploadedFiles.forEach(deleteUploadedFile);
+      return res.status(403).json({ status: 'fail', message: 'Not authorized to update this post' });
+    }
+
+    const { title, content, mediaType, link, flair, tags, isDraft } = req.body;
+
+    if (mediaType) {
+      let mediaFiles = [];
+      if (mediaType === 'image') {
+        mediaFiles = req.files?.filter(f => f.mimetype.startsWith('image/')).map(f => f.filename) || [];
+        const invalidFiles = req.files?.filter(f => !f.mimetype.startsWith('image/')) || [];
+        invalidFiles.forEach(f => deleteUploadedFile(f.filename));
+        if (invalidFiles.length > 0) return res.status(400).json({ status: 'fail', message: 'Only image files allowed' });
+      } else if (mediaType === 'media') {
+        mediaFiles = req.files?.filter(f => f.mimetype.startsWith('image/') || f.mimetype.startsWith('video/')).map(f => f.filename) || [];
+        const invalidFiles = req.files?.filter(f => !f.mimetype.startsWith('image/') && !f.mimetype.startsWith('video/')) || [];
+        invalidFiles.forEach(f => deleteUploadedFile(f.filename));
+        if (invalidFiles.length > 0) return res.status(400).json({ status: 'fail', message: 'Only video or image files allowed' });
+      } else {
+        uploadedFiles.forEach(deleteUploadedFile);
+      }
+
+      // delete old media files if new ones are uploaded
+      if (mediaFiles.length > 0) post.media.forEach(deleteUploadedFile);
+      post.media = mediaFiles.length > 0 ? mediaFiles : post.media;
+      post.mediaType = mediaType;
+    }
+
+    if (title) post.title = title;
+    if (content) post.content = content;
+    if (link) post.link = link;
+    if (flair) post.flair = flair;
+    if (tags) post.tags = tags;
+    if (typeof isDraft !== 'undefined') post.isDraft = isDraft;
+
+    await post.save();
+    res.status(200).json({ status: 'success', data: { post } });
+  } catch (error) {
+    uploadedFiles.forEach(deleteUploadedFile);
+    res.status(500).json({ status: 'error', message: error.message });
+  }
+};
+
+// -------------------- Delete Post --------------------
+const deletePost = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.userId;
+    if (!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({ status: 'fail', message: 'Invalid Post ID' });
+
+    const post = await Post.findById(id);
+    if (!post) return res.status(404).json({ status: 'fail', message: 'Post not found' });
+
+    if (post.author.toString() !== userId && req.userRole !== 'admin') return res.status(403).json({ status: 'fail', message: 'Not authorized to delete this post' });
+
+    // delete uploaded files
+    post.media.forEach(deleteUploadedFile);
+
+    await Post.deleteOne({ _id: id });
+    await User.findByIdAndUpdate(post.author, { $pull: { posts: id } });
+
+    res.status(200).json({ status: 'success', message: 'Post deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ status: 'error', message: error.message });
+  }
+};
+
 // -------------------- Vote Post --------------------
 const votePost = async (req, res) => {
   try {
@@ -191,9 +270,40 @@ const votePost = async (req, res) => {
   }
 };
 
+// -------------------- Toggle Save Post --------------------
+const toggleSavePost = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const postId = req.params.postId;
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ status: "fail", message: "User not found" });
+
+    const post = await Post.findById(postId);
+    if (!post) return res.status(404).json({ status: "fail", message: "Post not found" });
+
+    const isSaved = user.savedPosts?.includes(postId);
+    if (isSaved) {
+      user.savedPosts.pull(postId);
+      await user.save();
+      return res.status(200).json({ status: "success", message: "Post unsaved" });
+    } else {
+      user.savedPosts.push(postId);
+      await user.save();
+      return res.status(200).json({ status: "success", message: "Post saved" });
+    }
+  } catch (error) {
+    console.error("Error in toggleSavePost:", error);
+    res.status(500).json({ status: "error", message: error.message });
+  }
+};
+
 module.exports = {
   createPost,
   getAllPosts,
   getPost,
+  updatePost,
+  deletePost,
   votePost,
+  toggleSavePost,
 };
