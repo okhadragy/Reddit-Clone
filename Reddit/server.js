@@ -23,7 +23,7 @@ app.use('/users', userRoutes);
 app.use('/admin/users', adminUserRoutes);
 app.use('/posts', postRoutes);
 app.use('/comments', commentRoutes);
-app.use('community',communityRoutes);
+app.use('/community',communityRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);

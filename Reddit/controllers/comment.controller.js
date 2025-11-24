@@ -21,6 +21,10 @@ const addComment = async (req, res) => {
       parentComment: parentComment || null,
     });
 
+    await User.findByIdAndUpdate(userId, {
+    $push: { comments: comment._id }
+    });
+
     post.comments.push(comment._id);
     await post.save();
 

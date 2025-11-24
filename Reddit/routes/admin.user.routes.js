@@ -38,6 +38,9 @@ router
     multerErrorHandler, 
     userControllers.createAchievement 
  )
+
+  router
+  .route('/achievements/:id')
   .delete(
     protectRoutes,
     restrictTo("admin"),
