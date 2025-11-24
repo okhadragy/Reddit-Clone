@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const imageFileValidator = require('../utils/imageFileValidator');
 
 const communitySchema = new mongoose.Schema({
   name: {
@@ -7,6 +8,11 @@ const communitySchema = new mongoose.Schema({
     unique: true,
     trim: true,
   },
+  icon: {
+     type: String, 
+     default: 'icon.png',
+      validate: imageFileValidator("communities")
+    },
   coverImage: {
     type: String,
     default: 'community.png',
@@ -21,10 +27,15 @@ const communitySchema = new mongoose.Schema({
     enum: ['text', 'image', 'media', 'link'],
     default: ['text', 'media', 'link'],
   },
-  flairs: {
-    type: [String],
-    default: [],
-  },
+  userFlairs: [{
+    text: { type: String, required: true },
+    backgroundColor: { type: String, default: '#grey' },
+    textColor: { type: String, default: '#black' }
+  }],
+  postFlairs: [{
+    type: String 
+    
+  }],
   tags: {
     type: [String],
     default: [],
@@ -34,10 +45,15 @@ const communitySchema = new mongoose.Schema({
     ref: 'User',
     required: [true, 'Community must have a creator'],
   },
-  joined: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-  }]
+
+  rules: [{
+    title: { type: String, required: true },
+    description: { type: String }
+  }],
+  disabledAchievements: [{ 
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Achievement' 
+  }],
 }, { timestamps: true });
 
 const Community = mongoose.model('Community', communitySchema);

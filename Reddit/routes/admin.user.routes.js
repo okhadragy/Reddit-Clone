@@ -24,6 +24,27 @@ router
     userControllers.signup
   );
 
+  router
+  .route('/achievements')
+  .get(
+    protectRoutes,
+    restrictTo("admin"),
+    userControllers.getAllAchievements
+  )
+  .post( 
+    protectRoutes,
+    restrictTo("admin"),
+    uploadTo('achievements').single('icon'), 
+    multerErrorHandler, 
+    userControllers.createAchievement 
+ )
+  .delete(
+    protectRoutes,
+    restrictTo("admin"),
+    userControllers.deleteAchievement
+  );
+  
+
 router
   .route('/:id')
   .get(

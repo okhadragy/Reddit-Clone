@@ -1,4 +1,5 @@
 const User = require("../models/user.model");
+const Achievement=require("../models/achievement.model");
 const JWT = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const mongoose = require('mongoose');
@@ -381,6 +382,79 @@ const toggleFollowUser = async (req, res) => {
   }
 };
 
+const getAllAchievements = async (req, res) => {try {
+    const achievements = await Achievement.find().select('-__v'); 
+    
+    res.status(200).json({
+      status: 'success',
+      results: achievements.length,
+      data: { achievements }
+    });
+  } catch (error) {
+    res.status(500).json({ status: 'error', message: error.message });
+  }
+
+};
+
+const createAchievement = async (req, res) => {
+  const uploadedIcon = req.file?.filename; 
+  
+  try {
+    let { title, description, type, condition } = req.body;
+
+
+    if (typeof condition === 'string') {
+        try {
+            condition = JSON.parse(condition);
+        } catch (e) {
+            deleteUploadedFile('achievements', uploadedIcon, 'default-badge.png');
+            return res.status(400).json({ status: 'fail', message: 'Invalid JSON format for achievement condition.' });
+        }
+    }
+    
+    // Set the icon path based on the upload or the default
+    const icon = uploadedIcon || 'default-badge.png';
+    
+    const newAchievement = await Achievement.create({
+      title,
+      description,
+      icon,
+      type: type || 'custom',
+      condition: condition || {},
+    });
+
+    res.status(201).json({ status: 'success', data: { achievement: newAchievement } });
+
+  } catch (error) {
+
+    deleteUploadedFile('achievements', uploadedIcon, 'default-badge.png');
+    res.status(400).json({ status: 'fail', message: error.message });
+  }
+};
+
+
+
+const deleteAchievement = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ status: 'fail', message: 'Invalid Achievement ID' });
+    }
+
+    const achievement = await Achievement.findByIdAndDelete(id);
+    if (!achievement) {
+      return res.status(404).json({ status: 'fail', message: 'Achievement not found' });
+    }
+
+    deleteUploadedFile('achievements', achievement.icon, 'default-badge.png');
+    await User.updateMany({ $pull: { achievements: id } });
+
+    res.status(200).json({ status: 'success', message: 'Achievement deleted successfully.' });
+  } catch (error) {
+    res.status(500).json({ status: 'error', message: error.message });
+  }
+};
+
 module.exports = {
   signup,
   login,
@@ -389,4 +463,7 @@ module.exports = {
   updateUser,
   deleteUser,
   toggleFollowUser,
+  getAllAchievements,
+  createAchievement,
+  deleteAchievement
 };

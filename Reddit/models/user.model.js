@@ -41,11 +41,14 @@ const userSchema = new mongoose.Schema({
     validate: imageFileValidator("profiles")
   },
   posts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
+  comments: [{ type: mongoose.Schema.Types.ObjectId, ref: "Comment" }],
   savedPosts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
   showFollowersCount: { type: Boolean, default: false },
   followers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   following: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   achievements: [{ type: mongoose.Schema.Types.ObjectId, ref: "Achievement" }],
+  postKarma: { type: Number, default: 0 },
+  commentKarma: { type: Number, default: 0 },
 }, { timestamps: true });
 
 userSchema.pre('save', async function (next) {

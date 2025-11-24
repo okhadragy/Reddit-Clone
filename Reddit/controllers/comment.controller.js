@@ -90,13 +90,37 @@ const voteComment = async (req, res) => {
     const comment = await Comment.findById(commentId);
     if (!comment) return res.status(404).json({ status: 'fail', message: 'Comment not found' });
 
+    const authorId = comment.user; 
+    const wasUpvoted = comment.upvotes.includes(userId);
+    const wasDownvoted = comment.downvotes.includes(userId);
+    
+
+    let oldVoteValue = (wasUpvoted ? 1 : 0) + (wasDownvoted ? -1 : 0);
+    let newVoteValue = 0;
+
+
     comment.upvotes.pull(userId);
     comment.downvotes.pull(userId);
 
-    if (action === 'up') comment.upvotes.push(userId);
-    if (action === 'down') comment.downvotes.push(userId);
+    if (action === 'up') {
+        comment.upvotes.push(userId);
+        newVoteValue = 1;
+    } else if (action === 'down') {
+        comment.downvotes.push(userId);
+        newVoteValue = -1;
+    } 
+
+
+    const karmaChange = newVoteValue - oldVoteValue;
 
     await comment.save();
+    
+
+    if (karmaChange !== 0) {
+        await User.findByIdAndUpdate(authorId, {
+            $inc: { commentKarma: karmaChange }
+        });
+    }
 
     res.status(200).json({
       status: 'success',

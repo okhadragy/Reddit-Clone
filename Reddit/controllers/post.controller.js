@@ -72,7 +72,7 @@ const createPost = async (req, res) => {
       isDraft: isDraft === 'true' || isDraft === true,
     });
 
-    await User.findByIdAndUpdate(author, { $push: { posts: newPost._id } });
+    await User.findByIdAndUpdate(author, { $push: { posts: newPost._id } ,$inc: { postKarma: 1 }});
     res.status(201).json({ status: 'success', data: { post: newPost } });
   } catch (error) {
     uploadedFiles.forEach(deleteUploadedFile);
@@ -254,13 +254,33 @@ const votePost = async (req, res) => {
     const post = await Post.findById(id);
     if (!post) return res.status(404).json({ status: 'fail', message: 'Post not found' });
 
+
+    const authorId = post.author;
+    const wasUpvoted = post.upvotes.includes(userId);
+    const wasDownvoted = post.downvotes.includes(userId);
+
+    let oldVoteValue = (wasUpvoted ? 1 : 0) + (wasDownvoted ? -1 : 0);
+    let newVoteValue = 0;
+    let karmaChange = 0;
+
     post.upvotes.pull(userId);
     post.downvotes.pull(userId);
-    if (action === 'up') post.upvotes.push(userId);
-    if (action === 'down') post.downvotes.push(userId);
-
+    if (action === 'up') {
+        post.upvotes.push(userId);
+        newVoteValue = 1; 
+    } else if (action === 'down') {
+        post.downvotes.push(userId);
+        newVoteValue = -1;
+    } 
     await post.save();
+    karmaChange = newVoteValue - oldVoteValue;
 
+
+    if (karmaChange !== 0) {
+      await User.findByIdAndUpdate(authorId, {
+          $inc: { postKarma: karmaChange } 
+    });
+}
     res.status(200).json({
       status: 'success',
       data: { upvotesCount: post.upvotes.length, downvotesCount: post.downvotes.length }

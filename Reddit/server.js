@@ -4,6 +4,7 @@ const userRoutes = require('./routes/user.routes');
 const adminUserRoutes = require('./routes/admin.user.routes');
 const postRoutes = require('./routes/post.routes');
 const commentRoutes = require('./routes/comment.routes');
+const communityRoutes = require('./routes/community.routes');
 const cors = require("cors");
 const path = require("path")
 
@@ -22,6 +23,7 @@ app.use('/users', userRoutes);
 app.use('/admin/users', adminUserRoutes);
 app.use('/posts', postRoutes);
 app.use('/comments', commentRoutes);
+app.use('community',communityRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
