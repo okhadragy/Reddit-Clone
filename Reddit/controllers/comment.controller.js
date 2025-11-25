@@ -95,7 +95,7 @@ const voteComment = async (req, res) => {
 
     if (!['up', 'down'].includes(action)) return res.status(400).json({ status: 'fail', message: 'Invalid action' });
 
-    const comment = await Comment.findById(commentId);
+    const comment = await Comment.findById(commentId).populate('post');
     if (!comment) return res.status(404).json({ status: 'fail', message: 'Comment not found' });
 
     const authorId = comment.user; 

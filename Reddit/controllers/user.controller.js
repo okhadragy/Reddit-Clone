@@ -312,6 +312,7 @@ const updateUser = async (req, res) => {
       runValidators: true,
       select: "-password -__v"
     });
+    await checkAchievement(userId, { type: 'custom' });
 
     if (req.files?.photo && oldUser.photo && oldUser.photo !== "profile.png")
       deleteUploadedFile("profiles", oldUser.photo, "profile.png");
