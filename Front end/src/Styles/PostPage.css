@@ -1,0 +1,220 @@
+/* ---------- GENERAL ---------- */
+.post-page-container {
+  font-family: "Roboto","Helvetica","Arial",sans-serif;
+  background-color: #1a1a1b;
+  color: #d7dadc;
+  min-height: 100vh;
+  padding-bottom: 40px;
+}
+
+.post-nav-bar {
+  position: sticky;
+  top: 0;
+  background-color: #1a1a1b;
+  padding: 10px 20px;
+  border-bottom: 1px solid #343536;
+  display: flex;
+  align-items: center;
+  z-index: 50;
+}
+
+.back-btn-nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  color: #d7dadc;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/* ---------- GRID ---------- */
+.layout-grid {
+  display: grid;
+  gap: 20px;
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 0 20px;
+}
+
+.main-col {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ---------- POST CARD ---------- */
+.post-card {
+  background-color: #1e1e1f;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.05);
+}
+
+.post-header-bar { display: flex; gap:6px; font-size:12px; color:#8e9091; }
+.post-header-bar .sub-name { color:#0079d3; font-weight:500; }
+.meta-dot { margin: 0 4px; }
+.user-meta { font-weight:400; }
+
+.post-title-block { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+.post-title { font-size:20px; font-weight:600; color:#d7dadc; margin:0; line-height:1.3; }
+.flair-tag { font-size:11px; color:#0079d3; background:#2a2a2b; padding:2px 8px; border-radius:999px; font-weight:500; }
+
+.post-image-content { width:100%; border-radius:6px; object-fit:cover; margin-top:12px; }
+.post-body-text { font-size:14px; line-height:1.5; margin-bottom:12px; color:#d7dadc; }
+
+/* ---------- ACTIONS ---------- */
+.post-footer-actions { display:flex; gap:8px; align-items:center; margin-top:8px; }
+.vote-pill { display:flex; border-radius:6px; border:1px solid #343536; overflow:hidden; background-color:#2a2a2b; }
+.vote-pill button { border:none; background:none; cursor:pointer; display:flex; align-items:center; justify-content:center; padding:4px 6px; }
+.vote-pill button.active svg { color:#ff4500; }
+.vote-score { padding:0 8px; font-weight:600; color:#d7dadc; }
+
+.action-pill { display:flex; align-items:center; gap:4px; padding:4px 8px; border-radius:6px; border:1px solid #343536; background:#2a2a2b; cursor:pointer; font-size:12px; color:#d7dadc; }
+.action-pill.active-save { background:#0079d3; color:#fff; }
+
+/* ---------- COMMENTS ---------- */
+.comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.comment-thread {
+  display: flex;
+  gap: 12px;
+  background: #1e1e1f;
+  padding: 8px;
+  border-radius: 8px;
+}
+.comment-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.comment-body {
+  flex: 1;
+}
+.comment-meta {
+  font-size: 12px;
+  color: #8e9091;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+.c-text {
+  font-size: 14px;
+  color: #d7dadc;
+  margin: 4px 0;
+}
+
+/* Comment buttons */
+.c-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+/* Base button style */
+.c-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px; /* Increased slightly for touch targets */
+  height: 24px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: #818384; /* Default Icon Color */
+  border-radius: 4px;
+  transition: background-color 0.1s, color 0.1s;
+  padding: 0;
+}
+
+/* Ensure SVG inherits the color */
+.c-btn svg {
+  width: 16px;
+  height: 16px;
+  /* These are critical for visibility: */
+  fill: currentColor; 
+  stroke: none;
+}
+
+/* Hover effects */
+.c-btn:hover {
+  background-color: rgba(215, 218, 220, 0.1);
+  color: #d7dadc;
+}
+
+/* Vote Specific Colors */
+.c-btn.up:hover { color: #ff4500; }
+.c-btn.down:hover { color: #7193ff; }
+
+.c-btn.up.active { color: #ff4500; }
+.c-btn.down.active { color: #7193ff; }
+
+/* Score styling */
+.c-score {
+  font-size: 12px;
+  font-weight: 700;
+  min-width: 20px;
+  text-align: center;
+  color: #d7dadc;
+  user-select: none;
+}
+.c-score.up { color: #ff4500; }
+.c-score.down { color: #7193ff; }
+
+/* Text Buttons (Reply, Share) */
+.c-btn-text {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #818384;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px;
+  border-radius: 4px;
+  transition: background-color 0.1s;
+}
+
+.c-btn-text:hover {
+  background-color: rgba(215, 218, 220, 0.1);
+  color: #d7dadc;
+}
+
+/* Fix visibility for icons inside text buttons (like Reply) */
+.c-btn-text svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+.c-dots {
+  background: none;
+  border: none;
+  color: #818384;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 0 4px;
+  transition: color 0.2s;
+}
+.c-dots:hover { color: #d7dadc; }
+/* Comment input */
+.comment-input-area { background:#1e1e1f; border-radius:8px; padding:12px; display:flex; flex-direction:column; gap:8px; }
+.comment-textarea { width:100%; min-height:80px; border-radius:6px; border:1px solid #343536; padding:8px; resize:vertical; background:#2a2a2b; color:#d7dadc; }
+.comment-btn-submit { padding:6px 12px; border-radius:6px; border:none; background:#0079d3; color:#fff; font-weight:600; cursor:pointer; }
+.comment-btn-submit:not(.active) { opacity:.5; cursor:default; }
+
+/* Tools in comment input */
+.text-tools { display:flex; gap:6px; }
+.tool-btn { border:none; background:none; cursor:pointer; color:#8e9091; }
+
+/* Scrollbar fix */
+.comments-list::-webkit-scrollbar { width:6px; }
+.comments-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius:3px; }

@@ -1,0 +1,166 @@
+/* ===== SIDEBAR ===== */
+.sidebar {
+  position: fixed;
+  top: 60px;
+  left: 0;
+  width: 260px;
+  height: calc(100vh - 60px);
+  background-color: #121214;
+  border-right: 1px solid #3e4142;
+  padding: 12px;
+  transition: width 0.25s ease;
+  z-index: 50;
+  overflow-y: scroll;  /* keep scroll inside */
+  scrollbar-width: thin;               /* Firefox */
+  scrollbar-color: rgba(255,255,255,0.18) transparent; /* Firefox */
+}
+
+/* === REDDIT STYLE SCROLLBAR (Chrome / Edge / Brave) === */
+.sidebar::-webkit-scrollbar {
+  width: 6px;  /* thin scrollbar */
+}
+.sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sidebar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+}
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+/* Closed sidebar */
+.sidebar.closed {
+  width: 12px;
+  overflow: hidden;  /* hide scroll when closed */
+}
+
+/* Floating toggle button */
+.sidebartogglebutton {
+  position: absolute;
+  top: 20px;
+  right: -18px;                  /* half outside */
+  width: 36px;
+  height: 36px;
+  background-color: #1a1a1b;
+  border: 1px solid #343536;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 18px;                /* size of ☰ icon */
+  cursor: pointer;
+  z-index: 999;                   /* above everything */
+  transition: background 0.2s, border 0.2s;
+}
+
+.sidebartogglebutton:hover {
+  background-color: #272729;
+  border-color: #3e4142;
+}
+
+/* Sidebar content base button style */
+.sidebar-content button {
+  width: 100%;
+  text-align: left;
+  padding: 10px;
+  background: none;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  color: white;
+  transition: background 0.2s;
+}
+
+.sidebar-content button:hover {
+  background-color: #2b2c2e;
+}
+
+/* --- FIX FOR CUSTOM FEED BUTTON ALIGNMENT --- */
+
+.CustomFeedList li button,.CommunitiesList li button,.part1beforeline li button {
+  /* Inherits from .sidebar-content button, but we add Flexbox */
+  
+  /* KEY FIXES: Use Flexbox to align icon and text */
+  display: flex;        
+  align-items: center;  /* Vertical centering */
+  padding: 8px 10px;    /* Slightly adjusted padding for the button */
+  line-height: 1.2;
+}
+
+/* --- FIX FOR PLUS ICON APPEARANCE --- */
+
+.Plus,.gear {
+  font-size: 20px;             /* Reduced size for icon */
+  font-weight: 300;            /* Lighter/thinner appearance */
+  margin-right: 8px;           /* Space between the icon and text */
+  /* Removed large padding-top and font-size from original code */
+}
+
+/* Lists */
+.part1beforeline,
+.resourcesList,.GamesList,.CustomFeedList,.RecentList,.CommunitiesList{
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid #3e4142;
+  margin: 12px 0;
+}
+
+/* Headers */
+.resourcesHeader,.GameSectionHeader,.CustomFeedHeader,.CommunitiesHeader,.RecentHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  font-weight: bold;
+  margin-bottom: 8px;
+  padding: 8px;
+  cursor: pointer;
+  color: white;
+  transition: 0.2s;
+}
+
+.resourcesHeader:hover, .GameSectionHeader:hover, .CustomFeedHeader:hover, .CommunitiesHeader:hover, .RecentHeader:hover {
+  background-color: #121214; /* Assuming you meant background to stay dark or perhaps slightly lighter on hover? */
+  border-radius: 6px;
+}
+.Resources,.Games,.CustomFeed,.Recent,.Communities{
+   font-size: 14px;
+}
+
+.arrow {
+  font-size: 19px;
+}
+
+.resourcescontainer,.Gamecontainer,.CustomFeedContainer,.Communitiescontainer,.Recentcontainer {
+  padding-left: 4px;
+  animation: dropdown 0.2s ease;
+}
+
+@keyframes dropdown {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== MAIN CONTENT ===== */
+.main-content {
+  padding-top: 60px;
+  margin-left: 260px;
+  padding: 20px;
+  transition: margin-left 0.25s ease;
+}
+
+.sidebar.closed ~ .main-content {
+  margin-left: 12px;
+}

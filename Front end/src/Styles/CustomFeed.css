@@ -1,0 +1,112 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+
+* { box-sizing: border-box; }
+body { 
+  background-color: #0B1416; /* Main Page Background */
+  color: #D7DADC;
+  font-family: 'IBM Plex Sans', sans-serif; 
+  margin: 0; 
+}
+
+.app-wrapper { display: flex; justify-content: center; padding: 20px 0; }
+.content-container { width: 100%; max-width: 984px; padding: 0 16px; }
+
+/* HEADER */
+.page-header { display: flex; justify-content: space-between; margin-bottom: 20px; }
+.header-left { display: flex; align-items: center; }
+.logo-square { width: 72px; height: 72px; background: #4CB5AB; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 16px; }
+.dots { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.dots span { width: 10px; height: 10px; background: white; border-radius: 50%; }
+.title-group h1 { font-size: 22px; margin: 0 0 4px 0; color: #D7DADC; }
+.title-group p { font-size: 12px; color: #818384; margin: 0; }
+.username { font-weight: 600; color: #D7DADC; }
+.header-right { display: flex; gap: 10px; }
+.icon-circle {  height: 36px; border-radius: 50%; border: 1px solid #D7DADC; background: transparent; color: #D7DADC; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; }
+
+/* GRID */
+.feed-grid { display: flex; gap: 24px; }
+.main-feed { flex: 1; min-width: 0; }
+.sidebar { width: 312px; flex-shrink: 0; }
+
+/* SORT */
+.sort-controls { display: flex; justify-content: flex-end; align-items: center; gap: 5px; margin-bottom: 10px; color: #818384; font-size: 12px; font-weight: 700; }
+.sort-btn { background: transparent; border: none; color: #818384; font-weight: 700; font-size: 12px; padding: 4px 8px; cursor: pointer; border-radius: 20px; text-transform: uppercase; }
+.sort-btn:hover { background-color: #272729; }
+.sort-btn.active { background-color: #272729; color: #D7DADC; }
+.view-icon { margin-left: 8px; color: #818384; cursor: pointer; }
+
+/* POSTS CONTAINER */
+.posts-container {
+ 
+  background: transparent; /* No container background, allowing separation */
+  border: none;
+}
+
+/* SIDEBAR WIDGETS */
+.widget { background: #1A1A1B; border: 1px solid #343536; border-radius: 4px; padding: 12px; margin-bottom: 16px; }
+.w-header h3 { font-size: 10px; font-weight: 700; color: #818384; margin: 0 0 12px 0; letter-spacing: 0.5px; }
+.w-stats { display: flex; gap: 20px; }
+.w-stats div { display: flex; flex-direction: column; }
+.n { font-size: 16px; font-weight: 600; color: #D7DADC; }
+.l { font-size: 12px; color: #818384; }
+
+.w-search { background: #272729; border: 1px solid #343536; border-radius: 99px; padding: 5px 10px; display: flex; align-items: center; gap: 5px; margin-bottom: 10px; }
+.w-search input { border: none; background: transparent; outline: none; font-size: 14px; width: 100%; color: #D7DADC; }
+
+.comm-row { display: flex; align-items: center; gap: 10px; margin-top: 5px; }
+.comm-row .icon { font-size: 20px; }
+.comm-row .info { display: flex; flex-direction: column; }
+.comm-row b { font-size: 12px; color: #D7DADC; }
+.comm-row span { font-size: 12px; color: #818384; }
+
+.rec-row { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; }
+.rec-left { display: flex; align-items: center; gap: 8px; }
+.rec-circle { width: 32px; height: 32px; background: #D7DADC; border-radius: 50%; color: #1c1c1c; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; }
+.rec-info { display: flex; flex-direction: column; }
+.rec-info b { font-size: 12px; color: #D7DADC; }
+.rec-info span { font-size: 12px; color: #818384; }
+
+.add-btn { background: #D7DADC; color: #1A1A1B; border: none; border-radius: 99px; padding: 4px 16px; font-weight: 700; font-size: 12px; cursor: pointer; transition: all 0.2s; }
+.add-btn:hover { opacity: 0.9; }
+.add-btn.joined { background: transparent; color: #D7DADC; border: 1px solid #D7DADC; }
+.add-btn.joined:hover { background: #272729; }
+/* --- ADD THIS TO FIX INVISIBLE ICONS --- */
+
+/* 1. Reset button styles so they inherit the light color */
+button {
+  color: #D7DADC; /* Forces the SVG to be light gray */
+  cursor: pointer;
+}
+
+/* 2. If the icon is inside the Vote section, style the specific container */
+.vote-pill {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.vote-pill button {
+  background: transparent;
+  border: none;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+/* 3. Hover effects for the vote buttons */
+.vote-pill button:hover {
+  background-color: rgba(215, 218, 220, 0.1);
+  border-radius: 4px;
+}
+
+/* Make the Upvote (first button) orange on hover */
+.vote-pill button:first-child:hover {
+  color: #ff4500;
+}
+
+/* Make the Downvote (last button) blue on hover */
+.vote-pill button:last-child:hover {
+  color: #7193ff;
+}

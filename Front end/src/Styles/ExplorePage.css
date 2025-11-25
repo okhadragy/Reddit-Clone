@@ -1,0 +1,255 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&display=swap');
+
+/* --- GLOBAL RESETS --- */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  /* DARK MODE: Main background */
+  background-color: #0B1416; 
+  font-family: 'IBM Plex Sans', Arial, sans-serif;
+  /* DARK MODE: Primary Text */
+  color: #D7DADC; 
+  margin: 0;
+}
+
+/* --- MAIN LAYOUT --- */
+.explore-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.main-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: #D7DADC;
+}
+
+/* --- FILTER BAR (The Pills) --- */
+.filter-bar-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 30px;
+  position: relative;
+}
+
+.filter-bar {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 5px; 
+  scrollbar-width: none; 
+  width: 100%;
+  align-items: center;
+  padding: 2px;
+}
+
+.filter-bar::-webkit-scrollbar { 
+  display: none; 
+}
+
+.filter-pill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  
+  /* DARK MODE: Pill Background */
+  background-color: #272729;
+  
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 700;
+  
+  /* DARK MODE: Secondary Text */
+  color: #818384; 
+  
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.filter-pill:hover {
+  /* DARK MODE: Hover state */
+  background-color: #3A3A3C; 
+  color: #D7DADC;
+}
+
+/* ACTIVE STATE */
+.filter-pill.active {
+  background-color: #272729;
+  color: #D7DADC;
+  /* DARK MODE: Active Border */
+  border-color: #D7DADC; 
+}
+
+.filter-pill:focus {
+  outline: none;
+}
+
+.pill-icon {
+  margin-right: 8px;
+  font-size: 16px;
+}
+
+/* --- SCROLL INDICATORS --- */
+.scroll-arrow-gradient {
+  position: absolute;
+  right: 30px;
+  top: 0;
+  bottom: 0;
+  width: 40px;
+  /* DARK MODE: Gradient matches body background #0B1416 */
+  background: linear-gradient(to right, rgba(11, 20, 22, 0), rgba(11, 20, 22, 1));
+  pointer-events: none;
+}
+
+.scroll-arrow {
+  position: absolute;
+  right: 0;
+  /* DARK MODE: Arrow background */
+  background: #0B1416; 
+  padding-left: 10px;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+  color: #D7DADC;
+}
+
+/* --- SECTIONS & GRID --- */
+.explore-section {
+  margin-bottom: 40px;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #D7DADC;
+  margin-bottom: 16px;
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 16px;
+}
+
+/* --- CARD STYLING --- */
+.community-card {
+  /* DARK MODE: Card Border */
+  border: 1px solid #343536; 
+  border-radius: 8px;
+  padding: 16px;
+  
+  /* DARK MODE: Card Background (Slightly lighter than body) */
+  background: #1A1A1B; 
+  
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  transition: border-color 0.2s;
+}
+
+.community-card:hover {
+  border-color: #D7DADC;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.icon-wrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.icon-placeholder {
+  color: white;
+  font-weight: bold;
+  font-size: 24px;
+}
+
+.card-header-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.community-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #D7DADC;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.community-visitors {
+  font-size: 12px;
+  color: #818384; /* Muted text */
+  margin-top: 2px;
+}
+
+/* --- JOIN BUTTON --- */
+.join-btn {
+  /* DARK MODE: High contrast button (Light Gray/White) */
+  background-color: #D7DADC; 
+  color: #1A1A1B; /* Dark text on light button */
+  
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 0 20px;
+  height: 32px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-left: 10px;
+  line-height: 30px;
+  transition: all 0.2s ease;
+  flex-shrink: 0; 
+}
+
+.join-btn:hover {
+  background-color: #FFFFFF; /* Bright white on hover */
+}
+
+/* --- JOINED STATE (Outlined) --- */
+.join-btn.joined {
+  background-color: transparent;
+  color: #D7DADC;
+  border: 1px solid #D7DADC;
+}
+
+.join-btn.joined:hover {
+  background-color: #272729;
+  border-color: #D7DADC;
+}
+
+/* --- DESCRIPTION TEXT --- */
+.community-desc {
+  font-size: 14px;
+  color: #D7DADC;
+  line-height: 1.4;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; 
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

@@ -1,0 +1,260 @@
+/* ============================================
+   FEED POST CONTAINER
+============================================ */
+.feed-post-container {
+  width: 100%;
+  padding: 14px 18px;
+  background-color: #0B1416; /* Main background color */
+  border-radius: 0;
+  border-bottom: 1px solid #343536; /* Separator line */
+  display: flex;
+  flex-direction: column;
+  transition: background-color 0.15s ease, border-radius 0.15s ease;
+}
+
+.feed-post-container:hover {
+  background-color: #1A1A1B; /* Slightly lighter on hover */
+  border-radius: 10px;        /* Smooth rounded shape */
+}
+
+/* ============================================
+   HEADER (subreddit, time, join)
+============================================ */
+.post-meta-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  color: #818384;
+  font-size: 13px;
+}
+
+.sub-name-text {
+  color: #D7DADC;
+  font-weight: 600;
+}
+
+.join-btn-small {
+  margin-left: auto;
+  padding: 4px 10px;
+  font-size: 12px;
+  background-color: #1A1A1B;
+  border: 1px solid #343536;
+  color: #D7DADC;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.join-btn-small.joined {
+  background-color: #D7DADC;
+  color: #1A1A1B;
+}
+
+.dots-btn {
+  background: none;
+  border: none;
+  color: #818384;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+/* ============================================
+   CONTENT (title, text, link)
+============================================ */
+.post-main-content {
+  display: flex;
+  flex-direction: column; /* Stack by default */
+  gap: 10px;
+}
+
+.post-main-content.flex-content {
+  flex-direction: row; /* Row if thumbnail exists */
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.post-text-area {
+  flex: 1;
+}
+
+.post-headline {
+  color: #D7DADC;
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  line-height: 1.4;
+}
+
+.post-body-text {
+  color: #D7DADC;
+  font-size: 14px;
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+.post-link-domain {
+  color: #4FBCFF;
+  font-size: 13px;
+  text-decoration: none;
+  display: inline-block;
+  transition: color 0.2s ease;
+}
+
+.post-link-domain:hover {
+  color: #81C7FF;
+}
+
+/* ============================================
+   THUMBNAIL (preview image)
+============================================ */
+.post-thumbnail-wrapper {
+  position: relative;
+  min-width: 140px;
+  max-width: 140px;
+  height: 98px;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: #272729;
+}
+
+.post-thumbnail {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.external-icon-overlay {
+  position: absolute;
+  right: 6px;
+  bottom: 4px;
+  font-size: 14px;
+  color: white;
+  background-color: rgba(0,0,0,0.4);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* ============================================
+   FULL IMAGE inside post
+============================================ */
+.post-image-container {
+  width: 100%;
+  margin-top: 8px;
+}
+
+.post-image {
+  width: 100%;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+/* ============================================
+   FOOTER ACTION BUTTONS (Vote/Comment/Share)
+============================================ */
+.post-footer-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding-left: 2px;
+}
+
+/* Base style for all action pills */
+.action-pill {
+  display: flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 12px;
+  background-color: transparent;
+  color: #818384;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.action-pill.hover-bg:hover {
+  background-color: rgba(215, 218, 220, 0.1);
+  color: #D7DADC;
+}
+
+.action-text {
+  margin-left: 6px;
+}
+
+/* ============================================
+   VOTE PILL SPECIFIC
+============================================ */
+.vote-pill {
+  display: flex;
+  align-items: center;
+  gap: 0; /* Buttons touch */
+  background-color: #1A1A1B;
+  border: 1px solid #343536;
+  border-radius: 8px;
+}
+
+.vote-pill:hover {
+  border-color: #818384;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  height: 100%;
+  width: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #D7DADC;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.icon-btn:hover {
+  background-color: rgba(215, 218, 220, 0.1);
+}
+
+.icon-btn.vote-up:hover {
+  color: #FF4500; /* Reddit orange on hover */
+}
+
+.icon-btn.vote-down:hover {
+  color: #7193FF; /* Reddit blue on hover */
+}
+
+.icon-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Active (Clicked) vote */
+.vote-up.active {
+  color: #FF4500 !important;
+}
+.vote-up.active svg {
+  fill: #FF4500;
+}
+
+.vote-down.active {
+  color: #7193FF !important;
+}
+.vote-down.active svg {
+  fill: #7193FF;
+}
+
+/* Vote count number */
+.vote-number {
+  font-size: 12px;
+  font-weight: 700;
+  color: #D7DADC;
+  min-width: 24px;
+  text-align: center;
+  cursor: default;
+}
+
+.vote-number.up { color: #FF4500; }
+.vote-number.down { color: #7193FF; }
