@@ -1,5 +1,5 @@
 const Community = require('../models/community.model');
-const CommunityMember = require('../models/communityMember.model');
+const CommunityMember = require('../models/membership.model');
 const mongoose = require('mongoose');
 const fs = require('fs');
 const path = require('path');
