@@ -1,5 +1,6 @@
 const User = require("../models/user.model");
 const Achievement=require("../models/achievement.model");
+const checkAchievement = require('../utils/achievement.checker');
 const JWT = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const mongoose = require('mongoose');

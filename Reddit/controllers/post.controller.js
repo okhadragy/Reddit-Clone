@@ -1,6 +1,7 @@
 const Post = require('../models/post.model');
 const User = require('../models/user.model');
 const Community = require('../models/community.model');
+const checkAchievement = require('../utils/achievement.checker');
 const mongoose = require('mongoose');
 const fs = require('fs');
 const path = require('path');
@@ -73,6 +74,7 @@ const createPost = async (req, res) => {
     });
 
     await User.findByIdAndUpdate(author, { $push: { posts: newPost._id } ,$inc: { postKarma: 1 }});
+    await checkAchievement(author, { type: 'post', communityId });
     res.status(201).json({ status: 'success', data: { post: newPost } });
   } catch (error) {
     uploadedFiles.forEach(deleteUploadedFile);
@@ -280,7 +282,8 @@ const votePost = async (req, res) => {
       await User.findByIdAndUpdate(authorId, {
           $inc: { postKarma: karmaChange } 
     });
-}
+    }
+    await checkAchievement(authorId, { type: 'karma' ,communityId: post.community});
     res.status(200).json({
       status: 'success',
       data: { upvotesCount: post.upvotes.length, downvotesCount: post.downvotes.length }

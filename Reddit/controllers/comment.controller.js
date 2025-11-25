@@ -1,5 +1,6 @@
 const Comment = require('../models/comment.model');
 const Post = require('../models/post.model');
+const checkAchievement = require('../utils/achievement.checker');
 const mongoose = require('mongoose');
 
 // -------------------- Add Comment or Reply --------------------
@@ -27,6 +28,9 @@ const addComment = async (req, res) => {
 
     post.comments.push(comment._id);
     await post.save();
+
+
+    await checkAchievement(userId, { type: 'comment', communityId: post.community });
 
     const populated = await Comment.findById(comment._id)
       .populate('user', 'name photo')
@@ -118,6 +122,8 @@ const voteComment = async (req, res) => {
     const karmaChange = newVoteValue - oldVoteValue;
 
     await comment.save();
+
+
     
 
     if (karmaChange !== 0) {
@@ -125,6 +131,10 @@ const voteComment = async (req, res) => {
             $inc: { commentKarma: karmaChange }
         });
     }
+
+    const communityId = comment.post.community;
+
+    await checkAchievement(authorId, { type: 'karma',communityId: communityId });
 
     res.status(200).json({
       status: 'success',
