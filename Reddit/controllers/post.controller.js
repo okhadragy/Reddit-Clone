@@ -13,6 +13,42 @@ const deleteUploadedFile = (filename) => {
   if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
 };
 
+
+// --------------------Filter posts Helper---------------------
+// --- Reusable Helper Function ---
+const fetchPostsWithStats = async (query, page, limit, userId) => {
+  const skip = (page - 1) * limit;
+
+  const posts = await Post.find(query)
+    .populate('author', 'name photo')
+    .populate('community', 'name coverImage icon')
+    .populate({
+      path: 'comments',
+      populate: { path: 'user', select: 'name photo' }
+    })
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit)
+    .select('-__v');
+
+  const totalPosts = await Post.countDocuments(query);
+
+  // The "Enrichment" Logic (Vote Counts, etc.)
+  const postsWithVotes = posts.map(post => ({
+    ...post.toObject(),
+    upvotesCount: post.upvotes.length,
+    downvotesCount: post.downvotes.length,
+    // Add user vote status if needed (isUpvoted: post.upvotes.includes(userId))
+    comments: post.comments.map(c => ({
+      ...c.toObject(),
+      upvotesCount: c.upvotes?.length || 0,
+      downvotesCount: c.downvotes?.length || 0
+    }))
+  }));
+
+  return { posts: postsWithVotes, totalPosts };
+};
+
 // -------------------- Create Post --------------------
 const createPost = async (req, res) => {
   const uploadedFiles = req.files?.map(f => f.filename) || [];
@@ -88,32 +124,18 @@ const getAllPosts = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
-    const skip = (page - 1) * limit;
+    const { type } = req.query;
+    let query = {};
 
-    const totalPosts = await Post.countDocuments();
-    const posts = await Post.find()
-      .populate('author', 'name photo')
-      .populate('community', 'name coverImage')
-      .populate({
-        path: 'comments',
-        populate: { path: 'user', select: 'name photo' }
-      })
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .select('-__v');
+    if (type === 'home' && req.userId) {
+        const memberships = await CommunityMember.find({ user: req.userId }).select('community');
+        const communityIds = memberships.map(m => m.community);
+        query = { community: { $in: communityIds } };
+    } 
+    // 'popular' feed uses empty query {}
 
-    // Include upvotes/downvotes count for posts
-    const postsWithVotes = posts.map(post => ({
-      ...post.toObject(),
-      upvotesCount: post.upvotes.length,
-      downvotesCount: post.downvotes.length,
-      comments: post.comments.map(c => ({
-        ...c.toObject(),
-        upvotesCount: c.upvotes?.length || 0,
-        downvotesCount: c.downvotes?.length || 0
-      }))
-    }));
+    // CALL THE HELPER
+    const { posts, totalPosts } = await fetchPostsWithStats(query, page, limit, req.userId);
 
     res.status(200).json({
       status: 'success',
@@ -121,7 +143,7 @@ const getAllPosts = async (req, res) => {
       limit,
       totalPosts,
       totalPages: Math.ceil(totalPosts / limit),
-      data: { posts: postsWithVotes },
+      data: { posts },
     });
   } catch (error) {
     res.status(500).json({ status: 'error', message: error.message });
@@ -329,4 +351,5 @@ module.exports = {
   deletePost,
   votePost,
   toggleSavePost,
+  fetchPostsWithStats
 };
