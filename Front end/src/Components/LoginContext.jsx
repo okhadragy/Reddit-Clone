@@ -4,7 +4,7 @@ export const LoginContext = createContext();
 
 // AppProvider provides login state and setter
 export function AppProvider({ children }) {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
 
   // Check token on initial load
   useEffect(() => {

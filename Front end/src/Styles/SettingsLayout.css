@@ -1,0 +1,1077 @@
+/* SettingsLayout.css */
+
+/* Container & Base Styles */
+.settings-container {
+  min-height: 100vh;
+  background-color: #121214; 
+  color: #D7DADC;
+}
+
+/* Header Styles */
+.settings-header {
+  background-color: #121214;
+  border-bottom: 1px solid #121214;
+}
+
+.settings-header-content {
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+.settingsLayout-title {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: #D7DADC;
+  margin-bottom: 1.5rem;
+}
+
+/* Tabs */
+.settings-tabs {
+  display: flex;
+  gap: 2rem;
+}
+
+.settings-tab {
+  position: relative;
+  padding-bottom: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #818384;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.settings-tab:hover {
+  color: #D7DADC;
+}
+
+.settings-tab-active {
+  color: #D7DADC;
+}
+
+.settings-tab-active::after {
+  content: "";
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px; 
+  height: 3px;
+  background-color: #D7DADC;
+  border-radius: 9999px;
+}
+
+/* Main Content */
+.settings-main {
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+/* Sections */
+.settings-section {
+  margin-bottom: 3rem;
+}
+
+.settings-section-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #D7DADC;
+  margin-bottom: 1.5rem;
+}
+
+/* Setting Items */
+.setting-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 1rem 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.setting-item:hover {
+  background-color: #121214;
+  border-radius: 0.5rem;
+}
+
+.setting-item:last-child {
+  border-bottom: none;
+}
+
+.setting-label {
+  font-size: 1rem;
+  font-weight: 400;
+  color: #D7DADC;
+}
+
+.setting-value-container {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.setting-value {
+  font-size: 1rem;
+  color: #818384;
+}
+
+.chevron-icon-small {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #818384;
+  transition: color 0.2s;
+}
+
+.setting-item:hover .chevron-icon-small {
+  color: #D7DADC;
+}
+
+/* Authorization Items */
+.auth-items-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.auth-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+}
+
+.auth-item:last-child {
+  border-bottom: none;
+}
+
+.auth-label {
+  font-size: 1rem;
+  font-weight: 400;
+  color: #D7DADC;
+}
+
+.auth-description {
+  font-size: 0.875rem;
+  color: #818384;
+  margin-top: 0.25rem;
+}
+
+.auth-button {
+  padding: 0.5rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.auth-button-connected {
+  border: 1px solid #343536;
+  color: #D7DADC;
+  background: transparent;
+}
+
+.auth-button-connected:hover {
+  background-color: #1A1A1B;
+}
+
+.auth-button-disconnected {
+  background-color: #1A1A1B;
+  color: #D7DADC;
+  border: 1px solid #343536;
+}
+
+.auth-button-disconnected:hover {
+  background-color: #272729;
+}
+
+/* Two-Factor Authentication */
+.two-factor-container {
+  margin-top: 2rem;
+}
+
+.two-factor-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+}
+
+.two-factor-title {
+  font-size: 1rem;
+  font-weight: 400;
+  color: #D7DADC;
+}
+
+/* Toggle Switch */
+.toggle-switch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.toggle-input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.toggle-slider {
+  width: 2.75rem;
+  height: 1.5rem;
+  background-color: #343536;
+  border-radius: 9999px;
+  position: relative;
+  transition: background-color 0.3s;
+}
+
+.toggle-slider::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 1.25rem;
+  height: 1.25rem;
+  background-color: white;
+  border-radius: 50%;
+  transition: transform 0.3s;
+}
+
+.toggle-input:checked + .toggle-slider {
+  background-color: #0079D3;
+}
+
+.toggle-input:checked + .toggle-slider::after {
+  transform: translateX(1.25rem);
+}
+
+/* Premium & Advanced Buttons */
+.premium-button,
+.advanced-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.5rem 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  border-radius: 0.5rem;
+  transition: background-color 0.2s;
+}
+
+.premium-text,
+.advanced-text {
+  font-size: 1rem;
+  font-weight: 400;
+  color: #D7DADC;
+}
+
+.chevron-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #818384;
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+
+.modal-content {
+  background-color: #1A1A1B;
+  border-radius: 1rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+  max-width: 28rem;
+  width: 100%;
+  margin: 0 1rem;
+  border: 1px solid #343536;
+}
+
+.modal-inner {
+  padding: 1.5rem;
+}
+
+.modal-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #D7DADC;
+  margin-bottom: 1.5rem;
+}
+
+/* Modal Fields */
+.modal-field {
+  margin-bottom: 1.5rem;
+}
+
+.modal-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #D7DADC;
+  margin-bottom: 0.5rem;
+}
+
+.modal-input {
+  width: 90%;
+  padding: 0.75rem 1rem;
+  background-color: #1A1A1B;
+  border: 1px solid #343536;
+  border-radius: 0.5rem;
+  color: #D7DADC;
+  font-size: 1rem;
+}
+
+.modal-input::placeholder {
+  color: #818384;
+}
+
+.modal-input:focus {
+  outline: none;
+  border-color: #0079D3;
+  box-shadow: 0 0 0 2px rgba(0, 121, 211, 0.2);
+}
+
+.modal-input-custom {
+  margin-top: 0.75rem;
+}
+
+/* Modal Radio Options */
+.modal-options {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.modal-radio-option {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+}
+
+.modal-radio-option:hover .modal-radio-label {
+  color: white;
+}
+
+.modal-radio {
+  width: 1.25rem;
+  height: 1.25rem;
+  accent-color: #0079D3;
+  cursor: pointer;
+}
+
+.modal-radio-label {
+  font-size: 1rem;
+  color: #D7DADC;
+  transition: color 0.2s;
+}
+
+/* Modal Actions */
+.modal-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+.modal-button {
+  padding: 0.625rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  border: none;
+}
+
+.modal-button-cancel {
+  color: #818384;
+  background: transparent;
+}
+
+.modal-button-cancel:hover {
+  background-color: #1A1A1B;
+}
+
+.modal-button-save {
+  color: white;
+  background-color: #0079D3;
+}
+
+.modal-button-save:hover {
+  background-color: #0060AB;
+}
+
+
+/* Premium Link */
+.premium-link {
+  text-decoration: none;
+  display: block;
+}
+
+/* Tab Content Placeholders */
+.tab-content {
+  padding: 2rem 0;
+}
+
+.tab-placeholder {
+  color: #818384;
+  font-size: 1rem;
+  margin-top: 1rem;
+}
+
+
+.profile-appearance-container {
+  background: var(--dark-2);
+  padding: 10px 0;
+  border-radius: 8px;
+}
+
+.appearance-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 14px 14px;
+  border-bottom: 1px solid var(--dark-3);
+}
+
+.appearance-row:last-child {
+  border-bottom: none;
+}
+
+.appearance-label {
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.appearance-button {
+  background: none;
+  border: none;
+  color: var(--blue);
+  font-size: 14px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+
+/* ABOUT TEXTAREA — REDDIT STYLE */
+.about-textarea {
+  width: 93%;
+  min-height: 120px;
+  padding: 12px 14px;
+  background: #1a1a1a;         /* dark reddit background */
+  border: 1px solid #3c3c3c;   /* subtle border */
+  border-radius: 8px;
+  color: #e6e6e6;
+  font-size: 14px;
+  line-height: 1.4;
+  resize: vertical;            /* allow resizing like reddit */
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* Focus (glowing blue like Reddit) */
+.about-textarea:focus {
+  outline: none;
+  border-color: #4c8aff;
+  box-shadow: 0 0 0 2px rgba(76, 138, 255, 0.3);
+}
+
+/* Placeholder */
+.about-textarea::placeholder {
+  color: #777;
+}
+
+
+
+/* ------------------------------- */
+/* EMAIL TAB — SECTIONS */
+/* ------------------------------- */
+
+.email-section {
+  margin-top: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.email-section-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #D7DADC;
+  margin-bottom: 1.25rem;
+}
+
+.email-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+  cursor: pointer;
+}
+
+.email-item:hover {
+  background: #121214;
+  border-radius: 0.5rem;
+}
+
+.email-item-label {
+  font-size: 1rem;
+  color: #D7DADC;
+}
+
+.email-advanced-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #D7DADC;
+  margin-top: 2rem;
+  margin-bottom: 1.25rem;
+}
+
+.email-advanced-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+}
+
+.email-advanced-label {
+  color: #D7DADC;
+  font-size: 1rem;
+}
+
+
+.email-toggle .toggle-slider {
+  background-color: #343536;
+}
+
+.email-toggle input:checked + .toggle-slider {
+  background-color: #0079D3;
+}
+
+
+/*Notification Tab*/
+
+/* ---------- top controls ---------- */
+.notif-top-controls {
+  display: flex;
+  gap: 12px;
+  margin: 14px 0 22px;
+}
+
+.notif-top-btn {
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.06);
+  color: #D7DADC;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.notif-top-btn.ghost {
+  opacity: 0.85;
+}
+
+/* ---------- sections ---------- */
+.notif-section {
+  margin-bottom: 28px;
+}
+
+.notif-section-title {
+  color: #D7DADC;
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+/* -------- rows container -------- */
+.notif-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* single row like screenshot */
+.notif-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 6px;
+  border-radius: 6px;
+  /* subtle divider look similar to Reddit */
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  cursor: default;
+  background: transparent;
+}
+
+/* left label */
+.notif-label {
+  color: #D7DADC;
+  font-size: 15px;
+  font-weight: 400;
+  padding-left: 6px;
+}
+
+/* right side wrapper */
+.notif-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* status text like "All on" */
+.notif-status-text {
+  background: transparent;
+  border: none;
+  color: #D7DADC;
+  opacity: 0.9;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 6px 10px;
+  text-align: right;
+}
+
+/* chevron circle button */
+.notif-chevron {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.03);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+/* chevron symbol */
+.chev-symbol {
+  color: #D7DADC;
+  font-size: 18px;
+  transform: translateX(1px);
+}
+
+/* ---------- modal ---------- */
+.notif-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1200;
+}
+
+.notif-modal {
+  width: 420px;
+  background: #1A1A1B;
+  border-radius: 12px;
+  border: 1px solid #343536;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+  overflow: hidden;
+}
+
+.notif-modal-header {
+  display:flex;
+  align-items:center;
+  padding: 18px;
+  position: relative;
+  gap: 12px;
+}
+
+.notif-modal-header h4 {
+  margin:0;
+  color: #D7DADC;
+  font-size: 14px;
+  font-weight:700;
+  opacity:0.9;
+}
+
+.notif-modal-title {
+  color:#D7DADC;
+  font-size:13px;
+  opacity: 0.9;
+  margin-left: 6px;
+  flex: 1;
+}
+
+.notif-modal-close {
+  background: transparent;
+  border: none;
+  color: #D7DADC;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+/* modal body options */
+.notif-modal-body {
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  padding: 8px 14px 10px 14px;
+}
+
+.notif-modal-option {
+  display:flex;
+  align-items:center;
+  gap:12px;
+  width:100%;
+  padding: 12px;
+  border-radius: 8px;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.02);
+  cursor: pointer;
+  text-align:left;
+}
+
+.notif-modal-option:hover { background: rgba(255,255,255,0.02); }
+
+.notif-modal-option .opt-left {
+  font-weight:600;
+  color:#D7DADC;
+  font-size:14px;
+}
+
+.notif-modal-option .opt-sub {
+  font-size:12px;
+  color:#9AA0A6;
+  margin-left: 6px;
+}
+
+/* right-side check */
+.opt-check {
+  margin-left: auto;
+  color: #D7DADC;
+  font-weight:700;
+}
+
+/* highlight selected */
+.notif-modal-option.selected {
+  background: linear-gradient(180deg, rgba(0,0,0,0.04), rgba(0,0,0,0.02));
+  border-color: rgba(255,255,255,0.04);
+}
+
+/* modal actions */
+.notif-modal-actions {
+  display:flex;
+  gap:10px;
+  justify-content:flex-end;
+  padding: 12px 14px;
+}
+
+.notif-modal-cancel {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.04);
+  color: #D7DADC;
+  padding: 8px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.notif-modal-save {
+  background: #0079D3;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+}
+
+.notif-button {
+  background-color: #0079d3; /* Reddit blue */
+  color: white;
+  padding: 6px 14px;
+  font-size: 14px;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.notif-button:hover {
+  background-color: #1484d8;
+}
+
+.notif-button:active {
+  background-color: #0867ab;
+}
+
+
+
+/* --- General Layout & Section Styles (Assuming these are already mostly set) --- */
+
+.tab-content {
+  padding: 20px;
+  color: #c9d1d9; /* Light text color for a dark background */
+}
+
+.settings-section-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin-top: 30px;
+  margin-bottom: 10px;
+  color: #ffffff; /* Slightly brighter for titles */
+}
+
+/* Separator line style */
+.setting-separator {
+    border: 0;
+    height: 1px;
+    background: #21262d; /* A subtle, dark line */
+    margin: 20px 0;
+}
+
+
+.two-factor-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+}
+
+.two-factor-title {
+  font-size: 14px;
+  font-weight: 500;
+  margin: 0;
+}
+
+.setting-description {
+  font-size: 12px;
+  color: #8b949e; /* Muted color for descriptions */
+  margin: 0 0 15px 0;
+}
+
+
+/* --- Styles for the New Elements (Navigation/Text Links) --- */
+
+/* Style for rows that are selectable/navigational (Blocked accounts, Chat requests) */
+.selectable-setting {
+    cursor: pointer;
+}
+
+.selectable-setting:hover {
+    background-color: #161b22; /* Slight hover effect */
+}
+
+/* Style for the value (e.g., "Everyone" or the ">" arrow) */
+.setting-value {
+    color: #8b949e;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    text-decoration: none; /* For the <a> tags */
+}
+
+/* Style for the right arrow (>) */
+.arrow-right {
+    margin-left: 5px;
+    font-weight: bold;
+    color: #484f58; /* Muted arrow color */
+}
+
+/* Style for the external link icon (Third-party app authorizations) */
+.external-link {
+    font-size: 16px;
+    color: #8b949e;
+}
+
+
+/* --- Styles for the Clear History Button --- */
+
+.clear-button {
+  background-color: transparent;
+  color: #58a6ff; /* A distinctive blue color for action buttons */
+  border: 1px solid #30363d;
+  padding: 5px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.clear-button:hover {
+  background-color: #1f6feb33; /* Light blue background on hover */
+  border-color: #58a6ff;
+}
+
+/* --- Basic Toggle Switch Styles (in case they weren't provided) --- */
+
+/* You likely have these, but including a basic version for completeness */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 40px; /* Width of the switch container */
+  height: 20px; /* Height of the switch container */
+}
+
+.toggle-input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #30363d; /* Off state color */
+  transition: 0.4s;
+  border-radius: 20px;
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+.toggle-input:checked + .toggle-slider {
+  background-color: #58a6ff; /* On state color (Blue) */
+}
+
+.toggle-input:checked + .toggle-slider:before {
+  transform: translateX(20px);
+}
+
+/* ========================================================= */
+/* --- PREFERENCES TAB SPECIFIC STYLES --- */
+/* ========================================================= */
+
+/* Sub-headings (Language, Content, Accessibility, etc.) */
+.settings-section-sub {
+  font-size: 14px;
+  font-weight: 600;
+  margin-top: 25px;
+  margin-bottom: 10px;
+  color: #818384; /* Muted color */
+  text-transform: uppercase;
+}
+
+/* Horizontal Divider */
+.setting-separator {
+    border: 0;
+    height: 1px;
+    background: #21262d; 
+    margin: 20px 0;
+}
+
+/* Main Row Container (for toggles and navigation links) */
+.two-factor-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 0; /* Vertical spacing */
+}
+
+/* Setting Title Text (e.g., "Show mature content") */
+.two-factor-title {
+  font-size: 1rem;
+  font-weight: 400;
+  color: #D7DADC;
+  margin: 0;
+}
+
+/* Description Text (e.g., "See Not Safe for Work...") */
+.setting-description {
+  font-size: 0.75rem; /* 12px */
+  color: #818384; 
+  margin: -10px 0 15px 0; 
+  padding-right: 60px; /* Crucial to prevent text from overlapping the toggle area */
+}
+
+
+/* --- NAVIGATION AND SELECTABLE ROWS --- */
+
+/* Makes the whole row clickable/selectable with hover effect */
+.selectable-setting {
+    cursor: pointer;
+    text-decoration: none; /* In case the container is an <a> tag */
+    color: inherit;
+}
+
+.selectable-setting:hover {
+    background-color: #161b22; /* Subtle dark hover */
+    border-radius: 4px; 
+}
+
+/* The displayed setting value (e.g., "Card", "English (US)") */
+.setting-value {
+    font-size: 1rem;
+    color: #818384; 
+    display: flex;
+    align-items: center;
+}
+
+/* The right arrow (>) */
+.arrow-right {
+    margin-left: 10px;
+    font-weight: bold;
+    color: #484f58; /* Muted arrow color */
+}
+
+
+/* --- TOGGLE SWITCH (Using the consistent style from your full CSS) --- */
+
+.toggle-switch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.toggle-input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.toggle-slider {
+  width: 2.75rem; /* ~44px */
+  height: 1.5rem; /* ~24px */
+  background-color: #343536;
+  border-radius: 9999px;
+  position: relative;
+  transition: background-color 0.3s;
+}
+
+.toggle-slider::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 1.25rem; /* 20px */
+  height: 1.25rem; /* 20px */
+  background-color: white;
+  border-radius: 50%;
+  transition: transform 0.3s;
+}
+
+.toggle-input:checked + .toggle-slider {
+  background-color: #0079D3; /* Reddit Blue */
+}
+
+.toggle-input:checked + .toggle-slider::after {
+  transform: translateX(1.25rem);
+}

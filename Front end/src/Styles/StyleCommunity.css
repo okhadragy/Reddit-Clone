@@ -1,0 +1,382 @@
+:root {
+  --bg: #0b0c0d;
+  --card: #101112;
+  --muted: #9aa0a4;
+  --border: #232526;
+  --accent: #1d1f20;
+  --text: #e6ebee;
+  --pill: #232527;
+  --modal-bg: #1a1a1c; /* Lighter background for the modal content */
+  --modal-border: #303030;
+  --reddit-blue: #0079d3;
+  --error-red: #ff6a6a;
+}
+
+/* ===========================
+   MODAL LAYOUT
+=========================== */
+
+/* Full screen overlay (using the old container name) */
+.style-community-container {
+  /* Using this as the modal backdrop/overlay */
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.75); /* Dark semi-transparent overlay */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  font-family: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial;
+}
+
+/* The actual white/dark modal box */
+.style-community-modal {
+  background: var(--modal-bg);
+  border-radius: 12px;
+  width: 90%;
+  max-width: 860px; /* Set a max width for the modal */
+  color: var(--text);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--modal-border);
+}
+
+/* header and content container */
+.modal-header-content {
+  padding: 24px 28px 20px 28px;
+  position: relative;
+}
+
+/* close button */
+.close-btn {
+  position: absolute;
+  top: 24px;
+  right: 28px;
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 4px;
+}
+.close-btn:hover {
+  color: var(--text);
+}
+
+/* header text */
+.style-header h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text);
+}
+.subtitle {
+  margin-top: 6px;
+  color: var(--muted);
+  max-width: 90%;
+  line-height: 1.35;
+  font-size: 13px;
+}
+
+/* ===========================
+   LAYOUT GRID (INPUTS + PREVIEW)
+=========================== */
+
+.style-grid {
+  display: flex;
+  gap: 36px;
+  margin-top: 24px;
+  align-items: flex-start;
+}
+
+/* LEFT: INPUTS - Simplified and side-by-side */
+.left-settings {
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Simplified upload section wrapper */
+.upload-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px; /* Gap between button row and file row */
+}
+
+/* label row: label + pill button */
+.label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.label-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* change pill - adjusted padding to match image_fa655d.png */
+.change-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--pill);
+  color: var(--text);
+  border-radius: 16px;
+  padding: 6px 14px; /* Slightly different padding for a cleaner look */
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+  min-width: 70px; /* Ensure buttons have consistent width for alignment */
+  justify-content: center;
+}
+.change-btn svg {
+  opacity: 0.95;
+}
+.change-btn:hover {
+  background: #292a2b;
+}
+
+/* file row: filename + delete button - only visible when a file is uploaded */
+.file-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: var(--accent);
+  border: 1px solid var(--border);
+  padding: 8px 10px; /* Smaller padding */
+  border-radius: 6px; /* Smaller radius */
+  min-height: 38px;
+}
+.file-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.file-icon {
+  opacity: 0.85;
+}
+.file-name {
+  font-size: 13px; /* Slightly smaller font */
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 176px;
+}
+.file-row.placeholder .file-name {
+  color: var(--muted);
+}
+
+/* delete button (trash) */
+.delete-btn {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  padding: 4px; /* Reduced padding */
+}
+.delete-btn:hover {
+  color: var(--error-red);
+}
+
+/* ===========================
+   PREVIEW (right)
+=========================== */
+
+.preview-card {
+  width: 450px; /* Adjusted width for a better fit in the modal */
+  background: var(--card);
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+/* banner area */
+.preview-banner {
+  width: 100%;
+  height: 120px; /* Adjusted height */
+  background: linear-gradient(180deg, #171819, #101112);
+  position: relative;
+  overflow: hidden;
+}
+.banner-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.banner-placeholder {
+  width: 100%;
+  height: 70%;
+  background: var(--card); /* Match card background when placeholder is shown */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  font-size: 14px;
+  background-color: rgb(252 238 232);
+}
+
+/* preview body */
+.preview-body {
+  padding: 16px;
+}
+
+/* icon + title row: overlap icon on banner */
+/* The block that contains the icon + title */
+.preview-header {
+  position: relative;
+  padding-top: 0;
+  margin-top: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* The icon must be absolutely positioned relative to the preview card */
+.preview-icon {
+  position: absolute;
+  top: -32px; /* Pull the icon upward onto the banner */
+  left: 16px; /* Slight indent from the preview body padding */
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--pill);
+  border: 4px solid var(--modal-bg);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Shift the text right so it does not overlap with the icon */
+.title-block {
+  margin-left: 90px;
+}
+
+.icon-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.icon-placeholder {
+  width: 100%;
+  height: 100%; 
+  background-color: #d93900;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' fill='%23ffffff' viewBox='0 0 20 20'%3e%3cpath d='M9.633 8.086c-.27 0-.536.066-.799.199a1.665 1.665 0 00-.652.596c-.173.265-.258.581-.258.948v3.961H5.999V6.321h1.876v1.074h.035c.251-.344.567-.628.948-.851a2.547 2.547 0 011.311-.335c.172 0 .335.014.488.042.153.028.267.058.342.091l-.774 1.848a.766.766 0 00-.244-.073 1.873 1.873 0 00-.349-.032l.001.001zM19 10a9 9 0 01-9 9 9 9 0 01-9-9 9 9 0 019-9 9 9 0 019 9zm-1.8 0a7.17 7.17 0 00-1.661-4.594L11.98 13.79h-1.955l4.108-9.677A7.152 7.152 0 0010 2.8c-3.97 0-7.2 3.23-7.2 7.2s3.23 7.2 7.2 7.2 7.2-3.23 7.2-7.2z'/%3e%3c/svg%3e");
+  border-radius: 50%;
+}
+
+/* title text */
+.title-block {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.preview-title {
+  margin: 0;
+  font-size: 18px; /* Slightly smaller font */
+  font-weight: 700;
+  color: var(--text);
+}
+.sub-info {
+  margin: 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* description */
+.preview-description {
+  margin-top: 10px;
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* ===========================
+   FOOTER (BOTTOM BUTTONS)
+=========================== */
+
+.modal-footer {
+  padding: 18px 28px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content:right;
+  align-items: center;
+}
+
+.pagination-dots {
+  color: var(--muted);
+  font-size: 24px;
+  line-height: 1;
+}
+
+
+
+.back-btn {
+  background: none;
+  color: var(--text);
+  border: none;
+  padding: 12px 16px;
+  border-radius: 20px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.back-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.create-btn {
+  background: var(--reddit-blue);
+  color: #fff;
+  border: none;
+  padding: 12px 16px;
+  border-radius: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  min-width: 120px;
+}
+.create-btn:hover {
+  background: #0087ff;
+}
+
+/* responsiveness */
+@media (max-width: 980px) {
+  .style-community-modal {
+    max-width: 90%;
+  }
+  .modal-header-content {
+    padding: 20px;
+  }
+  .close-btn {
+    top: 20px;
+    right: 20px;
+  }
+  .style-grid {
+    flex-direction: column;
+    gap: 18px;
+  }
+  .left-settings {
+    width: 100%;
+    order: 2;
+  }
+  .preview-card {
+    width: 100%;
+    order: 1;
+  }
+  .modal-footer {
+    padding: 18px 20px;
+  }
+}

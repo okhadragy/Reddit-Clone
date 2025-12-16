@@ -1,0 +1,402 @@
+:root {
+  --color-neutral-content: #D7DADC;
+  --color-neutral-content-weak: #818384;
+  --color-neutral-background: #121214;
+  --color-neutral-background-weak: #272729;
+  --color-neutral-border: #343536;
+  --color-primary: #D7DADC;
+  --color-primary-background: #2D2D2E;
+  --color-secondary: #4FBCFF;
+  --color-danger: #FF4500;
+  
+  --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+}
+
+.create-post-wrapper * {
+  box-sizing: border-box;
+}
+
+.cp-main-container {
+  width: 100%;
+  max-width: 740px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 0 16px;
+
+ 
+}
+
+/* Header */
+.cp-header {
+margin-top: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--color-neutral-border);
+  margin-bottom: 15px;
+}
+
+.cp-header h2 {
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--color-neutral-content);
+  margin: 0;
+  line-height: 22px;
+}
+
+.drafts-btn {
+  background: transparent;
+  border: none;
+  color: var(--color-neutral-content);
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  padding: 6px 8px;
+  margin-right: -8px;
+  border-radius: 999px;
+  transition: background-color 0.1s;
+}
+
+.drafts-btn:hover { 
+  background-color: rgba(79, 188, 255, 0.1); 
+}
+
+/* Profile Selector */
+.profile-selector {
+  width: fit-content;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px 4px 4px;
+  margin-bottom: 15px;
+  background-color: var(--color-neutral-background);
+  border: 1px solid var(--color-neutral-border);
+  border-radius: 20px;
+  cursor: pointer;
+  transition: border-color 0.1s;
+}
+
+.profile-selector:hover { 
+  border-color: var(--color-neutral-content); 
+}
+
+.profile-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: #FF4500;
+}
+
+/* Form Box */
+.cp-form-box {
+  background-color: var(--color-neutral-background);
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Tabs */
+.cp-tabs {
+  display: flex;
+  gap: 32px;
+  padding: 0 16px;
+  background-color: var(--color-neutral-background);
+  border-bottom: 1px solid var(--color-neutral-border);
+}
+
+.cp-tab {
+  flex: none;
+  position: relative;
+  padding: 12px 0;
+  background: transparent;
+  border: none;
+  color: var(--color-neutral-content-weak);
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: color 0.15s;
+  white-space: nowrap;
+}
+
+.cp-tab:hover {
+  color: var(--color-neutral-content);
+}
+
+.cp-tab.active {
+  color: var(--color-neutral-content);
+}
+
+.cp-tab.active::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: #81d4fa;
+}
+
+/* Body */
+.cp-body { 
+  padding: 16px; 
+}
+
+/* Title */
+.title-group { 
+  position: relative; 
+  margin-bottom: 45px; 
+}
+
+.title-input {
+  width: 100%;
+  height: 50px;
+  padding: 8px 60px 8px 16px;
+  background-color: var(--color-neutral-background);
+  border: 1px solid var(--color-neutral-border);
+  border-radius: 10px;
+  color: var(--color-neutral-content);
+  font-size: 14px;
+  outline: none;
+  line-height: 21px;
+}
+
+.title-input:focus { 
+  border-color: var(--color-neutral-content); 
+}
+
+.title-input::placeholder { 
+  color: var(--color-neutral-content-weak); 
+}
+
+.char-count {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-neutral-content-weak);
+  font-size: 12px;
+}
+
+/* Editor */
+.editor-box {
+  border: 1px solid var(--color-neutral-border);
+  border-radius: 5px;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+}
+
+.editor-toolbar {
+  display: flex;
+  gap: 2px;
+  padding: 4px;
+  background-color: #0B1416;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+}
+
+.toolbar-btn {
+  background: transparent;
+  border: none;
+  color: var(--color-neutral-content-weak);
+  padding: 6px;
+  border-radius: 14px;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+}
+
+.toolbar-btn:hover { 
+  background-color: var(--color-neutral-border); 
+  color: var(--color-neutral-content); 
+}
+
+.toolbar-btn.markdown-mode { 
+  font-size: 12px; 
+  font-weight: 700; 
+}
+
+/* Textarea */
+.editor-textarea {
+  flex: 1;
+  background-color: var(--color-neutral-background);
+  border: none;
+  color: var(--color-neutral-content);
+  padding: 12px;
+  font-family: inherit;
+  resize: vertical;
+  outline: none;
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+  font-size: 14px;
+  min-height: 130px;
+}
+
+.editor-textarea::placeholder { 
+  color: var(--color-neutral-content-weak); 
+}
+
+/* Image Upload */
+.upload-area {
+  min-height: 120px;
+  border: 2px dashed var(--color-neutral-border);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-neutral-background);
+  padding: 40px;
+  text-align: center;
+  color: var(--color-neutral-content);
+}
+
+.upload-area p { 
+  color: var(--color-neutral-content-weak); 
+  margin-bottom: 12px; 
+  font-size: 16px;
+}
+
+.upload-btn-real {
+  padding: 8px 16px;
+  background-color: var(--color-neutral-content-weak);
+  color: var(--color-neutral-background);
+  border-radius: 99px;
+  border: none;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.1s;
+}
+
+.upload-btn-real:hover { 
+  background-color: #fff; 
+}
+.upload-area {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+.remove-image-btn {
+                position: absolute;
+                top: 20px;
+                right: 20px;
+                width: 40px;
+                height: 40px;
+                background: rgba(0, 0, 0, 0.7);
+                border: none;
+                border-radius: 50%;
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                transition: background 0.2s;
+                backdrop-filter: blur(4px);
+            }
+
+            .remove-image-btn:hover {
+  background: rgba(0, 0, 0, 0.9);
+}
+
+.remove-image-btn:hover {
+  background: rgba(0, 0, 0, 0.9);
+}
+
+.preview-image {
+    
+  max-width: 100%;
+  max-height: 480px;
+  border-radius: 8px;
+  object-fit: contain;
+}
+
+/* Link Input */
+.link-input-area textarea {
+  width: 100%;
+  background: var(--color-neutral-background);
+  border: 1px solid var(--color-neutral-border);
+  color: var(--color-neutral-content);
+  padding: 8px 12px;
+  border-radius: 14px;
+  resize: none;
+  min-height: 66px;
+  outline: none;
+  font-size: 14px;
+}
+
+.link-input-area textarea:focus { 
+  border-color: var(--color-neutral-content); 
+}
+
+.link-input-area textarea::placeholder { 
+  color: var(--color-neutral-content-weak); 
+}
+
+/* Footer */
+.cp-footer {
+  margin-top: 16px;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 16px;
+}
+
+.submit-group { 
+  display: flex; 
+  gap: 8px;
+  margin-left: auto; 
+}
+
+.btn-cancel {
+  background: #115bca;
+  border: none;
+  color: white;
+  padding: 6px 16px;
+  border-radius: 19px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.btn-cancel:disabled {
+  background-color: var(--color-neutral-border);
+  color: var(--color-neutral-content-weak);
+  cursor: not-allowed;
+}
+
+.btn-post {
+  background-color: #115bca;
+  color: white;
+  border: none;
+  padding: 6px 24px;
+  border-radius: 159px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.1s;
+}
+
+.btn-post:disabled {
+  background-color: var(--color-neutral-border);
+  color: var(--color-neutral-content-weak);
+  cursor: not-allowed;
+}
+.cp-main-container::-webkit-scrollbar {
+  width: 6px;  /* thin scrollbar */
+}
+.cp-main-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+.cp-main-container::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+}
+.cp-main-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.28);
+}

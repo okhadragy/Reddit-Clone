@@ -52,51 +52,7 @@
   }
 }
 
-/* --- Middle: Search bar --- */
-.search-container {
-  display: flex;
-  position: relative;
-  flex: 1; 
-  max-width: 600px; 
-  margin: 0 auto; 
-}
 
-.search-container input {
-  width: 100%;
-  height: 40px; 
-  padding: 0 16px 0 44px; /* Left padding accommodates the icon */
-  border-radius: 999px;
-  border: 1px solid #343536;
-  background-color: #272729;
-  color: #D7DADC;
-  font-size: 14px;
-  outline: none;
-  transition: all 0.2s;
-  box-sizing: border-box;
-}
-
-.search-container input:hover {
-  background-color: #272729; /* Keeps dark bg */
-  border: 1px solid #D7DADC; /* Light border on hover */
-}
-
-.search-container input:focus {
-  background-color: #1a1a1b;
-  border: 1px solid #D7DADC;
-}
-
-.search-container input::placeholder {
-  color: #818384;
-}
-
-.search-container .search-icon {
-  position: absolute;
-  left: 15px;
-  top: 50%;
-  transform: translateY(-50%);
-  pointer-events: none;
-  fill: #818384; 
-}
 
 /* --- Right: Buttons & Actions --- */
 .navbar-right {
@@ -219,4 +175,231 @@
 
 .avatar:hover {
   background-color: rgba(255, 255, 255, 0.1);
+}
+/*=========================================Right Drop Down Menu=========================================*/
+.user-menu-dropdown {
+  position: fixed;
+  top: 60px;
+  right: 0;
+  width: 280px; 
+  height: 600px;
+  background-color: #121214; 
+  border-left: 1px solid #343536;
+  border-radius: 12px 0 0 12px;
+  padding: 0;
+  box-shadow: -6px 0 30px rgba(0,0,0,0.6);
+  animation: slideInRight 180ms ease-out forwards;
+  z-index: 2000;
+  box-sizing: border-box;
+  color: #d7dadc;
+}
+
+.menu-section.profile {
+  padding: 9px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border-bottom: 1px solid #343536;
+}
+
+.menu-avatar-img {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.profile-text-block {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.profile-text-block .menu-main-text {
+  font-size: 15px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.profile-text-block .menu-sub-text {
+  font-size: 13px;
+  color: #818384;
+}
+
+
+
+
+
+/* Section block with spacing and thin divider */
+.menu-section {
+  border-bottom: 1px solid #343536;
+  box-sizing: border-box;
+}
+
+/* Menu item: left aligned icon + text */
+.menu-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  background: none;
+  border: none;
+  color: #d7dadc;
+  cursor: pointer;
+  text-align: left;
+  justify-content: flex-start; /* IMPORTANT: left-align content */
+  box-sizing: border-box;
+}
+
+/* Hover and focus */
+.menu-item:hover,
+.menu-item:focus {
+  background-color: #1f1f1f;
+  outline: none;
+}
+
+/* Left group: icon + labels stacked */
+.menu-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+/* Icon wrapper - keep icons same size */
+.menu-icon-wrapper {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #c7c7c7;
+  flex: 0 0 28px;
+}
+
+/* Text column */
+.menu-left > div {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* Main label & sub label */
+.menu-main-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: #e6e6e6;
+ 
+}
+.menu-sub-text {
+  font-size: 12px;
+  color: #8b8f92;
+  margin-top: 2px;
+}
+
+/* Badge (ex: BETA) positioned at far right */
+.menu-badge {
+  margin-left: auto; /* pushes badge to the far right */
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 10px;
+  background: #ff6a00;
+  color: #fff;
+  font-weight: 700;
+  align-self: center;
+}
+
+/* Some items (like the Dark Mode toggle) need right-aligned control */
+.menu-item .control {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+}
+
+/* Toggle switch styling */
+.toggle-switch {
+  width: 60px;
+  height: 26px;
+  background-color: #2f3132;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  padding: 3px;
+  box-sizing: border-box;
+  transition: background 160ms ease;
+}
+.toggle-switch .toggle-knob {
+  width: 20px;
+  height: 20px;
+  background: #ffffff;
+  border-radius: 50%;
+  transition: transform 160ms ease;
+  transform: translateX(0);
+}
+.toggle-switch.active {
+  background-color: #0079d3;
+  width:60px
+}
+.toggle-switch.active .toggle-knob {
+  transform: translateX(20px);
+}
+
+/* No-border last section */
+.menu-section.no-border {
+  border-bottom: none;
+  padding-bottom: 16px;
+}
+
+/* Smaller visual tweaks */
+.menu-item .menu-icon-wrapper svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Make sure the header top has a small divider shadow like Reddit */
+.user-menu-dropdown::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 1px;
+  background: rgba(255,255,255,0.02);
+}
+
+/* mobile fallback - narrower screens */
+@media (max-width: 420px) {
+  .user-menu-dropdown {
+    width: 100%;
+    left: 0;
+    right: 0;
+    border-radius: 0;
+  }
+}
+/*================================================Search================================================*/
+.search-container {
+  position: relative;
+  width: 100%;
+}
+
+.search-results {
+  position: absolute;
+  top: 40px;
+  width: 100%;
+  background: #1a1a1b;
+  border: 1px solid #343536;
+  border-radius: 6px;
+  padding: 6px 0;
+  z-index: 1000;
+}
+
+.search-item {
+  padding: 10px 14px;
+  cursor: pointer;
+  color: white;
+}
+
+.search-item:hover {
+  background: #2a2a2b;
 }
