@@ -36,23 +36,37 @@
     transform: rotate(360deg);
   }
 }
+
 .Homepage {
   display: flex;
   flex-direction: column;
   background-color: #121214;
+  overflow-y: auto;
   /*background-color: #0e1113;*/ /* Reddit dark background */
   min-height: 100vh;
+  height:700px ;
+}
+.Homepage::-webkit-scrollbar {
+  width: 6px;  /* thin scrollbar */
+}
+.Homepage::-webkit-scrollbar-track {
+  background: transparent;
+}
+.Homepage::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+}
+.Homepage::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.28);
 }
 
 /* This creates the "center feed column" */
 .FeedLayout {
-  margin-left: 300px; /* leave space for sidebar */
-  margin-top: 80px;   /* space for navbar */
   display: flex;
   flex-direction: column;
   gap: 16px;
-
-  width: 640px; /* EXACT reddit width */
+  width: 640px;
+  margin: 120px auto 15px auto; /* top auto bottom auto */
 }
 
 /* Center the feed layout like Reddit */
@@ -60,4 +74,48 @@
   .FeedLayout {
     margin-left: calc(50% - 320px); /* center horizontally */
   }
+}
+.search-container {
+  display: flex;
+  position: relative;
+  flex: 1; 
+  max-width: 600px; 
+  margin: 0 auto; 
+}
+
+.search-container input {
+  width: 100%;
+  height: 40px; 
+  padding: 0 16px 0 44px; /* Left padding accommodates the icon */
+  border-radius: 999px;
+  border: 1px solid #343536;
+  background-color: #272729;
+  color: #D7DADC;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s;
+  box-sizing: border-box;
+}
+
+.search-container input:hover {
+  background-color: #272729; /* Keeps dark bg */
+  border: 1px solid #D7DADC; /* Light border on hover */
+}
+
+.search-container input:focus {
+  background-color: #1a1a1b;
+  border: 1px solid #D7DADC;
+}
+
+.search-container input::placeholder {
+  color: #818384;
+}
+
+.search-container .search-icon {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  fill: #818384; 
 }

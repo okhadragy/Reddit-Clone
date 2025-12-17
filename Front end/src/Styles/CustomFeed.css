@@ -74,7 +74,7 @@ body {
 
 /* 1. Reset button styles so they inherit the light color */
 button {
-  color: #D7DADC; /* Forces the SVG to be light gray */
+  /*color: #D7DADC; *//* Forces the SVG to be light gray */
   cursor: pointer;
 }
 

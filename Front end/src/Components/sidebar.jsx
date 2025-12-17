@@ -3,6 +3,8 @@ import { useAuth } from "./LoginContext";
 import Toast from "./Toast";
 import { useNavigate } from "react-router-dom";
 
+import StartACommunityModal from "./StartACommunityModal";
+
 export default function Sidebar() {
   const { isLoggedIn, setIsLoggedIn } = useAuth();
   const [sidebarIsOpened, setSidebarIsOpened] = useState(true);
@@ -12,7 +14,8 @@ export default function Sidebar() {
   const[RecentIsOpened,SetRecentIsOpened]=useState(false)
   const[CommunitiesIsOpened,SetCommunitiesIsOpened]=useState(false)
   const [toastMessage, setToastMessage] = useState("");
-  
+    const [isCommunityModalOpen, setCommunityModalOpen] = useState(false);
+
   const navigate = useNavigate();
   
   function showToast(text) {
@@ -41,10 +44,12 @@ export default function Sidebar() {
 
               {/* FIRST SECTION */}
               <ul className="part1beforeline">
+                <div className="allbuttonscss">
                 <li><button onClick={() => navigate("/")}>Home</button></li>
                 <li><button >Popular</button></li>
                 <li><button>Answers (Beta)</button></li>
                 <li><button onClick={() => navigate("/explore")}>Explore</button></li>
+                </div>
               </ul>
 
 
@@ -58,7 +63,11 @@ export default function Sidebar() {
                   onClick={() => setResourcesIsOpened(!resourcesIsOpened)}
                 >
                   <span className="Resources">RESOURCES</span>
-                  <span className="arrow">{resourcesIsOpened ? "˄" : "˅"}</span>
+                  <span className="arrow">{resourcesIsOpened ? <svg rpl="" class="text-secondary-weak undefined" fill="currentColor" height="20" icon-name="caret-down-outline" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg">
+      <path d="M10 13.7a.897.897 0 01-.636-.264l-4.6-4.6a.9.9 0 111.272-1.273L10 11.526l3.964-3.963a.9.9 0 011.272 1.273l-4.6 4.6A.897.897 0 0110 13.7z"></path>
+    </svg> : <svg rpl="" class="text-secondary-weak undefined" fill="currentColor" height="20" icon-name="caret-down-outline" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg">
+      <path d="M10 13.7a.897.897 0 01-.636-.264l-4.6-4.6a.9.9 0 111.272-1.273L10 11.526l3.964-3.963a.9.9 0 011.272 1.273l-4.6 4.6A.897.897 0 0110 13.7z"></path>
+    </svg>}</span>
                 </div>
 
                 {resourcesIsOpened && (
@@ -105,14 +114,23 @@ export default function Sidebar() {
 
               {/* FIRST SECTION */}
               <ul className="part1beforeline">
+                 <div className="allbuttonscss">
                 <li><button onClick={() => navigate("/")}>Home</button></li>
                 <li><button>Popular</button></li>
                 <li><button onClick={() => navigate("/explore")}>Explore</button></li>
                 <li><button>All</button></li>
-                <li><button> <span className="Plus">+</span> Start a community</button></li>
+               <li>
+                <button onClick={() => setCommunityModalOpen(true)}>
+                  <span className="Plus">+</span> Start a community
+                </button>
+                
+                </li>
+              </div>  
                 
               </ul>
-
+                {isCommunityModalOpen && (
+                  <StartACommunityModal onClose={() => setCommunityModalOpen(false)} />
+                )}
               <hr />
               <div className="GamesSection">
 

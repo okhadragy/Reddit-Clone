@@ -13,6 +13,7 @@
   overflow-y: scroll;  /* keep scroll inside */
   scrollbar-width: thin;               /* Firefox */
   scrollbar-color: rgba(255,255,255,0.18) transparent; /* Firefox */
+   overflow: visible; 
 }
 
 /* === REDDIT STYLE SCROLLBAR (Chrome / Edge / Brave) === */
@@ -29,18 +30,12 @@
 .sidebar::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.28);
 }
-
-/* Closed sidebar */
-.sidebar.closed {
-  width: 12px;
-  overflow: hidden;  /* hide scroll when closed */
-}
-
-/* Floating toggle button */
+/* Toggle button behaves like Reddit */
 .sidebartogglebutton {
   position: absolute;
-  top: 20px;
-  right: -18px;                  /* half outside */
+  top: 5%;
+  right: -18px;          
+  transform: translateY(-50%);
   width: 36px;
   height: 36px;
   background-color: #1a1a1b;
@@ -50,11 +45,22 @@
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 18px;                /* size of ☰ icon */
+  font-size: 18px;
   cursor: pointer;
-  z-index: 999;                   /* above everything */
-  transition: background 0.2s, border 0.2s;
+  transition: right 0.25s ease, background 0.2s, border 0.2s;
+  z-index: 100;
 }
+
+/* Sidebar open */
+
+
+/* Sidebar closed */
+.sidebar.closed {
+  width: 12px;
+  overflow: visible;     /* IMPORTANT */
+}
+
+
 
 .sidebartogglebutton:hover {
   background-color: #272729;

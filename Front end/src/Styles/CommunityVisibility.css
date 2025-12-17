@@ -1,0 +1,106 @@
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 600px;
+  margin: 20px auto;
+  font-family: Arial, sans-serif;
+  background-color: #121214;
+  color: white;
+  position: relative;
+  height: 520px;
+}
+
+.radio-group h1 {
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+
+.radio-group h4 {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.radio-option {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between; /* text left, radio right */
+  border: 1px solid #121214;
+  padding: 16px;
+  cursor: pointer;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.radio-option:hover {
+  border-color: #0079d3;
+}
+
+.radio-option.selected {
+  border-color: #0079d3;
+  background-color: #2A3236;
+}
+
+.radio-option input[type="radio"] {
+  margin: 0;
+  flex-shrink: 0; /* prevents the radio from shrinking */
+  cursor: pointer;
+}
+
+.radio-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.radio-title {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.radio-description {
+  font-size: 14px;
+  color: #555;
+}
+.buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+
+  /* Push buttons to the bottom */
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+}
+
+.Back,
+.Next {
+  padding: 10px 22px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+}
+
+/* Back button (grey) */
+.Back {
+  background-color: #2e2f33;
+  color: #d0d0d0;
+}
+
+/* Next button (blue) */
+.Next {
+  background-color: #2563eb;
+  color: white;
+}
+
+.Back:hover {
+  background-color: #3a3b3f;
+}
+
+.Next:hover {
+  background-color: #1d4ed8;
+}
