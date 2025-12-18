@@ -120,10 +120,6 @@ function CustomFeed() {
             </div>
           </div>
 
-          {/* RIGHT COLUMN: SIDEBAR */}
-          <div className="sidebar">
-            {/* ... sidebar code unchanged ... */}
-          </div>
         </div>
       </div>
     </div>

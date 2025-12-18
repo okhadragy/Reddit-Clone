@@ -4,11 +4,13 @@ export const LoginContext = createContext();
 
 export function AppProvider({ children }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   // Check token on initial load
   useEffect(() => {
     const token = localStorage.getItem("token");
     setIsLoggedIn(!!token);
+    setLoading(false);
   }, []);
 
   const login = (token, user) => {
@@ -29,6 +31,7 @@ export function AppProvider({ children }) {
         isLoggedIn,
         login,
         logout,
+        loading,
       }}
     >
       {children}

@@ -15,8 +15,8 @@ import {
   Zap,
 } from "lucide-react";
 
-function Navbar() {
-  const { isLoggedIn, logout } = useAuth();
+function Navbar({isLoggedIn}) {
+  const { logout } = useAuth();
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(true);
   const toggleMenu = () => setIsUserMenuOpen(!isUserMenuOpen);
@@ -26,6 +26,7 @@ function Navbar() {
   // --- SEARCH STATES ---
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
+  
 
   const communities = [
     "r/reactjs",
@@ -79,6 +80,7 @@ function Navbar() {
       document.body.classList.remove("dark-mode");
     }
   }, [isDarkMode]);
+
 
   return (
     <header className="Navbar">
@@ -211,7 +213,7 @@ function Navbar() {
 
                   {/* LOGOUT */}
                   <div className="menu-section no-border">
-                    <MenuItem icon={<LogOut size={18} />} label="Log Out" onClick={() => logout()} />
+                    <MenuItem icon={<LogOut size={18} />} label="Log Out" onClick={() => {logout(); navigate("/");}} />
                   </div>
 
                 </div>
