@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-function AddTopics({ data, onNext, onClose }) {
+function AddTopics({ data, onNext, onClose,onBack }) {
   const [selectedTopics, setSelectedTopics] = useState(data.topics || []);
 
   const toggleTopic = (topic) => {
@@ -25,11 +25,9 @@ function AddTopics({ data, onNext, onClose }) {
     ));
 
   const handleNext = () => {
-    if (onNext) {
-      // Pass as object to be consistent with other components
-      onNext({ topics: selectedTopics });
-    }
-  };
+  onNext(selectedTopics); 
+};
+
 
   return (
     <div className="AddTopics">
