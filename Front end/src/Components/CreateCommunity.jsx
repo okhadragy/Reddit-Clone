@@ -29,6 +29,7 @@ export default function CreateCommunity() {
   const [iconUrl, setIconUrl] = useState(null);
   const [localBannerFile, setLocalBannerFile] = useState(bannerFile);
   const [localIconFile, setLocalIconFile] = useState(iconFile);
+const createPostRef = useRef(null);
 
   const bannerInputRef = useRef(null);
   const iconInputRef = useRef(null);
@@ -197,14 +198,21 @@ export default function CreateCommunity() {
         <div className="community-feed">
           {/* CREATE POST SECTION */}
           <div className="create-post-section">
-            <CreatePostButton />
+            <CreatePostButton ref={createPostRef} />
+
           </div>
 
           {/* EMPTY FEED */}
           <div className="empty-feed">
             <h2>This community doesn't have any posts yet</h2>
             <p>Make one and get this feed started.</p>
-            <button className="btn-create-post-blue">Create Post</button>
+            <button
+              className="btn-create-post-blue"
+              onClick={() => createPostRef.current?.openCreatePost()}
+            >
+  Create Post
+</button>
+
           </div>
         </div>
 
