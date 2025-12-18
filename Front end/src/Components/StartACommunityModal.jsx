@@ -35,10 +35,44 @@ export default function StartACommunityModal({ onClose }) {
     if (onClose) onClose();
   };
 
-  const handleCreateCommunity = (finalData = {}) => {
+  const handleCreateCommunity = async (finalData = {}) => {
     const completeData = { ...communityData, ...finalData };
-    
+    const formData = new FormData();
+
+    formData.append("name", completeData.name);
+    formData.append("description", completeData.description);
+    formData.append("visibility", completeData.visibility);
+    formData.append("topics", JSON.stringify(completeData.topics));
+    const token = localStorage.getItem("token");
+    if (completeData.icon) {
+        formData.append("icon", completeData.icon);
+    }
+    if (completeData.banner) {
+        formData.append("coverImage", completeData.banner); 
+    }
     console.log("Final community data:", completeData);
+    try {
+      
+      const response = await fetch("http://localhost:5000/api/communities", {
+        method: "POST",
+        body: formData, 
+        headers: {"authorization":`Bearer${token}`}
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log("Community created:", data);
+        handleClose();
+        // Navigate to the new community
+        navigate(`/r/${completeData.name}`);
+      } else {
+        console.error("Error:", data.message);
+        // Optional: Add an alert or error state here
+      }
+    } catch (error) {
+      console.error("Network Error:", error);
+    }
 
     // Close the modal
     handleClose();

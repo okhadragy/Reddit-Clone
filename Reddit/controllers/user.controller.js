@@ -288,6 +288,18 @@ const getUserProfile = async (req, res) => {
   }
 };
 
+const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find().select('-password -__v');
+    res.status(200).json({
+      status: 'success',
+      results: users.length,
+      data: { users }
+    });
+  } catch (error) {
+    res.status(500).json({ status: 'error', message: error.message });
+  }
+};
 
 const updateUser = async (req, res) => {
   try {
@@ -461,6 +473,7 @@ module.exports = {
   signup,
   login,
   changePassword,
+  getAllUsers,
   getUserProfile,
   updateUser,
   deleteUser,

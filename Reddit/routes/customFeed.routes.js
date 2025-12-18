@@ -1,5 +1,5 @@
 const express = require('express');
-const feedController = require('../controllers/customFeed.controller');
+const feedController = require('../controllers/customFeeds.controller');
 const { protectRoutes } = require('../middleware/auth');
 
 const router = express.Router();

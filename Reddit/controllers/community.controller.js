@@ -21,11 +21,12 @@ exports.createCommunity = async (req, res) => {
   const uploadedCover = req.files?.coverImage?.[0]?.filename;
 
   try {
-    let { name, description, rules, userFlairs, postFlairs, tags } = req.body;
+    let { name, description, rules, userFlairs, postFlairs, tags,topics } = req.body;
     if (typeof rules === 'string') rules = JSON.parse(rules);
     if (typeof userFlairs === 'string') userFlairs = JSON.parse(userFlairs);
     if (typeof postFlairs === 'string') postFlairs = JSON.parse(postFlairs);
     if (typeof tags === 'string') tags = JSON.parse(tags);
+    if (typeof topics === 'string') topics = JSON.parse(topics);
 
     const reservedNames = ['admin', 'mod', 'reddit', 'help', 'support'];
     if (reservedNames.includes(name?.toLowerCase())) {
@@ -41,7 +42,8 @@ exports.createCommunity = async (req, res) => {
       rules,
       userFlairs,
       postFlairs,
-      tags
+      tags,
+      topics
     });
 
     await CommunityMember.create({

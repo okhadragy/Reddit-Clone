@@ -1,6 +1,6 @@
 const CustomFeed = require('../models/customFeed.model');
 const Post = require('../models/post.model');
-const {fetchPostsWithStats} =require('../controllers/post.controller');
+const {fetchPostsWithStats} =require('./post.controller');
 const mongoose = require('mongoose');
 
 // 1. Create a new Custom Feed
