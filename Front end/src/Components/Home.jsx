@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import FeedPost from './FeedPost.jsx';
+import PostPage from './PostPage.jsx';
 import '../Styles/FeedPost.css';
-import { useNavigate } from "react-router-dom";
+
 const initialPosts = [
   {
     id: 1,
@@ -45,18 +46,26 @@ const initialPosts = [
 ];
 
 function Home() {
-  const navigate = useNavigate();
-const [mainCommunityJoined, setMainCommunityJoined] = useState(true);
-const [activeSort, setActiveSort] = useState('Hot');
+  const [selectedPost, setSelectedPost] = useState(null);
+
+  // If a post is selected, show PostPage
+  if (selectedPost) {
+    return <PostPage post={selectedPost} onBack={() => setSelectedPost(null)} />;
+  }
+
   return (
     <div className="feed-grid">
-            {/* POSTS CONTAINER */}
-            <div className="posts-container" onClick={() => navigate("/PostPage")}>
-              {initialPosts.map((post) => (
-                <FeedPost key={post.id} post={post} />
-              ))}
-            </div>
-          </div>
+      {/* POSTS CONTAINER */}
+      <div className="posts-container">
+        {initialPosts.map((post) => (
+          <FeedPost
+            key={post.id}
+            post={post}
+            onClick={() => setSelectedPost(post)} 
+          />
+        ))}
+      </div>
+    </div>
   );
 }
 
