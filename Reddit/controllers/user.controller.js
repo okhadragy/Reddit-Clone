@@ -21,52 +21,44 @@ const signup = async (req, res) => {
   const uploadedBanner = req.files?.banner?.[0]?.filename || "banner.png";
 
   try {
-    let { name, password, confirmPassword, email, role, jobTitle } = req.body;
-    role = role || "student";
+    let { name, email, password, confirmPassword, role } = req.body;
 
-    const allowedRolesForSignup = ["student", "instructor"];
+    role = role || "user"; // default role
 
-    if (role === "admin" && (!req.userRole || req.userRole !== "admin")) {
-      deleteUploadedFile("profiles", req.files?.photo?.[0]?.filename, "profile.png");
-      deleteUploadedFile("banners", req.files?.banner?.[0]?.filename, "banner.png");
+    // Only admin can create admin
+    if (role === "admin" && req.userRole !== "admin") {
+      deleteUploadedFile("profiles", uploadedPhoto, "profile.png");
+      deleteUploadedFile("banners", uploadedBanner, "banner.png");
       return res.status(403).json({
         status: "fail",
         message: "You do not have permission to create admin users",
       });
-    } else if (!allowedRolesForSignup.includes(role) && role !== "admin") {
-      deleteUploadedFile("profiles", req.files?.photo?.[0]?.filename, "profile.png");
-      deleteUploadedFile("banners", req.files?.banner?.[0]?.filename, "banner.png");
-      return res.status(400).json({
-        status: "fail",
-        message: `Role must be one of: ${allowedRolesForSignup.join(", ")}`,
-      });
     }
 
+    // Validate password
     if (password !== confirmPassword) {
-      deleteUploadedFile("profiles", req.files?.photo?.[0]?.filename, "profile.png");
-      deleteUploadedFile("banners", req.files?.banner?.[0]?.filename, "banner.png");
+      deleteUploadedFile("profiles", uploadedPhoto, "profile.png");
+      deleteUploadedFile("banners", uploadedBanner, "banner.png");
       return res.status(400).json({ status: "fail", message: "Passwords do not match" });
     }
 
+    // Check if user exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      deleteUploadedFile("profiles", req.files?.photo?.[0]?.filename, "profile.png");
-      deleteUploadedFile("banners", req.files?.banner?.[0]?.filename, "banner.png");
+      deleteUploadedFile("profiles", uploadedPhoto, "profile.png");
+      deleteUploadedFile("banners", uploadedBanner, "banner.png");
       return res.status(400).json({ status: "fail", message: "User already exists" });
     }
 
-    const userData = {
+    // Create user
+    const user = await User.create({
       name,
       email,
       password,
       photo: uploadedPhoto,
       banner: uploadedBanner,
-      role
-    };
-
-    if (role === "instructor" && jobTitle) userData.jobTitle = jobTitle;
-
-    const user = await User.create(userData);
+      role,
+    });
 
     const token = JWT.sign(
       { id: user._id, name: user.name, role: user.role },
@@ -82,47 +74,51 @@ const signup = async (req, res) => {
         email: user.email,
         role: user.role,
         photo: user.photo,
-        banner: user.banner
-      }
+        banner: user.banner,
+      },
     });
   } catch (error) {
-    deleteUploadedFile("profiles", req.files?.photo?.[0]?.filename, "profile.png");
-    deleteUploadedFile("banners", req.files?.banner?.[0]?.filename, "banner.png");
-    res.status(400).json({ status: "fail", message: `Error in sign up: ${error.message}` });
+    deleteUploadedFile("profiles", uploadedPhoto, "profile.png");
+    deleteUploadedFile("banners", uploadedBanner, "banner.png");
+    res.status(500).json({ status: "fail", message: error.message });
   }
 };
 
+
 const login = async (req, res) => {
   const { email, password } = req.body;
-  if (!email || !password)
-    return res.status(400).json({ status: "fail", message: "Email or Password is missing" });
 
-  const existingUser = await User.findOne({ email });
-  if (!existingUser)
+  if (!email || !password)
+    return res.status(400).json({ status: "fail", message: "Email or password missing" });
+
+  const user = await User.findOne({ email }).select("+password");
+
+  if (!user)
     return res.status(404).json({ status: "fail", message: "User does not exist" });
 
-  const isMatch = await bcrypt.compare(password, existingUser.password);
+  const isMatch = await user.comparePassword(password);
   if (!isMatch)
     return res.status(401).json({ status: "fail", message: "Incorrect email or password" });
 
   const token = JWT.sign(
-    { id: existingUser._id, name: existingUser.name, role: existingUser.role },
+    { id: user._id, name: user.name, role: user.role },
     process.env.JWT_SECRET,
     { expiresIn: process.env.JWT_EXPIRES_IN }
   );
 
-  return res.status(200).json({
+  res.status(200).json({
     status: "success",
     token,
     user: {
-      name: existingUser.name,
-      role: existingUser.role,
-      email: existingUser.email,
-      photo: existingUser.photo,
-      banner: existingUser.banner
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      photo: user.photo,
+      banner: user.banner,
     },
   });
 };
+
 
 const changePassword = async (req, res) => {
   try {

@@ -38,7 +38,8 @@ const userSchema = new mongoose.Schema({
   },
   banner: {
     type: String,
-    validate: imageFileValidator("profiles")
+    default: "banner.png",
+    validate: imageFileValidator("banners")
   },
   posts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
   comments: [{ type: mongoose.Schema.Types.ObjectId, ref: "Comment" }],

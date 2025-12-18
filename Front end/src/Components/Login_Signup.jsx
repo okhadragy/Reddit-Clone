@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "./LoginContext";
 import { useNavigate } from "react-router-dom";
+import api from "../api/api";
 
 function Login_Signup() {
   const { isLoggedIn, setIsLoggedIn } = useAuth();
@@ -25,9 +26,17 @@ function Login_Signup() {
       console.log("Logging in with:", { Email, Password });
 
       // ---- Your API login logic here ----
-      // Save token + user data
-      setIsLoggedIn(true);
-
+      api.post("/login", { email: Email, password: Password })
+        .then(response => {
+          const { token, user } = response.data;
+          localStorage.setItem("token", token);
+          localStorage.setItem("user", JSON.stringify(user));
+          setIsLoggedIn(true);
+          navigate("/");
+        })
+        .catch(error => {
+          console.error("Login failed:", error);
+        });
     } else {
       if (Password !== ConfirmPassword) {
         console.log("Passwords Don't Match!");
@@ -37,9 +46,18 @@ function Login_Signup() {
       console.log("Signing Up with:", { Email, Password });
 
       // ---- Your API signup logic here ----
-
-      // After successful signup:
-      SetIsLogin(true);
+      api.post("/signup", { email: Email, password: Password })
+        .then(response => {
+          console.log("Signup successful:", response.data);
+          localStorage.setItem("token", response.data.token);
+          localStorage.setItem("user", JSON.stringify(response.data.user));
+          setIsLoggedIn(true);
+          SetIsLogin(true);
+          navigate("/");
+        })
+        .catch(error => {
+          console.error("Signup failed:", error);
+        });
     }
   };
 
