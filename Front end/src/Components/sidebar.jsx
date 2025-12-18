@@ -6,14 +6,14 @@ import { useNavigate } from "react-router-dom";
 import StartACommunityModal from "./StartACommunityModal";
 
 export default function Sidebar() {
-  const { isLoggedIn, setIsLoggedIn } = useAuth();
+  const { isLoggedIn } = useAuth();
   const [sidebarIsOpened, setSidebarIsOpened] = useState(true);
   const [resourcesIsOpened, setResourcesIsOpened] = useState(true);
   const [GamesonRedditIsOpened,SetGamesonRedditIsOpened]=useState(false)
   const[CustomFeedIsOpened,SetCustomFeedIsOpened]=useState(false)
   const[RecentIsOpened,SetRecentIsOpened]=useState(false)
   const[CommunitiesIsOpened,SetCommunitiesIsOpened]=useState(false)
-  const [toastMessage, setToastMessage] = useState("");
+  const [setToastMessage] = useState("");
     const [isCommunityModalOpen, setCommunityModalOpen] = useState(false);
 
   const navigate = useNavigate();

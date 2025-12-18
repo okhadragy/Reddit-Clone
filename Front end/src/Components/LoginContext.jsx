@@ -2,30 +2,46 @@ import { createContext, useState, useContext, useEffect } from "react";
 
 export const LoginContext = createContext();
 
-// AppProvider provides login state and setter
 export function AppProvider({ children }) {
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   // Check token on initial load
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (token) setIsLoggedIn(true);
+    setIsLoggedIn(!!token);
   }, []);
 
+  const login = (token, user) => {
+    localStorage.setItem("token", token);
+    localStorage.setItem("user", JSON.stringify(user));
+    setIsLoggedIn(true);
+  };
+
+  const logout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setIsLoggedIn(false);
+  };
+
   return (
-    <LoginContext.Provider value={{ isLoggedIn, setIsLoggedIn }}>
+    <LoginContext.Provider
+      value={{
+        isLoggedIn,
+        login,
+        logout,
+      }}
+    >
       {children}
     </LoginContext.Provider>
   );
 }
 
-// Custom hook to use authentication context
+// Custom hook
 export function useAuth() {
   return useContext(LoginContext);
 }
 
-// Function to get the token and update login status
+// Optional helper
 export function Get_Token() {
-  const token = localStorage.getItem("token");
-  return token ? token : null;
+  return localStorage.getItem("token");
 }

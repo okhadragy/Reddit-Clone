@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 
 function Navbar() {
-  const { isLoggedIn, setIsLoggedIn } = useAuth();
+  const { isLoggedIn, logout } = useAuth();
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(true);
   const toggleMenu = () => setIsUserMenuOpen(!isUserMenuOpen);
@@ -121,7 +121,7 @@ function Navbar() {
       <div className="navbar-right">
         {!isLoggedIn ? (
           <>
-            <button onClick={() => navigate("/Login")} className="LoginButton">Log In</button>
+            <button onClick={() => navigate("/login?mode=login")} className="LoginButton">Log In</button>
             <button className="threedots">...</button>
           </>
         ) : (
@@ -211,7 +211,7 @@ function Navbar() {
 
                   {/* LOGOUT */}
                   <div className="menu-section no-border">
-                    <MenuItem icon={<LogOut size={18} />} label="Log Out" onClick={() => setIsLoggedIn(false)} />
+                    <MenuItem icon={<LogOut size={18} />} label="Log Out" onClick={() => logout()} />
                   </div>
 
                 </div>

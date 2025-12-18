@@ -43,11 +43,18 @@ const signup = async (req, res) => {
     }
 
     // Check if user exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
+    const existingUsername = await User.findOne({ name });
+    if (existingUsername) {
       deleteUploadedFile("profiles", uploadedPhoto, "profile.png");
       deleteUploadedFile("banners", uploadedBanner, "banner.png");
-      return res.status(400).json({ status: "fail", message: "User already exists" });
+      return res.status(400).json({ status: "fail", message: "Username already exists" });
+    }
+
+    const existingEmail = await User.findOne({ email });
+    if (existingEmail) {
+      deleteUploadedFile("profiles", uploadedPhoto, "profile.png");
+      deleteUploadedFile("banners", uploadedBanner, "banner.png");
+      return res.status(400).json({ status: "fail", message: "Email already exists" });
     }
 
     // Create user
@@ -86,19 +93,25 @@ const signup = async (req, res) => {
 
 
 const login = async (req, res) => {
-  const { email, password } = req.body;
+  const { identifier, password } = req.body; // identifier can be email or username
 
-  if (!email || !password)
-    return res.status(400).json({ status: "fail", message: "Email or password missing" });
+  if (!identifier || !password) {
+    return res.status(400).json({ status: "fail", message: "Email/Username or password missing" });
+  }
 
-  const user = await User.findOne({ email }).select("+password");
+  // Find by email OR username
+  const user = await User.findOne({ 
+    $or: [{ email: identifier }, { name: identifier }] 
+  }).select("+password");
 
-  if (!user)
+  if (!user) {
     return res.status(404).json({ status: "fail", message: "User does not exist" });
+  }
 
   const isMatch = await user.comparePassword(password);
-  if (!isMatch)
-    return res.status(401).json({ status: "fail", message: "Incorrect email or password" });
+  if (!isMatch) {
+    return res.status(401).json({ status: "fail", message: "Incorrect email/username or password" });
+  }
 
   const token = JWT.sign(
     { id: user._id, name: user.name, role: user.role },
@@ -118,6 +131,7 @@ const login = async (req, res) => {
     },
   });
 };
+
 
 
 const changePassword = async (req, res) => {

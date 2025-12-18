@@ -39,6 +39,7 @@ import './Styles/CommunityVisibility.css';
 
 import './Styles/CommunityNameDesc.css'
 import './Styles/SettingsLayout.css';
+import AuthRoute from './guards/AuthRoute.jsx';
 
 
 /*==============================Styles==============================*/ 
@@ -54,12 +55,12 @@ function App() {
           <div className='FeedLayout'>
             <Routes>
               <Route path="/" element={<Home/>} />
-              <Route path="/login" element={<Login_Signup />} />
+              <Route path="/login" element={<AuthRoute><Login_Signup /></AuthRoute>} />
               <Route path="/explore" element={<ExplorePage/>} />
               <Route path="/post/:id" element={<PostPage />} />
               <Route path="/custom-feed" element={<CustomFeed />} />
               <Route path="/settings" element={<SettingsLayout/>} />
-              <Route path="/User" element={<UserProfile/>}/>
+              <Route path="/user" element={<UserProfile/>}/>
               <Route path="/create-post" element={<CreatePost />} />
               <Route path="/r/:communityName" element={<CreateCommunity />} />
             </Routes>
