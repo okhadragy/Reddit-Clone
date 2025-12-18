@@ -1,10 +1,16 @@
-import React, { useState } from 'react';
-import { Plus, ChevronDown } from 'lucide-react';
+import React, {
+  useState,
+  forwardRef,
+  useImperativeHandle
+} from "react";
+import { Plus, ChevronDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import '../Styles/CreatePost.css'
-export default function CreatePostButton() {
+import "../Styles/CreatePost.css";
+
+const CreatePostButton = forwardRef((props, ref) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedSort, setSelectedSort] = useState("New");
+  const navigate = useNavigate();
 
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
 
@@ -12,36 +18,47 @@ export default function CreatePostButton() {
     setSelectedSort(sortType);
     setIsDropdownOpen(false);
   };
-  const navigate = useNavigate();
+
+  const openCreatePost = () => {
+    navigate("/create-post");
+  };
+
+  // 👇 expose function to parent
+  useImperativeHandle(ref, () => ({
+    openCreatePost,
+  }));
 
   return (
     <div className="create-post-wrapper">
       {/* Create Post Button */}
-      <button  onClick={() => navigate('/create-post')} className="btn-create-post">
+      <button onClick={openCreatePost} className="btn-create-post">
         <Plus size={20} />
         <span>Create Post</span>
       </button>
 
-      {/* Sort Dropdown Section */}
+      {/* Sort Dropdown */}
       <div className="sort-dropdown-container">
         <button className="btn-sort-trigger" onClick={toggleDropdown}>
           <span className="sort-label">{selectedSort}</span>
-          <ChevronDown size={16} className={`sort-chevron ${isDropdownOpen ? 'open' : ''}`} />
+          <ChevronDown
+            size={16}
+            className={`sort-chevron ${isDropdownOpen ? "open" : ""}`}
+          />
         </button>
 
-        {/* Dropdown Menu */}
         {isDropdownOpen && (
           <div className="sort-dropdown-menu">
             <div className="sort-header">Sort by</div>
-            
-            {['Hot', 'New', 'Top'].map((item) => (
-              <button 
+
+            {["Hot", "New", "Top"].map((item) => (
+              <button
                 key={item}
-                className={`sort-option ${selectedSort === item ? 'selected' : ''}`}
+                className={`sort-option ${
+                  selectedSort === item ? "selected" : ""
+                }`}
                 onClick={() => handleSortSelect(item)}
               >
-                <span>{item}</span>
-                {/* Check icon removed as requested */}
+                {item}
               </button>
             ))}
           </div>
@@ -49,4 +66,6 @@ export default function CreatePostButton() {
       </div>
     </div>
   );
-}
+});
+
+export default CreatePostButton;
