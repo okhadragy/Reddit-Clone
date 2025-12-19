@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import api from "../api/api";
 import "../Styles/PostPage.css";
 
-// --- ICONS ---
+/* ---- ICONS (unchanged, keep yours) ---- */
 const Icons = {
   // Uses stroke (Outline style)
   Back: () => (
@@ -94,117 +96,198 @@ const Icons = {
   ),
 };
 
-const DEFAULT_COMMENTS = [
-  {
-    id: 1,
-    user: "legallytrash666",
-    time: "21h ago",
-    score: 13,
-    text: "Full honesty: works very well.",
-    avatarColor: "#54b258",
-  },
-  {
-    id: 2,
-    user: "FlyingLawnmowerMan",
-    time: "18h ago",
-    score: 5,
-    text: "I've used it a couple years now myself. Works great!",
-    avatarColor: "#d45858",
-  },
-  {
-    id: 3,
-    user: "RandoDando10",
-    time: "17h ago",
-    score: 2,
-    text: "Wired version here too, 3 years and still going strong.",
-    avatarColor: "#ea6e78",
-  },
-];
+const PostPage = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
 
-const PostPage = ({ post, onBack }) => {
-  const [votes, setVotes] = useState(post.votes || 0);
-  const [voteStatus, setVoteStatus] = useState("none"); // 'up', 'down', 'none'
-  const [comments, setComments] = useState(
-    post.commentList || DEFAULT_COMMENTS
-  );
+  const [post, setPost] = useState(null);
+  const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
+  const [voteStatus, setVoteStatus] = useState("none");
   const [isSaved, setIsSaved] = useState(false);
   const [shareText, setShareText] = useState("Share");
+  const [loading, setLoading] = useState(true);
+
+  /* ---------------- Fetch Post ---------------- */
+  useEffect(() => {
+    const fetchPost = async () => {
+      try {
+        const res = await api.get(`/posts/${id}`);
+        const fetchedPost = res.data.data.post;
+
+        setPost(fetchedPost);
+        setComments(fetchedPost.comments || []);
+      } catch (err) {
+        console.error(err);
+        navigate("/");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPost();
+  }, [id, navigate]);
+
+  if (loading) return <div className="post-loading">Loading...</div>;
   if (!post) return null;
-  const handleVote = (type) => {
-    if (voteStatus === type) {
-      setVotes(type === "up" ? votes - 1 : votes + 1);
-      setVoteStatus("none");
-    } else if (type === "up") {
-      setVotes(voteStatus === "down" ? votes + 2 : votes + 1);
-      setVoteStatus("up");
-    } else {
-      setVotes(voteStatus === "up" ? votes - 2 : votes - 1);
-      setVoteStatus("down");
+
+  /* ---------------- Voting ---------------- */
+  const handleVote = async (type) => {
+    try {
+      await api.post(`/posts/${post._id}/vote`, { action: type });
+
+      setPost((prev) => ({
+        ...prev,
+        upvotesCount:
+          type === "up"
+            ? prev.upvotesCount + 1
+            : prev.upvotesCount,
+        downvotesCount:
+          type === "down"
+            ? prev.downvotesCount + 1
+            : prev.downvotesCount,
+      }));
+
+      setVoteStatus(type);
+    } catch (err) {
+      console.error(err);
     }
   };
 
-  const handleCommentSubmit = () => {
+  /* ---------------- Save Post ---------------- */
+  const toggleSave = async () => {
+    try {
+      await api.post(`/posts/${post._id}/save`);
+      setIsSaved((prev) => !prev);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  /* ---------------- Add Comment ---------------- */
+  const handleCommentSubmit = async () => {
     if (!newComment.trim()) return;
-    const newObj = {
-      id: Date.now(),
-      user: "Current_User",
-      time: "Just now",
-      score: 1,
-      text: newComment,
-      avatarColor: "#0079d3",
-      voteStatus: null,
-    };
-    setComments([newObj, ...comments]);
-    setNewComment("");
+
+    try {
+      const res = await api.post(`/comments/${post._id}`, {
+        text: newComment,
+      });
+
+      setComments((prev) => [res.data.data.comment, ...prev]);
+      setNewComment("");
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  const handleCommentVote = (id, type) => {
-    setComments((prev) =>
-      prev.map((c) => {
-        if (c.id !== id) return c;
-        let newScore = c.score || 0;
-        if (c.voteStatus === type) {
-          newScore += type === "up" ? -1 : 1;
-          return { ...c, score: newScore, voteStatus: null };
-        } else if (type === "up") {
-          newScore += c.voteStatus === "down" ? 2 : 1;
-          return { ...c, score: newScore, voteStatus: "up" };
-        } else {
-          newScore -= c.voteStatus === "up" ? 2 : 1;
-          return { ...c, score: newScore, voteStatus: "down" };
-        }
-      })
-    );
+  /* ---------------- Vote Comment ---------------- */
+  const handleCommentVote = async (commentId, action) => {
+    try {
+      await api.post(`/comments/vote/${commentId}`, { action });
+
+      setComments((prev) =>
+        prev.map((c) =>
+          c._id === commentId
+            ? {
+              ...c,
+              upvotesCount:
+                action === "up"
+                  ? c.upvotesCount + 1
+                  : c.upvotesCount,
+              downvotesCount:
+                action === "down"
+                  ? c.downvotesCount + 1
+                  : c.downvotesCount,
+            }
+            : c
+        )
+      );
+    } catch (err) {
+      console.error(err);
+    }
   };
 
+  /* ---------------- Share ---------------- */
   const handleShare = () => {
+    navigator.clipboard.writeText(window.location.href);
     setShareText("Copied!");
     setTimeout(() => setShareText("Share"), 2000);
   };
+
+  const now = new Date();
+  const createdAt = new Date(post.createdAt);
+
+  let years = now.getFullYear() - createdAt.getFullYear();
+  let months = now.getMonth() - createdAt.getMonth();
+  let days = now.getDate() - createdAt.getDate();
+  let hours = now.getHours() - createdAt.getHours();
+  let minutes = now.getMinutes() - createdAt.getMinutes();
+  let seconds = now.getSeconds() - createdAt.getSeconds();
+
+  // Adjust if necessary
+  if (seconds < 0) {
+    minutes--;
+    seconds += 60;
+  }
+
+  if (minutes < 0) {
+    hours--;
+    minutes += 60;
+  }
+
+  if (hours < 0) {
+    days--;
+    hours += 24;
+  }
+
+  if (days < 0) {
+    months--;
+    const prevMonth = new Date(now.getFullYear(), now.getMonth(), 0); // last day of previous month
+    days += prevMonth.getDate();
+  }
+
+  if (months < 0) {
+    years--;
+    months += 12;
+  }
+
+  // Determine display
+  let postTime;
+  if (years > 0) {
+    postTime = `${years}y`;
+  } else if (months > 0) {
+    postTime = `${months}m`;
+  } else if (days > 0) {
+    postTime = `${days}d`;
+  } else if (hours > 0) {
+    postTime = `${hours}h`;
+  } else if (minutes > 0) {
+    postTime = `${minutes}m`;
+  } else {
+    postTime = `${seconds}s`;
+  }
 
   return (
     <div className="post-page-container">
       {/* Navbar */}
       <div className="post-nav-bar">
-        <button className="back-btn-nav" onClick={onBack}>
-          <Icons.Back /> Back to Feed
+        <button className="back-btn-nav" onClick={() => navigate(-1)}>
+          <Icons.Back /> Back
         </button>
       </div>
 
       <div className="layout-grid">
-        {/* Main Column */}
         <div className="main-col">
-          {/* Post Card */}
+          {/* -------- Post -------- */}
           <div className="post-card">
             <div className="post-header-bar">
               <span className="sub-name">
-                {post.subreddit || "r/LogitechG"}
+                r/{post.community?.name}
               </span>
               <span className="meta-dot">•</span>
               <span className="user-meta">
-                Posted by u/{post.author || "Formal_Fig1078"}{" "}
-                {post.time || "1d ago"}
+                Posted by u/{post.author?.name} {" "}
+                {postTime || "1d"} {" ago"}
               </span>
             </div>
 
@@ -213,34 +296,39 @@ const PostPage = ({ post, onBack }) => {
               <span className="flair-tag">{post.flair || "Discussion"}</span>
             </div>
 
-            {post.image && (
+            {post.media && post.media.length > 0 && (
               <div className="post-media-container">
-                <img
-                  src={post.image}
-                  alt="Post"
-                  className="post-image-content"
-                />
+                {post.media.map((mediaUrl, index) => (
+                  <img
+                    key={index}
+                    src={`http://localhost:5000/uploads/posts/${mediaUrl}`}
+                    alt={`Post media ${index + 1}`}
+                    className="post-image-content"
+                  />
+                ))}
               </div>
             )}
 
-            <div className="post-body-text">{post.body || ""}</div>
+            <div className="post-body-text">{post.content || ""}</div>
 
-            {/* Footer Actions */}
+            {/* Footer */}
             <div className="post-footer-actions">
-              <div className={`vote-pill`}>
+              <div className="vote-pill">
                 <button
-                  className={`icon-btn up ${
-                    voteStatus === "up" ? "active" : ""
-                  }`}
+                  className={`icon-btn up ${voteStatus === "up" ? "active" : ""
+                    }`}
                   onClick={() => handleVote("up")}
                 >
                   <Icons.Up />
                 </button>
-                <span className={`vote-score ${voteStatus}`}>{votes}</span>
+
+                <span className="vote-score">
+                  {post.upvotesCount - post.downvotesCount}
+                </span>
+
                 <button
-                  className={`icon-btn down ${
-                    voteStatus === "down" ? "active" : ""
-                  }`}
+                  className={`icon-btn down ${voteStatus === "down" ? "active" : ""
+                    }`}
                   onClick={() => handleVote("down")}
                 >
                   <Icons.Down />
@@ -250,91 +338,58 @@ const PostPage = ({ post, onBack }) => {
               <button className="action-pill">
                 <Icons.Comment /> {comments.length}
               </button>
+
               <button
                 className={`action-pill ${isSaved ? "active-save" : ""}`}
-                onClick={() => setIsSaved(!isSaved)}
+                onClick={toggleSave}
               >
                 <Icons.Save /> {isSaved ? "Saved" : "Save"}
               </button>
+
               <button className="action-pill" onClick={handleShare}>
                 <Icons.Share /> {shareText}
               </button>
             </div>
           </div>
 
-          {/* Comment Input */}
+          {/* -------- Comment Input -------- */}
           <div className="comment-input-area">
-            <span className="user-label">
-              Comment as <span className="blue-text">Current_User</span>
-            </span>
-            <div className="input-box-wrapper">
-              <textarea
-                className="comment-textarea"
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-                placeholder="What are your thoughts?"
-              />
-              <div className="input-actions">
-                <div className="text-tools">
-                  <button className="tool-btn">
-                    <Icons.Image />
-                  </button>
-                  <button className="tool-btn">
-                    <Icons.Gif />
-                  </button>
-                </div>
-                <button
-                  className={`comment-btn-submit ${
-                    newComment.trim() ? "active" : ""
-                  }`}
-                  onClick={handleCommentSubmit}
-                >
-                  Comment
-                </button>
-              </div>
-            </div>
+            <textarea
+              className="comment-textarea"
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              placeholder="What are your thoughts?"
+            />
+            <button
+              className={`comment-btn-submit ${newComment.trim() ? "active" : ""
+                }`}
+              onClick={handleCommentSubmit}
+            >
+              Comment
+            </button>
           </div>
 
-          {/* Comments List */}
+          {/* -------- Comments -------- */}
           <div className="comments-list">
             {comments.map((c) => (
-              <div key={c.id} className="comment-thread">
-                <div
-                  className="comment-avatar"
-                  style={{ backgroundColor: c.avatarColor }}
-                ></div>
+              <div key={c._id} className="comment-thread">
                 <div className="comment-body">
                   <div className="comment-meta">
-                    <span className="c-user">{c.user}</span>
-                    <span className="c-dot">•</span>
-                    <span className="c-time">{c.time}</span>
+                    <span className="c-user">{c.user?.name}</span>
                   </div>
+
                   <p className="c-text">{c.text}</p>
+
                   <div className="c-actions">
-                    <button
-                      className={`c-btn up ${
-                        c.voteStatus === "up" ? "active" : ""
-                      }`}
-                      onClick={() => handleCommentVote(c.id, "up")}
-                    >
+                    <button onClick={() => handleCommentVote(c._id, "up")}>
                       <Icons.Up />
                     </button>
-                    <span className={`c-score ${c.voteStatus || ""}`}>
-                      {c.score}
+                    <span>
+                      {c.upvotesCount - c.downvotesCount}
                     </span>
-                    <button
-                      className={`c-btn down ${
-                        c.voteStatus === "down" ? "active" : ""
-                      }`}
-                      onClick={() => handleCommentVote(c.id, "down")}
-                    >
+                    <button onClick={() => handleCommentVote(c._id, "down")}>
                       <Icons.Down />
                     </button>
-                    <button className="c-btn-text">
-                      <Icons.Comment /> Reply
-                    </button>
-                    <button className="c-btn-text">Share</button>
-                    <button className="c-dots">•••</button>
                   </div>
                 </div>
               </div>
@@ -342,7 +397,6 @@ const PostPage = ({ post, onBack }) => {
           </div>
         </div>
 
-        {/* Sidebar Column (placeholder) */}
         <div className="sidebar-col"></div>
       </div>
     </div>

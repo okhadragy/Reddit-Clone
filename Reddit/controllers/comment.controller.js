@@ -122,10 +122,7 @@ const voteComment = async (req, res) => {
     const karmaChange = newVoteValue - oldVoteValue;
 
     await comment.save();
-
-
     
-
     if (karmaChange !== 0) {
         await User.findByIdAndUpdate(authorId, {
             $inc: { commentKarma: karmaChange }

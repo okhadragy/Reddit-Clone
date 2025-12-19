@@ -15,7 +15,6 @@ router
     postControllers.createPost
   )
   .get(
-    protectRoutes, 
     postControllers.getAllPosts
   );
 

@@ -1,0 +1,45 @@
+[
+  {
+    "title": "Welcome to our community!",
+    "content": "This is the very first post in our community. Feel free to share your thoughts.",
+    "mediaType": "text",
+    "community": "69445e35ed801e72a00176d8",
+    "flair": "Announcement",
+    "tags": ["welcome", "announcement"],
+    "author": "69443815832d1e94914f0202",
+    "isDraft": false
+  },
+  {
+    "title": "Best resources to learn React",
+    "content": "Here are some amazing resources to learn React effectively.",
+    "mediaType": "link",
+    "link": "https://react.dev",
+    "community": "69445e35ed801e72a00176d8",
+    "flair": "Discussion",
+    "tags": ["react", "frontend"],
+    "author": "6943fed8813702286f7eddbe",
+    "isDraft": false
+  },
+  {
+    "title": "Check out my project screenshot",
+    "content": "I just finished this project, would love feedback!",
+    "mediaType": "image",
+    "media": [
+      "messi.jpg"    
+    ],
+    "community": "69445e35ed801e72a00176d8",
+    "flair": "Showcase",
+    "tags": ["project", "feedback"],
+    "author": "69443815832d1e94914f0202",
+    "isDraft": false
+  },
+  {
+    "title": "Draft post example",
+    "content": "This post is still a draft and not visible.",
+    "mediaType": "text",
+    "community": "69445e35ed801e72a00176d8",
+    "tags": ["draft"],
+    "author": "6943fed8813702286f7eddbe",
+    "isDraft": true
+  }
+]

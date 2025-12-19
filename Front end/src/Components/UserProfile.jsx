@@ -91,8 +91,26 @@ export default function UserProfile() {
   let years = now.getFullYear() - createdAt.getFullYear();
   let months = now.getMonth() - createdAt.getMonth();
   let days = now.getDate() - createdAt.getDate();
+  let hours = now.getHours() - createdAt.getHours();
+  let minutes = now.getMinutes() - createdAt.getMinutes();
+  let seconds = now.getSeconds() - createdAt.getSeconds();
 
   // Adjust if necessary
+  if (seconds < 0) {
+    minutes--;
+    seconds += 60;
+  }
+
+  if (minutes < 0) {
+    hours--;
+    minutes += 60;
+  }
+
+  if (hours < 0) {
+    days--;
+    hours += 24;
+  }
+
   if (days < 0) {
     months--;
     const prevMonth = new Date(now.getFullYear(), now.getMonth(), 0); // last day of previous month
@@ -110,8 +128,14 @@ export default function UserProfile() {
     redditAge = `${years} y`;
   } else if (months > 0) {
     redditAge = `${months} m`;
-  } else {
+  } else if (days > 0) {
     redditAge = `${days} d`;
+  } else if (hours > 0) {
+    redditAge = `${hours} h`;
+  } else if (minutes > 0) {
+    redditAge = `${minutes} m`;
+  } else {
+    redditAge = `${seconds} s`;
   }
 
   return (

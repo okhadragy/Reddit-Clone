@@ -33,12 +33,17 @@ const fetchPostsWithStats = async (query, page, limit, userId) => {
 
   const totalPosts = await Post.countDocuments(query);
 
-  // The "Enrichment" Logic (Vote Counts, etc.)
   const postsWithVotes = posts.map(post => ({
     ...post.toObject(),
-    upvotesCount: post.upvotes.length,
-    downvotesCount: post.downvotes.length,
-    // Add user vote status if needed (isUpvoted: post.upvotes.includes(userId))
+    upvotesCount: post.upvotes?.length || 0,
+    downvotesCount: post.downvotes?.length || 0,
+    userVote: userId
+      ? post.upvotes.includes(userId)
+        ? 'up'
+        : post.downvotes.includes(userId)
+          ? 'down'
+          : 'none'
+      : 'none',
     comments: post.comments.map(c => ({
       ...c.toObject(),
       upvotesCount: c.upvotes?.length || 0,
@@ -48,6 +53,7 @@ const fetchPostsWithStats = async (query, page, limit, userId) => {
 
   return { posts: postsWithVotes, totalPosts };
 };
+
 
 // -------------------- Create Post --------------------
 const createPost = async (req, res) => {
@@ -124,18 +130,46 @@ const getAllPosts = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
-    const { type } = req.query;
+    const { type, community, communityId } = req.query;
+
     let query = {};
 
+    // 🔹 Home feed (joined communities)
     if (type === 'home' && req.userId) {
-        const memberships = await CommunityMember.find({ user: req.userId }).select('community');
-        const communityIds = memberships.map(m => m.community);
-        query = { community: { $in: communityIds } };
-    } 
-    // 'popular' feed uses empty query {}
+      const memberships = await CommunityMember
+        .find({ user: req.userId })
+        .select('community');
 
-    // CALL THE HELPER
-    const { posts, totalPosts } = await fetchPostsWithStats(query, page, limit, req.userId);
+      const communityIds = memberships.map(m => m.community);
+      query = { community: { $in: communityIds } };
+    }
+
+    // 🔹 Community feed (by name)
+    if (community) {
+      const communityDoc = await Community.findOne({ name: community });
+      if (!communityDoc) {
+        return res.status(404).json({
+          status: 'fail',
+          message: 'Community not found'
+        });
+      }
+      query = { community: communityDoc._id };
+    }
+
+    // 🔹 Community feed (by id)
+    if (communityId) {
+      query = { community: communityId };
+    }
+
+    // 🔹 Popular feed → empty query (all posts)
+    // type === 'popular' → no filter
+
+    const { posts, totalPosts } = await fetchPostsWithStats(
+      query,
+      page,
+      limit,
+      req.userId
+    );
 
     res.status(200).json({
       status: 'success',
@@ -145,10 +179,15 @@ const getAllPosts = async (req, res) => {
       totalPages: Math.ceil(totalPosts / limit),
       data: { posts },
     });
+
   } catch (error) {
-    res.status(500).json({ status: 'error', message: error.message });
+    res.status(500).json({
+      status: 'error',
+      message: error.message
+    });
   }
 };
+
 
 // -------------------- Get Single Post --------------------
 const getPost = async (req, res) => {
