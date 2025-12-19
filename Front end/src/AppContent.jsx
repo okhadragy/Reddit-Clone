@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 /*==============================Components==============================*/
 import AddTopics from './Components/AddTopics.jsx'
 import CommunityNameDesc from './Components/CommunityNameDesc.jsx';
@@ -63,9 +63,10 @@ function AppContent() {
                     <Route path="/post/:id" element={<PostPage />} />
                     <Route path="/custom-feed" element={<ProtectedRoute><CustomFeed /></ProtectedRoute>} />
                     <Route path="/settings" element={<ProtectedRoute><SettingsLayout /></ProtectedRoute>} />
-                    <Route path="/user" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
+                    <Route path="/:username" element={<ProtectedRoute><UserProfile/></ProtectedRoute>} />
                     <Route path="/create-post" element={<ProtectedRoute><CreatePost /></ProtectedRoute>} />
                     <Route path="/r/:communityName" element={<ProtectedRoute><CreateCommunity /></ProtectedRoute>} />
+                    <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
             </div>
 

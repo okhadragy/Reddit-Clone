@@ -1,6 +1,7 @@
 import { useAuth } from "./LoginContext";
 import { useNavigate } from "react-router-dom";
-import React, { useState } from 'react';
+import React, { useState, useRef  } from 'react';
+import api from "../api/api";
 
 import {
   LogOut,
@@ -15,7 +16,7 @@ import {
   Zap,
 } from "lucide-react";
 
-function Navbar({isLoggedIn}) {
+function Navbar({ isLoggedIn }) {
   const { logout } = useAuth();
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(true);
@@ -26,7 +27,7 @@ function Navbar({isLoggedIn}) {
   // --- SEARCH STATES ---
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
-  
+
 
   const communities = [
     "r/reactjs",
@@ -39,36 +40,47 @@ function Navbar({isLoggedIn}) {
     "r/Tottenham",
   ];
 
-  const users = [
-    "u/Working_Scheme_650",
-    "u/John",
-    "u/alex",
-    "u/Sarah",
-    "u/Raphinha",
-    "u/Pedri",
-    "u/Ayham",
-    "u/Messi",
-  ];
+  const fetchUsers = async (query) => {
+    try {
+      const res = await api.get(
+        `/users?search=${query}&limit=5`
+      );
+
+      if (res.data.status === "success") {
+        return res.data.data.map((u) => `u/${u.name}`);
+      }
+      return [];
+    } catch (err) {
+      console.error(err);
+      return [];
+    }
+  };
+
+  const debounceRef = useRef(null);
 
   const handleSearch = (e) => {
     const query = e.target.value.toLowerCase();
     setSearchQuery(query);
 
-    if (query.trim() === "") {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+
+    if (!query.trim()) {
       setSearchResults([]);
       return;
     }
 
-    const matchedCommunities = communities.filter((c) =>
-      c.toLowerCase().includes(query)
-    );
+    debounceRef.current = setTimeout(async () => {
+      const matchedCommunities = communities.filter((c) =>
+        c.toLowerCase().includes(query)
+      );
 
-    const matchedUsers = users.filter((u) =>
-      u.toLowerCase().includes(query)
-    );
+      // users from backend
+      const matchedUsers = await fetchUsers(query);
 
-    setSearchResults([...matchedCommunities, ...matchedUsers]);
+      setSearchResults([...matchedCommunities, ...matchedUsers]);
+    }, 300); // debounce delay
   };
+
 
   // --- DARK MODE EFFECT (INSERTED HERE CORRECTLY) ---
   React.useEffect(() => {
@@ -81,6 +93,8 @@ function Navbar({isLoggedIn}) {
     }
   }, [isDarkMode]);
 
+
+  const user = JSON.parse(localStorage.getItem("user"));
 
   return (
     <header className="Navbar">
@@ -112,7 +126,7 @@ function Navbar({isLoggedIn}) {
         {searchResults.length > 0 && (
           <div className="search-results">
             {searchResults.map((item, index) => (
-              <div key={index} className="search-item">
+              <div key={index} className="search-item" onClick={() => {navigate(`/${item.split('/')[1]}`); setSearchQuery(""); setSearchResults([]);}}>
                 {item}
               </div>
             ))}
@@ -140,7 +154,7 @@ function Navbar({isLoggedIn}) {
               </svg>
             </button>
 
-            <button>
+            <button className="create-post-button" onClick={() => navigate("/create-post")}>
               <div className="+Create">
                 <svg rpl="" fill="currentColor" height="20" icon-name="add-square" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg">
                   <path d="M14.7 2H5.3C3.481 2 2 3.48 2 5.3v9.4C2 16.519 3.48 18 5.3 18h9.4c1.819 0 3.3-1.48 3.3-3.3V5.3C18 3.481 16.52 2 14.7 2zm1.499 12.7a1.5 1.5 0 01-1.499 1.499H5.3A1.5 1.5 0 013.801 14.7V5.3A1.5 1.5 0 015.3 3.801h9.4A1.5 1.5 0 0116.199 5.3v9.4zM14 10.9h-3.1V14H9.1v-3.1H6V9.1h3.1V6h1.8v3.1H14v1.8z"></path>
@@ -160,24 +174,24 @@ function Navbar({isLoggedIn}) {
               <button className="avatar" onClick={toggleMenu}>
                 <div className="avatar-status-dot"></div>
                 <img
-                  src="https://www.redditstatic.com/avatars/defaults/v2/avatar_default_5.png"
+                  src={user?.photo ? `http://localhost:5000/uploads/profiles/${user.photo}` : "https://www.redditstatic.com/avatars/defaults/v2/avatar_default_5.png"}
                   alt="User Avatar"
                 />
               </button>
 
               {isUserMenuOpen && (
                 <div className="user-menu-dropdown">
-                  
+
                   {/* PROFILE */}
                   <div className="menu-section profile">
                     <img
-                      src="https://www.redditstatic.com/avatars/defaults/v2/avatar_default_5.png"
+                      src={user?.photo ? `http://localhost:5000/uploads/profiles/${user.photo}` : "https://www.redditstatic.com/avatars/defaults/v2/avatar_default_5.png"}
                       className="menu-avatar-img"
                       alt="User"
                     />
-                    <div className="profile-text-block" onClick={() => navigate("/User")}>
+                    <div className="profile-text-block" onClick={() => navigate(`/${user?.name}`)}>
                       <span className="menu-main-text">View Profile</span>
-                      <span className="menu-sub-text">u/Working_Scheme_650</span>
+                      <span className="menu-sub-text">u/{user?.name}</span>
                     </div>
                   </div>
 
@@ -213,7 +227,7 @@ function Navbar({isLoggedIn}) {
 
                   {/* LOGOUT */}
                   <div className="menu-section no-border">
-                    <MenuItem icon={<LogOut size={18} />} label="Log Out" onClick={() => {logout(); navigate("/");}} />
+                    <MenuItem icon={<LogOut size={18} />} label="Log Out" onClick={() => { logout(); navigate("/"); }} />
                   </div>
 
                 </div>

@@ -1,13 +1,12 @@
-import React from 'react';
 import { Image as ImageIcon } from 'lucide-react';
-import { useNavigate } from "react-router-dom";
-export default function ProfileHeader() {
+
+export default function ProfileHeader({ profile_img, username }) {
   return (
     <div className="profile-header">
       {/* Avatar Section with Relative positioning for the icon */}
       <div className="profile-avatar-wrapper">
         <img 
-          src="https://www.redditstatic.com/avatars/defaults/v2/avatar_default_3.png" 
+          src={profile_img}
           alt="Profile" 
           className="profile-avatar"
         />
@@ -18,8 +17,8 @@ export default function ProfileHeader() {
 
       {/* Text Info Section */}
       <div className="profile-info">
-        <h1 className="profile-username">Working_Scheme_650</h1>
-        <p className="profile-handle">u/Working_Scheme_650</p>
+        <h1 className="profile-username">{username}</h1>
+        <p className="profile-handle">u/{username}</p>
       </div>
     </div>
   );

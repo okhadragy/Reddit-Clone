@@ -4,7 +4,7 @@ import { Share2, Image as ImageIcon, ShieldCheck, User, Eye, Shirt, Shield, Plus
 
 // --- Sub-Components ---
 
-const UserInfoCard = () => (
+const UserInfoCard = ({ username, karma, redditAge }) => (
   <div className="right-panel-card">
     {/* Blue Gradient Background */}
     <div className="user-card-gradient"></div>
@@ -14,7 +14,7 @@ const UserInfoCard = () => (
             <ImageIcon size={16} />
         </button>
 
-      <h2 className="user-card-name">Working_Scheme_650</h2>
+      <h2 className="user-card-name">{username}</h2>
       
       <div style={{ marginBottom: '16px' }}>
         <button  >
@@ -27,7 +27,7 @@ const UserInfoCard = () => (
 
       <div className="user-stats-grid">
         <div>
-           <div className="stat-value">1</div>
+           <div className="stat-value">{karma}</div>
            <div className="stat-label">Karma</div>
         </div>
         <div>
@@ -35,7 +35,7 @@ const UserInfoCard = () => (
            <div className="stat-label">Contributions</div>
         </div>
         <div>
-           <div className="stat-value">1 y</div>
+           <div className="stat-value">{redditAge}</div>
            <div className="stat-label">Reddit Age</div>
         </div>
         <div>
@@ -188,11 +188,11 @@ const Footer = () => (
 )
 
 // --- Main Export ---
-export default function RightPanel() {  
+export default function RightPanel({ username, karma, redditAge }) {  
 
   return (
     <div className="right-panel-container">
-        <UserInfoCard />
+        <UserInfoCard username={username} karma={karma} redditAge={redditAge} />
         <AchievementsCard />
         <SettingsCard />
         <SocialLinksCard />

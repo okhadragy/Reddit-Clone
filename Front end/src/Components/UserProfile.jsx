@@ -1,18 +1,42 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ProfileHeader from "./ProfileHeader.jsx";
 import ProfileTabs from "./ProfileTabs.jsx";
-import RightPanel from "./RightPanel.jsx"; 
+import RightPanel from "./RightPanel.jsx";
 import ContentFilterBar from "./ContentFilterBar.jsx";
 import CreatePostButton from "./CreatePostButton.jsx";
 import EmptyState from "./EmptyState.jsx";
 import "../Styles/UserProfile.css";
-import { useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import api from "../api/api.js";
 
 export default function UserProfile() {
-  // 1. Initialize State for the active tab
+  const { username } = useParams();
   const [activeTab, setActiveTab] = useState("Overview");
-  const navigate = useNavigate();
-  // 2. Helper logic to change text based on state
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        setLoading(true);
+        const res = await api.get(`/users/${username}?include=posts,comments,saved,upvoted,downvoted`);
+        if (res.data.status === "success") {
+          setUser(res.data.data);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserProfile();
+  }, [username]);
+
+  if (loading) return <p>Loading...</p>;
+  if (!user) return <p>User not found</p>;
+
+
   const getEmptyStateContent = () => {
     switch (activeTab) {
       case "Overview":
@@ -29,34 +53,12 @@ export default function UserProfile() {
           showButton: true
         };
       case "Saved":
+      case "Upvoted":
+      case "Downvoted":
         return {
-          label: "Looks like you haven't saved anything yet",
-          description: null, 
-          showButton: false 
-        };
-      case "History": 
-        return {
-          label: "Looks like you haven't saved anything yet",
-          description: null, 
-          showButton: false 
-        };
-      case "Hidden": 
-        return {
-          label: "Looks like you haven't hidden anything yet",
-          description: null, 
-          showButton: false 
-        };
-      case "Upvoted": 
-        return {
-          label: "Looks like you haven't upvoted anything yet",
-          description: null, 
-          showButton: false 
-        };
-      case "Downvoted": 
-        return {
-          label: "Looks like you haven't downvoted anything yet",
-          description: null, 
-          showButton: false 
+          label: `Looks like you haven't ${activeTab.toLowerCase()} anything yet`,
+          description: null,
+          showButton: false
         };
       default:
         return {
@@ -69,29 +71,72 @@ export default function UserProfile() {
 
   const emptyStateData = getEmptyStateContent();
 
- return (
-  <div className="app-container">
-    <main className="app-main">
-      <ProfileHeader />
+  const tabs = user?.upvoted ? [
+    "Overview",
+    "Posts",
+    "Comments",
+    "Saved",
+    "Upvoted",
+    "Downvoted"
+  ] : [
+    "Overview",
+    "Posts",
+    "Comments",
+  ];
 
-      <ProfileTabs 
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
-      />
+  // Inside your component
+  const now = new Date();
+  const createdAt = new Date(user.createdAt);
 
-      <ContentFilterBar />
-      <CreatePostButton />
-  <RightPanel />
-      <EmptyState
-        label={emptyStateData.label}
-        description={emptyStateData.description}
-        showButton={emptyStateData.showButton}
-      />
-    </main>
+  let years = now.getFullYear() - createdAt.getFullYear();
+  let months = now.getMonth() - createdAt.getMonth();
+  let days = now.getDate() - createdAt.getDate();
 
-  
-  </div>
-);
+  // Adjust if necessary
+  if (days < 0) {
+    months--;
+    const prevMonth = new Date(now.getFullYear(), now.getMonth(), 0); // last day of previous month
+    days += prevMonth.getDate();
+  }
 
+  if (months < 0) {
+    years--;
+    months += 12;
+  }
 
+  // Determine display
+  let redditAge;
+  if (years > 0) {
+    redditAge = `${years} y`;
+  } else if (months > 0) {
+    redditAge = `${months} m`;
+  } else {
+    redditAge = `${days} d`;
+  }
+
+  return (
+    <div className="app-container">
+      <main className="app-main">
+        <ProfileHeader
+          profile_img={`http://localhost:5000/uploads/profiles/${user.photo}` || "https://www.redditstatic.com/avatars/defaults/v2/avatar_default_3.png"}
+          username={user.name}
+        />
+
+        <ProfileTabs
+          tabs={tabs}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+        />
+
+        <ContentFilterBar />
+        <CreatePostButton />
+        <RightPanel username={user.name} karma={user.postKarma + user.commentKarma} redditAge={redditAge} />
+        <EmptyState
+          label={emptyStateData.label}
+          description={emptyStateData.description}
+          showButton={emptyStateData.showButton}
+        />
+      </main>
+    </div>
+  );
 }

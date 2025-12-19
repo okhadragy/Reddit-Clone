@@ -1,6 +1,8 @@
 const User = require("../models/user.model");
-const Achievement=require("../models/achievement.model");
+const Achievement = require("../models/achievement.model");
 const checkAchievement = require('../utils/achievement.checker');
+const Post = require("../models/post.model");
+const Community = require("../models/community.model");
 const JWT = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const mongoose = require('mongoose');
@@ -100,8 +102,8 @@ const login = async (req, res) => {
   }
 
   // Find by email OR username
-  const user = await User.findOne({ 
-    $or: [{ email: identifier }, { name: identifier }] 
+  const user = await User.findOne({
+    $or: [{ email: identifier }, { name: identifier }]
   }).select("+password");
 
   if (!user) {
@@ -162,30 +164,84 @@ const changePassword = async (req, res) => {
   }
 };
 
+const getUsernames = async (req, res) => {
+  try {
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = Math.min(parseInt(req.query.limit) || 10, 50);
+    const search = req.query.search?.trim();
+
+    // Build search filter
+    let filter = {};
+    if (search) {
+      filter = {
+        $or: [
+          { name: { $regex: search, $options: "i" } },
+          { email: { $regex: search, $options: "i" } },
+        ],
+      };
+    }
+
+    const skip = (page - 1) * limit;
+
+    const users = await User.find(filter)
+      .select("name") // only what frontend needs
+      .skip(skip)
+      .limit(limit)
+      .sort({ name: 1 });
+
+    const total = await User.countDocuments(filter);
+
+    res.status(200).json({
+      status: "success",
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+      results: users.length,
+      data: users,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
+  }
+};
+
+const resolveUser = async (identifier) => {
+  if (mongoose.Types.ObjectId.isValid(identifier)) {
+    return await User.findById(identifier);
+  }
+  return await User.findOne({ name: identifier });
+};
+
+
+
 const getUserProfile = async (req, res) => {
   try {
     const requesterId = req.userId;
     const requesterRole = req.userRole;
-    const targetUserId = req.params.id || requesterId;
 
-    if (!mongoose.Types.ObjectId.isValid(targetUserId)) {
-      return res.status(400).json({ status: "fail", message: "Invalid User ID" });
+    const identifier = req.params.idOrName; // could be ID or username
+    if (!identifier) {
+      return res.status(400).json({ status: "fail", message: "User identifier is required" });
     }
 
-    // Parse ?include=posts,comments,saved,...
-    const includes = req.query.include?.split(",").map(i => i.trim()) || [];
-
-    // Basic user info (always returned)
-    const user = await User.findById(targetUserId)
-      .select("name about photo banner followers following achievements showFollowersCount createdAt role")
-      .populate(includes.includes("achievements") ? "achievements" : "")
-      .lean();
-
-    if (!user) {
+    // Resolve user by ID or name
+    const userDoc = await resolveUser(identifier);
+    if (!userDoc) {
       return res.status(404).json({ status: "fail", message: "User not found" });
     }
 
-    const isSelf = requesterId === targetUserId.toString();
+    const includes = req.query.include?.split(",").map(i => i.trim()) || [];
+
+    const user = await User.findById(userDoc._id)
+      .select("name about photo banner followers following achievements showFollowersCount createdAt role savedPosts postKarma commentKarma")
+      .populate(includes.includes("achievements") ? "achievements" : "")
+      .lean();
+
+    const targetUserId = user._id.toString();
+    const isSelf = requesterId === targetUserId;
     const isAdmin = requesterRole === "admin";
 
     user.followersCount = user.showFollowersCount ? user.followers?.length || 0 : undefined;
@@ -195,10 +251,12 @@ const getUserProfile = async (req, res) => {
       delete user.followers;
       delete user.following;
       delete user.role;
+      delete user.savedPosts;
     }
 
     const queries = [];
 
+    // Posts
     if (includes.includes("posts")) {
       queries.push(
         Post.find({ author: targetUserId })
@@ -210,45 +268,38 @@ const getUserProfile = async (req, res) => {
       );
     }
 
+    // Comments
     if (includes.includes("comments")) {
       queries.push(
         Post.aggregate([
           { $unwind: "$comments" },
           { $match: { "comments.user": new mongoose.Types.ObjectId(targetUserId) } },
-          {
-            $project: {
-              postId: "$_id",
-              postTitle: "$title",
-              comment: "$comments",
-              community: "$community",
-              author: "$author",
-            },
-          },
-        ])
-          .then(async comments => {
-            const communityIds = [...new Set(comments.map(c => c.community).filter(Boolean))];
-            const authorIds = [...new Set(comments.map(c => c.author).filter(Boolean))];
+          { $project: { postId: "$_id", postTitle: "$title", comment: "$comments", community: "$community", author: "$author" } }
+        ]).then(async comments => {
+          const communityIds = [...new Set(comments.map(c => c.community))];
+          const authorIds = [...new Set(comments.map(c => c.author))];
 
-            const [communities, authors] = await Promise.all([
-              Community.find({ _id: { $in: communityIds } }).select("name coverImage").lean(),
-              User.find({ _id: { $in: authorIds } }).select("name photo").lean(),
-            ]);
+          const [communities, authors] = await Promise.all([
+            Community.find({ _id: { $in: communityIds } }).select("name coverImage").lean(),
+            User.find({ _id: { $in: authorIds } }).select("name photo").lean(),
+          ]);
 
-            const communityMap = Object.fromEntries(communities.map(c => [c._id.toString(), c]));
-            const authorMap = Object.fromEntries(authors.map(a => [a._id.toString(), a]));
+          const communityMap = Object.fromEntries(communities.map(c => [c._id.toString(), c]));
+          const authorMap = Object.fromEntries(authors.map(a => [a._id.toString(), a]));
 
-            user.comments = comments.map(c => ({
-              postId: c.postId,
-              postTitle: c.postTitle,
-              text: c.comment.text,
-              createdAt: c.comment.createdAt,
-              community: communityMap[c.community?.toString()],
-              author: authorMap[c.author?.toString()],
-            }));
-          })
+          user.comments = comments.map(c => ({
+            postId: c.postId,
+            postTitle: c.postTitle,
+            text: c.comment.text,
+            createdAt: c.comment.createdAt,
+            community: communityMap[c.community?.toString()],
+            author: authorMap[c.author?.toString()],
+          }));
+        })
       );
     }
 
+    // Saved / Upvoted / Downvoted
     if ((includes.includes("saved") || includes.includes("upvoted") || includes.includes("downvoted")) && (isAdmin || isSelf)) {
       if (includes.includes("saved")) {
         queries.push(
@@ -285,18 +336,16 @@ const getUserProfile = async (req, res) => {
     }
 
     await Promise.all(queries);
-
     delete user.savedPosts;
 
-    res.status(200).json({
-      status: "success",
-      data: user,
-    });
+    res.status(200).json({ status: "success", data: user });
   } catch (error) {
     console.error("Error in getUserProfile:", error);
     res.status(500).json({ status: "fail", message: error.message });
   }
 };
+
+
 
 const getAllUsers = async (req, res) => {
   try {
@@ -315,100 +364,113 @@ const updateUser = async (req, res) => {
   try {
     const requesterId = req.userId;
     const requesterRole = req.userRole;
-    const userId = requesterRole === "admin" ? req.params.id : requesterId;
 
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-      return res.status(400).json({ status: "fail", message: "Invalid User ID" });
-    }
+    const identifier = requesterRole === "admin"
+      ? req.params.idOrName
+      : requesterId;
 
-    const oldUser = await User.findById(userId);
-    if (!oldUser) return res.status(404).json({ status: "fail", message: "User not found" });
+    const user = await resolveUser(identifier);
+    if (!user) return res.status(404).json({ status: "fail", message: "User not found" });
 
     if (req.files?.photo) req.body.photo = req.files.photo[0].filename;
     if (req.files?.banner) req.body.banner = req.files.banner[0].filename;
 
-    if (requesterRole !== "admin" && req.body.role) delete req.body.role;
+    if (requesterRole !== "admin") delete req.body.role;
 
-    const updatedUser = await User.findByIdAndUpdate(userId, req.body, {
-      new: true,
-      runValidators: true,
-      select: "-password -__v"
-    });
-    await checkAchievement(userId, { type: 'custom' });
+    const updatedUser = await User.findByIdAndUpdate(
+      user._id,
+      req.body,
+      { new: true, runValidators: true, select: "-password -__v" }
+    );
+    
+    await checkAchievement(user._id, { type: "custom" });
 
-    if (req.files?.photo && oldUser.photo && oldUser.photo !== "profile.png")
-      deleteUploadedFile("profiles", oldUser.photo, "profile.png");
+    if (req.files?.photo && user.photo && user.photo !== "profile.png")
+      deleteUploadedFile("profiles", user.photo, "profile.png");
 
-    if (req.files?.banner && oldUser.banner && oldUser.banner !== "banner.png")
-      deleteUploadedFile("banners", oldUser.banner, "banner.png");
+    if (req.files?.banner && user.banner && user.banner !== "banner.png")
+      deleteUploadedFile("banners", user.banner, "banner.png");
 
     res.status(200).json({ status: "success", data: updatedUser });
+
   } catch (error) {
-    console.error("Error updating User:", error);
-    res.status(500).json({ status: "error", message: "Internal server error" });
-  }
-};
-
-const deleteUser = async (req, res) => {
-  try {
-    const requesterId = req.userId;
-    const requesterRole = req.userRole;
-    const userId = requesterRole === 'admin' ? req.params.id : requesterId;
-
-    if (!mongoose.Types.ObjectId.isValid(userId))
-      return res.status(400).json({ status: "fail", message: "Invalid User ID" });
-
-    const deletedUser = await User.findByIdAndDelete(userId);
-    if (!deletedUser)
-      return res.status(404).json({ status: "fail", message: "User not found" });
-
-    if (deletedUser.photo && deletedUser.photo !== "profile.png")
-      deleteUploadedFile("profiles", deletedUser.photo, "profile.png");
-
-    if (deletedUser.banner && deletedUser.banner !== "banner.png")
-      deleteUploadedFile("banners", deletedUser.banner, "banner.png");
-
-    res.status(200).json({ status: "success", message: "User deleted successfully" });
-  } catch (error) {
-    console.error("Error deleting User:", error);
-    res.status(500).json({ status: "error", message: "Internal server error" });
-  }
-};
-
-const toggleFollowUser = async (req, res) => {
-  try {
-    const userId = req.userId;
-    const targetId = req.params.id;
-
-    if (userId === targetId)
-      return res.status(400).json({ status: "fail", message: "You cannot follow yourself" });
-
-    const user = await User.findById(userId);
-    const target = await User.findById(targetId);
-
-    if (!target) return res.status(404).json({ status: "fail", message: "Target user not found" });
-
-    const isFollowing = user.following?.includes(targetId);
-    if (isFollowing) {
-      user.following.pull(targetId);
-      target.followers.pull(userId);
-      await Promise.all([user.save(), target.save()]);
-      return res.status(200).json({ status: "success", message: "Unfollowed user" });
-    } else {
-      user.following.push(targetId);
-      target.followers.push(userId);
-      await Promise.all([user.save(), target.save()]);
-      return res.status(200).json({ status: "success", message: "Followed user" });
+    if (error.code === 11000) {
+      const duplicateField = Object.keys(error.keyValue)[0];
+      return res.status(400).json({
+        status: "fail",
+        message: `${duplicateField} already exists`
+      });
     }
-  } catch (error) {
-    console.error("Error in toggleFollowUser:", error);
+    console.error("Error updating user:", error);
     res.status(500).json({ status: "error", message: error.message });
   }
 };
 
-const getAllAchievements = async (req, res) => {try {
-    const achievements = await Achievement.find().select('-__v'); 
-    
+
+const deleteUser = async (req, res) => {
+  try {
+    const requesterRole = req.userRole;
+    const identifier = requesterRole === "admin"
+      ? req.params.idOrName
+      : req.userId;
+
+    const user = await resolveUser(identifier);
+    if (!user) return res.status(404).json({ status: "fail", message: "User not found" });
+
+    await User.findByIdAndDelete(user._id);
+
+    if (user.photo && user.photo !== "profile.png")
+      deleteUploadedFile("profiles", user.photo, "profile.png");
+
+    if (user.banner && user.banner !== "banner.png")
+      deleteUploadedFile("banners", user.banner, "banner.png");
+
+    res.status(200).json({ status: "success", message: "User deleted successfully" });
+
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    res.status(500).json({ status: "error", message: error.message });
+  }
+};
+
+
+const toggleFollowUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.userId);
+    const target = await resolveUser(req.params.idOrName);
+
+    if (!target) return res.status(404).json({ status: "fail", message: "User not found" });
+    if (user._id.equals(target._id))
+      return res.status(400).json({ status: "fail", message: "You cannot follow yourself" });
+
+    const isFollowing = user.following.includes(target._id);
+
+    if (isFollowing) {
+      user.following.pull(target._id);
+      target.followers.pull(user._id);
+    } else {
+      user.following.push(target._id);
+      target.followers.push(user._id);
+    }
+
+    await Promise.all([user.save(), target.save()]);
+
+    res.status(200).json({
+      status: "success",
+      message: isFollowing ? "Unfollowed user" : "Followed user"
+    });
+
+  } catch (error) {
+    console.error("Follow error:", error);
+    res.status(500).json({ status: "error", message: error.message });
+  }
+};
+
+
+const getAllAchievements = async (req, res) => {
+  try {
+    const achievements = await Achievement.find().select('-__v');
+
     res.status(200).json({
       status: 'success',
       results: achievements.length,
@@ -421,24 +483,24 @@ const getAllAchievements = async (req, res) => {try {
 };
 
 const createAchievement = async (req, res) => {
-  const uploadedIcon = req.file?.filename; 
-  
+  const uploadedIcon = req.file?.filename;
+
   try {
     let { title, description, type, condition } = req.body;
 
 
     if (typeof condition === 'string') {
-        try {
-            condition = JSON.parse(condition);
-        } catch (e) {
-            deleteUploadedFile('achievements', uploadedIcon, 'default-badge.png');
-            return res.status(400).json({ status: 'fail', message: 'Invalid JSON format for achievement condition.' });
-        }
+      try {
+        condition = JSON.parse(condition);
+      } catch (e) {
+        deleteUploadedFile('achievements', uploadedIcon, 'default-badge.png');
+        return res.status(400).json({ status: 'fail', message: 'Invalid JSON format for achievement condition.' });
+      }
     }
-    
+
     // Set the icon path based on the upload or the default
     const icon = uploadedIcon || 'default-badge.png';
-    
+
     const newAchievement = await Achievement.create({
       title,
       description,
@@ -462,7 +524,7 @@ const deleteAchievement = async (req, res) => {
   try {
     const { id } = req.params;
     if (!mongoose.Types.ObjectId.isValid(id)) {
-        return res.status(400).json({ status: 'fail', message: 'Invalid Achievement ID' });
+      return res.status(400).json({ status: 'fail', message: 'Invalid Achievement ID' });
     }
 
     const achievement = await Achievement.findByIdAndDelete(id);
@@ -483,6 +545,7 @@ module.exports = {
   signup,
   login,
   changePassword,
+  getUsernames,
   getAllUsers,
   getUserProfile,
   updateUser,

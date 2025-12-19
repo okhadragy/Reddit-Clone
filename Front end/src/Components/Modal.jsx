@@ -18,7 +18,7 @@ const Modal = ({ title, children }) => {
 ========================== */
 
 // Email Modal
-export const EmailModal = ({ show, onClose, tempEmail, setTempEmail, onSave }) => {
+export const EmailModal = ({ show, onClose, tempEmail, setTempEmail, onSave, error, loading }) => {
   if (!show) return null;
 
   return (
@@ -32,11 +32,12 @@ export const EmailModal = ({ show, onClose, tempEmail, setTempEmail, onSave }) =
           placeholder="Enter your email"
           className="modal-input"
         />
+        {error && <p className="modal-error">{error}</p>}
       </div>
 
       <div className="modal-actions">
         <button className="modal-button modal-button-cancel" onClick={onClose}>Cancel</button>
-        <button className="modal-button modal-button-save" onClick={onSave}>Save</button>
+        <button className="modal-button modal-button-save" onClick={onSave} disabled={loading}>{loading ? "Saving..." : "Save"}</button>
       </div>
     </Modal>
   );

@@ -1075,3 +1075,9 @@
 .toggle-input:checked + .toggle-slider::after {
   transform: translateX(1.25rem);
 }
+
+.modal-error {
+  color: #ff4d4f;
+  font-size: 13px;
+  margin-top: 6px;
+}

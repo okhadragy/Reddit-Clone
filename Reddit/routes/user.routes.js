@@ -6,6 +6,11 @@ const { protectRoutes, preventLoggedInAccess } = require('../middleware/auth');
 const router = express.Router();
 
 router
+  .route('/')
+  .get(
+    userControllers.getUsernames
+  );
+router
   .route('/signup')
   .post(
     preventLoggedInAccess,
@@ -29,7 +34,7 @@ router
     userControllers.changePassword
   );
 router
-  .route('/:id')
+  .route('/:idOrName')
   .get(
     protectRoutes,
     userControllers.getUserProfile
@@ -48,7 +53,7 @@ router
     userControllers.deleteUser
   );
 router
-  .route('/:id/follow')
+  .route('/:idOrName/follow')
   .get(
     protectRoutes,
     userControllers.toggleFollowUser

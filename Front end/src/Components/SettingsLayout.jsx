@@ -1,23 +1,24 @@
 import React, { useState } from 'react';
-import { GenderModal,EmailModal,LocationModal,AboutModal,DisplayNameModal,SocialLinksModal } from "./Modal";
-import { AccountTab,ProfileTab,EmailTab,PrivacyTab,PreferencesTab,NotificationsTab } from "./Tabs";
+import { GenderModal, EmailModal, LocationModal, AboutModal, DisplayNameModal, SocialLinksModal } from "./Modal";
+import { AccountTab, ProfileTab, EmailTab, PrivacyTab, PreferencesTab, NotificationsTab } from "./Tabs";
 import '../Styles/SettingsLayout.css';
-
+import api from '../api/api.js';
 
 const SettingsLayout = () => {
   const [activeTab, setActiveTab] = useState('Account');
-  
+
+  const user = JSON.parse(localStorage.getItem("user"));
   const [settings, setSettings] = useState({
     //Account
-    email: 'WebDev@gmail.com',
-    gender: 'Hitler',
+    email: user.email,
+    gender: 'Male',
     genderCategory: 'USER_DEFINED',
     location: 'Use approximate location (based on IP)',
     customLocation: '',
     googleConnected: true,
     appleConnected: false,
     twoFactorEnabled: false,
-    
+
     //Profile
     displayName: "User",
     about: "Hitler",
@@ -34,50 +35,50 @@ const SettingsLayout = () => {
     // Social interactions
     allowFollow: true,
     whoCanChat: 'everyone', // or 'everyone'
-  
+
     // Discoverability
     listOnOldReddit: true,
     showInSearchResults: true, // Renamed from allowExternalVisibility
-  
+
     // Ads personalization
     personalizeAds: true,
-  
+
     // Your original fields (not visible in this part of the screenshot but retained)
     showActive: true,
     nsfw: false,
     blurNSFW: true,
     allowPM: true,
   });
-  
+
   // Prefrences
   const [prefs, setPrefs] = useState({
     // Language
     displayLanguage: 'English (US)',
-    
+
     // Content
     showMatureContent: true,
     blurMatureMedia: true,
     showRecommendations: true,
-    
+
     // Accessibility
     autoplayMedia: true,
     reduceMotion: false,
     syncMotionSettings: true,
-  
+
     // Experience
     useCommunityThemes: true,
     openPostsInNewTab: true,
-    defaultFeedView: 'Card', 
+    defaultFeedView: 'Card',
     defaultToMarkdown: false,
     defaultToOldReddit: false,
   });
-  
+
 
   // Account
   const [showGenderModal, setShowGenderModal] = useState(false);
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [showLocationModal, setShowLocationModal] = useState(false);
-  
+
   const [tempGender, setTempGender] = useState('');
   const [genderCategory, setGenderCategory] = useState('USER_DEFINED');
   const [tempEmail, setTempEmail] = useState('');
@@ -89,15 +90,52 @@ const SettingsLayout = () => {
   const [showAboutModal, setShowAboutModal] = useState(false);
   const [showSocialModal, setShowSocialModal] = useState(false);
 
-  
+
   const [tempDisplayName, setTempDisplayName] = useState('');
   const [tempAbout, setTempAbout] = useState('');
   const [tempLinks, setTempLinks] = useState({
     website: '',
     twitter: '',
     instagram: ''
-});
+  });
 
+  const [emailError, setEmailError] = useState('');
+  const [emailLoading, setEmailLoading] = useState(false);
+
+
+  const isValidEmail = (email) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
+  const updateUser = async () => {
+    try {
+      setEmailLoading(true);
+      setEmailError('');
+
+      const res = await api.patch(`/users/${user.name}`, {
+        email: tempEmail
+      });
+
+      if (res.data.status === "success") {
+        localStorage.setItem(
+          "user",
+          JSON.stringify({ ...user, email: tempEmail })
+        );
+        return true;
+      }
+
+      setEmailError(res.data.message || "Failed to update email");
+      return false;
+
+    } catch (err) {
+      setEmailError(
+        err.response?.data?.message || "Invalid or already used email"
+      );
+      return false;
+    } finally {
+      setEmailLoading(false);
+    }
+  };
 
 
   const handleGenderSave = () => {
@@ -109,8 +147,20 @@ const SettingsLayout = () => {
     setShowGenderModal(false);
   };
 
-  const handleEmailSave = () => {
-    if (tempEmail) {
+  const handleEmailSave = async () => {
+    if (!tempEmail) {
+      setEmailError("Email is required");
+      return;
+    }
+
+    if (!isValidEmail(tempEmail)) {
+      setEmailError("Please enter a valid email address");
+      return;
+    }
+
+    const success = await updateUser();
+
+    if (success) {
       setSettings({
         ...settings,
         email: tempEmail
@@ -119,11 +169,12 @@ const SettingsLayout = () => {
     }
   };
 
+
   const handleLocationSave = () => {
     setSettings({
       ...settings,
-      location: locationOption === 'auto' 
-        ? 'Use approximate location (based on IP)' 
+      location: locationOption === 'auto'
+        ? 'Use approximate location (based on IP)'
         : tempLocation,
       customLocation: tempLocation
     });
@@ -135,12 +186,12 @@ const SettingsLayout = () => {
     setSettings({ ...settings, displayName: tempDisplayName });
     setShowDisplayNameModal(false);
   };
-  
+
   const handleAboutSave = () => {
     setSettings({ ...settings, about: tempAbout });
     setShowAboutModal(false);
   };
-  
+
   const handleSocialSave = () => {
     setSettings({
       ...settings,
@@ -150,7 +201,7 @@ const SettingsLayout = () => {
     });
     setShowSocialModal(false);
   };
-  
+
 
   const tabs = ['Account', 'Profile', 'Privacy', 'Preferences', 'Notifications', 'Email'];
 
@@ -159,7 +210,7 @@ const SettingsLayout = () => {
       <header className="settings-header">
         <div className="settings-header-content">
           <h1 className="settingsLayout-title">Settings</h1>
-          
+
           <div className="settings-tabs">
             {tabs.map((tab) => (
               <button
@@ -195,7 +246,7 @@ const SettingsLayout = () => {
             }}
           />
         )}
-          
+
         {activeTab === 'Profile' && (
           <ProfileTab
             settings={settings}
@@ -224,19 +275,19 @@ const SettingsLayout = () => {
 
 
 
-          {activeTab === 'Privacy' && (
-            <PrivacyTab 
-              privacy={privacy} 
-              setPrivacy={setPrivacy}
-            />
-          )}
+        {activeTab === 'Privacy' && (
+          <PrivacyTab
+            privacy={privacy}
+            setPrivacy={setPrivacy}
+          />
+        )}
 
-          {activeTab === 'Preferences' && (
-            <PreferencesTab 
-              prefs={prefs} 
-              setPrefs={setPrefs}
-            />
-          )}
+        {activeTab === 'Preferences' && (
+          <PreferencesTab
+            prefs={prefs}
+            setPrefs={setPrefs}
+          />
+        )}
 
         {activeTab === 'Notifications' && <NotificationsTab />}
         {activeTab === 'Email' && <EmailTab />}
@@ -244,11 +295,20 @@ const SettingsLayout = () => {
 
       <EmailModal
         show={showEmailModal}
-        onClose={() => setShowEmailModal(false)}
+        onClose={() => {
+          setShowEmailModal(false);
+          setEmailError('');
+        }}
         tempEmail={tempEmail}
-        setTempEmail={setTempEmail}
+        setTempEmail={(val) => {
+          setTempEmail(val);
+          setEmailError('');
+        }}
         onSave={handleEmailSave}
+        error={emailError}
+        loading={emailLoading}
       />
+
 
       <GenderModal
         show={showGenderModal}
