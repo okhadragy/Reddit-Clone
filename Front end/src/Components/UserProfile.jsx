@@ -4,9 +4,10 @@ import ProfileTabs from "./ProfileTabs.jsx";
 import RightPanel from "./RightPanel.jsx";
 import ContentFilterBar from "./ContentFilterBar.jsx";
 import CreatePostButton from "./CreatePostButton.jsx";
+import FeedPost from "./FeedPost.jsx";
 import EmptyState from "./EmptyState.jsx";
 import "../Styles/UserProfile.css";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import api from "../api/api.js";
 
 export default function UserProfile() {
@@ -14,6 +15,7 @@ export default function UserProfile() {
   const [activeTab, setActiveTab] = useState("Overview");
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -46,12 +48,6 @@ export default function UserProfile() {
           description: "Once you post to a community, it'll show up here. If you'd rather hide your posts, update your settings.",
           showButton: true
         };
-      case "Comments":
-        return {
-          label: "You don't have any comments yet",
-          description: "Once you comment in a community, it'll show up here. If you'd rather hide your comments, update your settings.",
-          showButton: true
-        };
       case "Saved":
       case "Upvoted":
       case "Downvoted":
@@ -69,19 +65,32 @@ export default function UserProfile() {
     }
   };
 
+  const getPostsForActiveTab = () => {
+    switch (activeTab) {
+      case "Overview":
+      case "Posts":
+        return user.posts;
+      case "Saved":
+        return user.saved;
+      case "Upvoted":
+        return user.upvoted;
+      case "Downvoted":
+        return user.downvoted;
+      default:
+        return [];
+    }
+  };
   const emptyStateData = getEmptyStateContent();
 
   const tabs = user?.upvoted ? [
     "Overview",
     "Posts",
-    "Comments",
     "Saved",
     "Upvoted",
     "Downvoted"
   ] : [
     "Overview",
     "Posts",
-    "Comments",
   ];
 
   // Inside your component
@@ -138,6 +147,8 @@ export default function UserProfile() {
     redditAge = `${seconds} s`;
   }
 
+
+
   return (
     <div className="app-container">
       <main className="app-main">
@@ -152,14 +163,19 @@ export default function UserProfile() {
           onTabChange={setActiveTab}
         />
 
-        <ContentFilterBar />
-        <CreatePostButton />
         <RightPanel username={user.name} karma={user.postKarma + user.commentKarma} redditAge={redditAge} />
-        <EmptyState
-          label={emptyStateData.label}
-          description={emptyStateData.description}
-          showButton={emptyStateData.showButton}
-        />
+
+        {getPostsForActiveTab().length > 0 ? (
+          getPostsForActiveTab().map((post) => (
+            <FeedPost key={post.id} post={post} onClick={() => navigate(`/post/${post._id}`)} currentUser={user} />
+          ))
+        ) : (
+          <EmptyState
+            label={emptyStateData.label}
+            description={emptyStateData.description}
+            showButton={emptyStateData.showButton}
+          />
+        )}
       </main>
     </div>
   );
