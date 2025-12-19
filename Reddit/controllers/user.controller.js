@@ -23,7 +23,7 @@ const signup = async (req, res) => {
   const uploadedBanner = req.files?.banner?.[0]?.filename || "banner.png";
 
   try {
-    let { name, email, password, confirmPassword, role } = req.body;
+    let {email, password, confirmPassword, role, name  } = req.body;
 
     role = role || "user"; // default role
 
@@ -84,11 +84,13 @@ const signup = async (req, res) => {
         role: user.role,
         photo: user.photo,
         banner: user.banner,
+        id: user._id
       },
     });
   } catch (error) {
-    deleteUploadedFile("profiles", uploadedPhoto, "profile.png");
-    deleteUploadedFile("banners", uploadedBanner, "banner.png");
+    //deleteUploadedFile("profiles", uploadedPhoto, "profile.png");
+    //deleteUploadedFile("banners", uploadedBanner, "banner.png");
+    console.error("DETAILED SIGNUP ERROR:", error);
     res.status(500).json({ status: "fail", message: error.message });
   }
 };
@@ -130,6 +132,7 @@ const login = async (req, res) => {
       role: user.role,
       photo: user.photo,
       banner: user.banner,
+      id: user._id
     },
   });
 };

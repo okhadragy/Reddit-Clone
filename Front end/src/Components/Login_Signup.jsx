@@ -17,7 +17,11 @@ function Login_Signup() {
   const islogin = mode !== "signup";
   const navigate = useNavigate();
 
+<<<<<<< Updated upstream
   // Reset form on mode change
+=======
+
+>>>>>>> Stashed changes
   useEffect(() => {
     SetName("");
     SetEmail("");
@@ -42,6 +46,7 @@ function Login_Signup() {
       if (Name && !/^[a-zA-Z0-9_]{3,20}$/.test(Name))
         newErrors.Name = "Username must be 3-20 characters, letters, numbers, or underscores.";
 
+<<<<<<< Updated upstream
       if (Email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(Email))
         newErrors.Email = "Invalid email format.";
 
@@ -50,6 +55,24 @@ function Login_Signup() {
         else if (!/[A-Z]/.test(Password)) newErrors.Password = "Password must contain an uppercase letter.";
         else if (!/[0-9]/.test(Password)) newErrors.Password = "Password must contain a number.";
         else if (!/[!@#$%^&*(),.?":{}|<>]/.test(Password)) newErrors.Password = "Password must contain a special character.";
+=======
+      // ---- Your API login logic here ----
+      api.post("/users/login", { email: Email, password: Password })
+        .then(response => {
+          const { token, user } = response.data;
+          localStorage.setItem("token", token);
+          localStorage.setItem("user", JSON.stringify(user));
+          setIsLoggedIn(true);
+          navigate("/");
+        })
+        .catch(error => {
+          console.error("Login failed:", error);
+        });
+    } else {
+      if (Password !== ConfirmPassword) {
+        console.log("Passwords Don't Match!");
+        return;
+>>>>>>> Stashed changes
       }
 
       if (ConfirmPassword && Password !== ConfirmPassword)
@@ -60,6 +83,7 @@ function Login_Signup() {
       if (!Password) newErrors.Password = "Password is required.";
     }
 
+<<<<<<< Updated upstream
     SetErrors(newErrors);
   }, [Name, Email, Password, ConfirmPassword, islogin]);
 
@@ -83,6 +107,20 @@ function Login_Signup() {
           email: Email,
           password: Password,
           confirmPassword: ConfirmPassword
+=======
+
+      api.post("/users/signup", { email: Email, password: Password,confirmPassword:ConfirmPassword,role:"user",name: Email.split('@')[0] })
+        .then(response => {
+          console.log("Signup successful:", response.data);
+          localStorage.setItem("token", response.data.token);
+          localStorage.setItem("user", JSON.stringify(response.data.user));
+          setIsLoggedIn(true);
+          SetIsLogin(true);
+          navigate("/");
+        })
+        .catch(error => {
+          console.error("Signup failed:", error);
+>>>>>>> Stashed changes
         });
         const { token, user } = response.data;
         login(token, user);

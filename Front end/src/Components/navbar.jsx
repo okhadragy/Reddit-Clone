@@ -1,7 +1,12 @@
 import { useAuth } from "./LoginContext";
 import { useNavigate } from "react-router-dom";
+<<<<<<< Updated upstream
 import React, { useState, useRef  } from 'react';
 import api from "../api/api";
+=======
+import React, { useState, useRef } from 'react'; // Added useRef
+import api from "../api/api"; // Added API import
+>>>>>>> Stashed changes
 
 import {
   LogOut,
@@ -16,8 +21,13 @@ import {
   Zap,
 } from "lucide-react";
 
+<<<<<<< Updated upstream
 function Navbar({ isLoggedIn }) {
   const { logout } = useAuth();
+=======
+function Navbar() {
+  const { isLoggedIn, setIsLoggedIn, logout } = useAuth(); // Added logout destructuring
+>>>>>>> Stashed changes
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(true);
   const toggleMenu = () => setIsUserMenuOpen(!isUserMenuOpen);
@@ -27,8 +37,13 @@ function Navbar({ isLoggedIn }) {
   // --- SEARCH STATES ---
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
+  const debounceRef = useRef(null); // Ref for debouncing
 
+<<<<<<< Updated upstream
 
+=======
+  // Hardcoded communities (Client-side filter)
+>>>>>>> Stashed changes
   const communities = [
     "r/reactjs",
     "r/webdev",
@@ -40,12 +55,19 @@ function Navbar({ isLoggedIn }) {
     "r/Tottenham",
   ];
 
+<<<<<<< Updated upstream
   const fetchUsers = async (query) => {
     try {
       const res = await api.get(
         `/users?search=${query}&limit=5`
       );
 
+=======
+  // --- BACKEND USER SEARCH ---
+  const fetchUsers = async (query) => {
+    try {
+      const res = await api.get(`/users?search=${query}&limit=5`);
+>>>>>>> Stashed changes
       if (res.data.status === "success") {
         return res.data.data.map((u) => `u/${u.name}`);
       }
@@ -55,9 +77,13 @@ function Navbar({ isLoggedIn }) {
       return [];
     }
   };
+<<<<<<< Updated upstream
 
   const debounceRef = useRef(null);
+=======
+>>>>>>> Stashed changes
 
+  // --- HANDLE SEARCH (With Debounce) ---
   const handleSearch = (e) => {
     const query = e.target.value.toLowerCase();
     setSearchQuery(query);
@@ -69,11 +95,18 @@ function Navbar({ isLoggedIn }) {
       return;
     }
 
+<<<<<<< Updated upstream
     debounceRef.current = setTimeout(async () => {
+=======
+    // Wait 300ms before searching
+    debounceRef.current = setTimeout(async () => {
+      // 1. Filter local communities
+>>>>>>> Stashed changes
       const matchedCommunities = communities.filter((c) =>
         c.toLowerCase().includes(query)
       );
 
+<<<<<<< Updated upstream
       // users from backend
       const matchedUsers = await fetchUsers(query);
 
@@ -83,6 +116,17 @@ function Navbar({ isLoggedIn }) {
 
 
   // --- DARK MODE EFFECT (INSERTED HERE CORRECTLY) ---
+=======
+      // 2. Fetch users from API
+      const matchedUsers = await fetchUsers(query);
+
+      // 3. Combine results
+      setSearchResults([...matchedCommunities, ...matchedUsers]);
+    }, 300);
+  };
+
+  // --- DARK MODE EFFECT ---
+>>>>>>> Stashed changes
   React.useEffect(() => {
     if (isDarkMode) {
       document.body.classList.add("dark-mode");
@@ -93,7 +137,11 @@ function Navbar({ isLoggedIn }) {
     }
   }, [isDarkMode]);
 
+<<<<<<< Updated upstream
 
+=======
+  // Get current user for Avatar display
+>>>>>>> Stashed changes
   const user = JSON.parse(localStorage.getItem("user"));
 
   return (
@@ -126,7 +174,21 @@ function Navbar({ isLoggedIn }) {
         {searchResults.length > 0 && (
           <div className="search-results">
             {searchResults.map((item, index) => (
+<<<<<<< Updated upstream
               <div key={index} className="search-item" onClick={() => {navigate(`/${item.split('/')[1]}`); setSearchQuery(""); setSearchResults([]);}}>
+=======
+              <div 
+                key={index} 
+                className="search-item"
+                onClick={() => {
+                    // Split "r/Messi" into ["r", "Messi"] to navigate correctly
+                    const path = item.split('/')[1]; 
+                    navigate(`/${item.startsWith('r/') ? 'r/' : ''}${path}`); 
+                    setSearchQuery(""); 
+                    setSearchResults([]);
+                }}
+              >
+>>>>>>> Stashed changes
                 {item}
               </div>
             ))}
@@ -154,7 +216,11 @@ function Navbar({ isLoggedIn }) {
               </svg>
             </button>
 
+<<<<<<< Updated upstream
             <button className="create-post-button" onClick={() => navigate("/create-post")}>
+=======
+            <button onClick={() => navigate("/create-post")}>
+>>>>>>> Stashed changes
               <div className="+Create">
                 <svg rpl="" fill="currentColor" height="20" icon-name="add-square" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg">
                   <path d="M14.7 2H5.3C3.481 2 2 3.48 2 5.3v9.4C2 16.519 3.48 18 5.3 18h9.4c1.819 0 3.3-1.48 3.3-3.3V5.3C18 3.481 16.52 2 14.7 2zm1.499 12.7a1.5 1.5 0 01-1.499 1.499H5.3A1.5 1.5 0 013.801 14.7V5.3A1.5 1.5 0 015.3 3.801h9.4A1.5 1.5 0 0116.199 5.3v9.4zM14 10.9h-3.1V14H9.1v-3.1H6V9.1h3.1V6h1.8v3.1H14v1.8z"></path>

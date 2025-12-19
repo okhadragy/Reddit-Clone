@@ -21,7 +21,7 @@ exports.createCommunity = async (req, res) => {
   const uploadedCover = req.files?.coverImage?.[0]?.filename;
 
   try {
-    let { name, description, rules, userFlairs, postFlairs, tags,topics } = req.body;
+    let { name, description, rules, userFlairs, postFlairs, tags,topics,visibility } = req.body;
     if (typeof rules === 'string') rules = JSON.parse(rules);
     if (typeof userFlairs === 'string') userFlairs = JSON.parse(userFlairs);
     if (typeof postFlairs === 'string') postFlairs = JSON.parse(postFlairs);
@@ -43,7 +43,8 @@ exports.createCommunity = async (req, res) => {
       userFlairs,
       postFlairs,
       tags,
-      topics
+      topics,
+      visibility
     });
 
     await CommunityMember.create({
@@ -111,18 +112,20 @@ exports.getAllCommunities = async (req, res) => {
 
 exports.getCommunity = async (req, res) => {
   try {
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-        return res.status(400).json({ status: 'fail', message: 'Invalid Community ID' });
-    }
-
-    const community = await Community.findById(req.params.id)
+   
+    const community = await Community.findOne({ name: req.params.id })
       .populate('createdBy', 'name'); 
 
     if (!community) {
       return res.status(404).json({ status: 'fail', message: 'Community not found' });
     }
 
-    res.status(200).json({ status: 'success', data: { community } });
+    res.status(200).json({
+      status: 'success',
+      data: { 
+        community // This object includes the _id for your frontend to use later
+      }
+    });
   } catch (error) {
     res.status(500).json({ status: 'error', message: error.message });
   }
@@ -134,13 +137,15 @@ exports.updateCommunity = async (req, res) => {
   const newCover = req.files?.coverImage?.[0]?.filename;
 
   try {
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-        throw new Error('Invalid Community ID');
-    }
+    const community = await Community.findOne({ name: req.params.id })
 
+
+    if (!community) {
+      return res.status(404).json({ status: 'fail', message: 'Community not found' });
+    }
  
     const isMod = await CommunityMember.findOne({
-      community: req.params.id,
+      community: community._id,
       user: req.userId,
       role: 'moderator'
     });
@@ -152,7 +157,7 @@ exports.updateCommunity = async (req, res) => {
       return res.status(403).json({ status: 'fail', message: 'Only moderators can edit settings.' });
     }
 
-    const oldCommunity = await Community.findById(req.params.id);
+    const oldCommunity = community
     if (!oldCommunity) throw new Error('Community not found');
 
     const updates = { ...req.body };
@@ -168,7 +173,7 @@ exports.updateCommunity = async (req, res) => {
     if (typeof updates.disabledAchievements === 'string') updates.disabledAchievements = JSON.parse(updates.disabledAchievements);
 
 
-    const updatedCommunity = await Community.findByIdAndUpdate(req.params.id, updates, {
+    const updatedCommunity = await Community.findByIdAndUpdate(community._id, updates, {
       new: true,
       runValidators: true
     });
@@ -188,22 +193,29 @@ exports.updateCommunity = async (req, res) => {
 
 exports.deleteCommunity = async (req, res) => {
   try {
-    const communityId = req.params.id;
-    if (!mongoose.Types.ObjectId.isValid(communityId)) {
-        return res.status(400).json({ status: 'fail', message: 'Invalid Community ID' });
+
+    const communityName = req.params.id; 
+
+    const community = await Community.findOne({ name: communityName });
+
+    if (!community) {
+      return res.status(404).json({ status: 'fail', message: 'Community not found' });
     }
-    const community = await Community.findById(communityId);
-    if (!community) return res.status(404).json({ status: 'fail', message: 'Community not found' });
+
 
     if (community.createdBy.toString() !== req.userId) {
       return res.status(403).json({ status: 'fail', message: 'Only the community owner can delete this.' });
     }
 
-    deleteUploadedFile(community.icon);
-    deleteUploadedFile(community.coverImage);
+ 
+    if (community.icon) deleteUploadedFile(community.icon);
+    if (community.coverImage) deleteUploadedFile(community.coverImage);
 
-    await CommunityMember.deleteMany({ community: communityId });
-    await Community.findByIdAndDelete(communityId);
+
+    await CommunityMember.deleteMany({ community: community._id });
+    
+
+    await Community.findByIdAndDelete(community._id);
 
     res.status(200).json({ status: 'success', message: 'Community deleted successfully.' });
   } catch (error) {
@@ -211,25 +223,25 @@ exports.deleteCommunity = async (req, res) => {
   }
 };
 
-
-
 exports.joinCommunity = async (req, res) => {
   try {
-    const { id: communityId } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(communityId)) {
-        return res.status(400).json({ status: 'fail', message: 'Invalid Community ID' });
+    console.log(`User ${req.params.userId} is attempting to join community ${req.params.id}`);
+    const communityName = req.params.id; 
+
+    const community = await Community.findOne({ name: communityName });
+
+    if (!community) {
+      return res.status(404).json({ status: 'fail', message: 'Community not found' });
     }
 
-    const community = await Community.exists({ _id: communityId });
-    if (!community) return res.status(404).json({ status: 'fail', message: 'Community not found' });
-
     await CommunityMember.create({
-      community: communityId,
-      user: req.userId,
+      community: community._id, 
+      user: req.params.userId,
       role: 'member'
     });
 
-    res.status(200).json({ status: 'success', message: 'Joined successfully' });
+   res.status(200).json({ status: 'success', message: 'Joined successfully' });
+    console.log(`User,${req.params.userId}, joined community successfully`);
   } catch (error) {
     if (error.code === 11000) {
       return res.status(400).json({ status: 'fail', message: 'You are already a member.' });
@@ -240,14 +252,16 @@ exports.joinCommunity = async (req, res) => {
 
 exports.leaveCommunity = async (req, res) => {
   try {
-    const { id: communityId } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(communityId)) {
-        return res.status(400).json({ status: 'fail', message: 'Invalid Community ID' });
+    const communityName = req.params.id; 
+    const community = await Community.findOne({ name: communityName });
+
+    if (!community) {
+      return res.status(404).json({ status: 'fail', message: 'Community not found' });
     }
 
     const result = await CommunityMember.findOneAndDelete({
-      community: communityId,
-      user: req.userId
+      community: community._id,
+      user: req.params.userId
     });
 
     if (!result) {
@@ -260,19 +274,62 @@ exports.leaveCommunity = async (req, res) => {
   }
 };
 
+exports.checkMembership = async (req, res) => {
+  try {
+    const  communityName  = req.params.id;
+
+    const  userId  = req.params.userId; 
+
+    const community = await Community.findOne({ name: communityName });
+    if (!community) {
+      return res.status(404).json({ status: 'fail', message: 'Community not found' });
+    }
+
+
+    const membership = await CommunityMember.findOne({
+      community: community._id,
+      user: userId
+    });
+
+
+    if (membership) {
+      return res.status(200).json({
+        status: 'success',
+        isMember: true,
+        role: membership.role, 
+        status: membership.status 
+      });
+    } else {
+      return res.status(200).json({
+        status: 'success',
+        isMember: false,
+        role: 'guest'
+      });
+    }
+
+  } catch (error) {
+    res.status(500).json({ status: 'error', message: error.message });
+  }
+};
+
 exports.getCommunityMembers = async (req, res) => {
   try {
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-        return res.status(400).json({ status: 'fail', message: 'Invalid Community ID' });
+   
+    const communityName = req.params.id; 
+    const community = await Community.findOne({ name: communityName });
+
+    if (!community) {
+      return res.status(404).json({ status: 'fail', message: 'Community not found' });
     }
 
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
     const skip = (page - 1) * limit;
 
-    const members = await CommunityMember.find({ community: req.params.id })
-      .populate('user', 'name photo')
-      .populate('selectedFlair', 'text backgroundColor textColor')
+
+    const members = await CommunityMember.find({ community: community._id })
+      .populate('user', 'name photo') 
+      .populate('selectedFlair', 'text backgroundColor textColor') 
       .skip(skip)
       .limit(limit);
 
@@ -281,48 +338,68 @@ exports.getCommunityMembers = async (req, res) => {
     res.status(500).json({ status: 'error', message: error.message });
   }
 };
-
-
 exports.manageMember = async (req, res) => {
   try {
-    const { id: communityId, userId: targetUserId } = req.params;
+    const { id: communityName, userId: targetUserId } = req.params;
 
-    if (!mongoose.Types.ObjectId.isValid(communityId) || !mongoose.Types.ObjectId.isValid(targetUserId)) {
-        return res.status(400).json({ status: 'fail', message: 'Invalid IDs' });
+    if (!mongoose.Types.ObjectId.isValid(targetUserId)) {
+        return res.status(400).json({ status: 'fail', message: 'Invalid User ID' });
     }
+
+    const community = await Community.findOne({ name: communityName });
+    if (!community) {
+      return res.status(404).json({ status: 'fail', message: 'Community not found' });
+    }
+
     const requesterIsMod = await CommunityMember.findOne({
-      community: communityId,
+      community: community._id,
       user: req.userId,
       role: 'moderator'
     });
 
-    if (!requesterIsMod) {
+    const isOwner = community.createdBy.toString() === req.userId;
+
+    if (!requesterIsMod && !isOwner) {
       return res.status(403).json({ status: 'fail', message: 'Access denied. Moderators only.' });
     }
-    
-    const community = await Community.findById(communityId);
-    if (!community) return res.status(404).json({ status: 'fail', message: 'Community not found' });
-    
+ 
     if (community.createdBy.toString() === targetUserId) {
         return res.status(403).json({ 
             status: 'fail', 
             message: 'Cannot modify the community owner.' 
         });
     }
-
-
     const { role, status } = req.body;
     const updatedMember = await CommunityMember.findOneAndUpdate(
-      { community: communityId, user: targetUserId },
+      { community: community._id, user: targetUserId },
       { role, status },
-      { new: true }
+      { new: true, runValidators: true }
     );
 
     if (!updatedMember) {
-      return res.status(404).json({ status: 'fail', message: 'Member not found.' });
+      return res.status(404).json({ status: 'fail', message: 'Member not found in this community.' });
     }
 
     res.status(200).json({ status: 'success', data: { member: updatedMember } });
+  } catch (error) {
+    res.status(500).json({ status: 'error', message: error.message });
+  }
+};
+
+
+exports.getUserCommunities = async (req, res) => {
+  try {
+    const memberships = await CommunityMember.find({ user: req.userId })
+      .populate('community', 'name icon'); 
+    const communities = memberships
+      .map(member => member.community)
+      .filter(community => community !== null);
+
+    res.status(200).json({
+      status: 'success',
+      results: communities.length,
+      data: { communities }
+    });
   } catch (error) {
     res.status(500).json({ status: 'error', message: error.message });
   }

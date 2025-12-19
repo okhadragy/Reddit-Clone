@@ -1,7 +1,11 @@
 import React, { useRef, useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom"; 
 import { useLocation } from "react-router-dom";
 import CreatePostButton from "./CreatePostButton";
+import FeedPost from './FeedPost.jsx';
 import "../Styles/CreateCommunity.css";
+import api from "../api/api";
 import {
   Shield,
   Lock,
@@ -9,87 +13,146 @@ import {
   Users,
   Plus,
   Settings,
+  Bell, 
+  MoreHorizontal
 } from "lucide-react";
 
 export default function CreateCommunity() {
-  const { state } = useLocation();
+  
+  const [isJoined, setIsJoined] = useState(false);// State to track if user has joined
+  const navigate = useNavigate();//to go to create post page
 
-  // Destructure ALL properties with defaults
-  const {
-    name = "communityname",
-    description = "No description",
-    visibility = "private",
-    bannerFile = null,
-    iconFile = null,
-    topics = [],
-  } = state || {};
+  const { communityName } = useParams();
+  const [posts, setPosts] = useState([]);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [isModerator, setIsModerator] = useState(false);
+
+  const [community, setCommunity] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  //for 3 dots button menu
+  const [showMenu, setShowMenu] = useState(false);
+  const menuRef = useRef(null);
 
   // Use state for banner and icon URLs
+<<<<<<< Updated upstream
   const [bannerUrl, setBannerUrl] = useState(null);
   const [iconUrl, setIconUrl] = useState(null);
   const [localBannerFile, setLocalBannerFile] = useState(bannerFile);
   const [localIconFile, setLocalIconFile] = useState(iconFile);
 const createPostRef = useRef(null);
+=======
+  const [previewIcon, setPreviewIcon] = useState(null);
+  const [previewBanner, setPreviewBanner] = useState(null);
+  const [iconFile, setIconFile] = useState(null);
+  const [bannerFile, setBannerFile] = useState(null);
+
+>>>>>>> Stashed changes
 
   const bannerInputRef = useRef(null);
   const iconInputRef = useRef(null);
-
-  // Create URLs from files when component mounts or files change
   useEffect(() => {
-    if (localBannerFile) {
-      const url = URL.createObjectURL(localBannerFile);
-      setBannerUrl(url);
-      return () => URL.revokeObjectURL(url);
-    } else {
-      setBannerUrl(null);
+    function handleClickOutside(event) {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setShowMenu(false);
+      }
     }
-  }, [localBannerFile]);
-
-  useEffect(() => {
-    if (localIconFile) {
-      const url = URL.createObjectURL(localIconFile);
-      setIconUrl(url);
-      return () => URL.revokeObjectURL(url);
-    } else {
-      setIconUrl(null);
-    }
-  }, [localIconFile]);
-
-  // Clean up object URLs on unmount
-  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      if (bannerUrl) URL.revokeObjectURL(bannerUrl);
-      if (iconUrl) URL.revokeObjectURL(iconUrl);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
+  }, [menuRef]);
+  //get community details
+  useEffect(() => {
+    let userObj = null;
+    const storedUserString = localStorage.getItem("user");
+    const POST_IMAGE_URL = "http://localhost:5000/uploads/posts/";
+    if (storedUserString) {
+      //uesr object varaible is needed because setState is async
+      userObj = JSON.parse(storedUserString);
+      setCurrentUser(userObj);
+    }
+    const fetchCommunity = async () => {
+      setLoading(true);
+      try {
+
+        const response = await api.get(`/community/${communityName}`);
+        setCommunity(response.data.data.community);
+
+       if (userObj ) {
+            const memberRes = await api.get(
+                `/community/${communityName}/checkMember/${userObj.id}`
+            );
+            console.log("Membership response:", memberRes.data);
+
+            setIsJoined(memberRes.data.isMember);
+            if(memberRes.data.role=="moderator"){
+              setIsModerator(true);
+            }
+            else{setIsModerator(false);}
+            
+        
+        }
+        
+
+        else{console.log("No user logged in");}
+        const postsRes = await api.get(`/posts?community=${communityName}`);
+        const mappedPosts = postsRes.data.data.posts.map(post => ({
+            id: post._id,
+            subreddit: `r/${communityName}`,
+            time: new Date(post.createdAt).toLocaleDateString(), 
+            title: post.title,
+            content: post.content, 
+            image: (post.media && post.media.length > 0) 
+                ? `${POST_IMAGE_URL}${post.media[0]}` 
+                : null, 
+            // Handle Vote Math
+            upvotes: (post.upvotesCount || 0) - (post.downvotesCount || 0),
+            comments: post.comments ? post.comments.length : 0,
+            // Handle User Vote status (up/down/none)
+            userVoteStatus: post.userVote
+        }));
+
+        setPosts(mappedPosts);
+        setError(null);
+      } catch (err) {
+        console.error("Fetch error:", err);
+        setError("This community does not exist.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCommunity();
+  }, [communityName]);
+
 
   const handleBannerUpload = (e) => {
     const file = e.target.files?.[0];
-    if (!file) return;
-
-    // Clean up previous URL
-    if (bannerUrl) {
-      URL.revokeObjectURL(bannerUrl);
-    }
-
-    setLocalBannerFile(file);
+    if (file) {
+        setBannerFile(file); // Save file to send to backend later
+        setPreviewBanner(URL.createObjectURL(file)); // Show it immediately
+      }
   };
 
   const handleIconUpload = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    // Clean up previous URL
-    if (iconUrl) {
-      URL.revokeObjectURL(iconUrl);
+    const file = e.target.files[0];
+    if (file) {
+      setIconFile(file); // Save file to send to backend later
+      setPreviewIcon(URL.createObjectURL(file)); // Show it immediately
     }
-
-    setLocalIconFile(file);
   };
 
-  // Get visibility icon based on visibility type
+  if (loading) return <div>Loading r/{communityName}...</div>;
+  if (error) return <div>{error}</div>;
+
+
+
+
+
   const getVisibilityIcon = () => {
-    switch (visibility) {
+    switch (community.visibility) {
       case "private":
         return <Lock size={16} />;
       case "public":
@@ -103,7 +166,7 @@ const createPostRef = useRef(null);
 
   // Get visibility text
   const getVisibilityText = () => {
-    switch (visibility) {
+    switch (community.visibility) {
       case "private":
         return "Private";
       case "public":
@@ -111,19 +174,71 @@ const createPostRef = useRef(null);
       case "restricted":
         return "Restricted";
       default:
-        return visibility;
+        return community.visibility;
     }
   };
 
+  const handleCreatePost = () => {
+    navigate(`/r/${communityName}/submit`); 
+  };
+
+  const saveChanges = async () => {
+    const formData = new FormData();
+    if (bannerFile) formData.append("coverImage", bannerFile);
+    if (iconFile) formData.append("icon", iconFile);
+
+    try {
+
+      await api.patch(`/community/${communityName}`, formData);
+      setBannerFile(null);
+      setIconFile(null);
+      
+    } catch (err) {
+      setError("This community does not exist.")
+    }
+  };
+  function getDefaultImage(imageName){
+    return `http://localhost:5000/uploads/communities/${imageName}`
+  }
+  async function toggleJoin(){
+    if (!currentUser) {
+        alert("You must be logged in to join.");
+        return;
+    }
+    if(isJoined){
+      api.post(`/community/${communityName}/leave/${currentUser.id}`)
+      .then(()=>{
+        setIsJoined(false);
+      })
+      .catch((err)=>{
+        console.error("Error leaving community:", err);
+      });
+
+    }
+    else{
+      api.post(`/community/${communityName}/join/${currentUser.id}`)
+      .then(()=>{
+        setIsJoined(true);
+      })
+      .catch((err)=>{
+        console.error("Error joining community:", err);
+      });
+
+    }
+
+
+  }
+
   return (
     <div className="community-page">
-      {/* ---------- BANNER ---------- */}
+    
       <div className="community-banner">
-        {bannerUrl ? (
-          <img src={bannerUrl} alt="banner" className="banner-img" />
-        ) : (
-          <div className="banner-placeholder"></div>
-        )}
+          <img 
+            src={previewBanner || getDefaultImage(community.coverImage)} 
+            alt="banner" 
+            className="banner-img"
+            onError={(e) => e.target.style.display = 'none'} 
+          />
 
         <button
           className="btn-change-banner"
@@ -154,11 +269,11 @@ const createPostRef = useRef(null);
       {/* ---------- COMMUNITY HEADER ---------- */}
       <div className="community-header">
         <div className="community-icon-wrapper">
-          {iconUrl ? (
-            <img src={iconUrl} alt="icon" className="community-icon" />
-          ) : (
-            <div className="community-icon-placeholder">r/</div>
-          )}
+         <img 
+            src={previewIcon || getDefaultImage(community.icon)} 
+            alt="icon" 
+            className="community-icon" 
+          />
 
           <button
             className="btn-change-icon"
@@ -186,9 +301,81 @@ const createPostRef = useRef(null);
           />
         </div>
 
-        <div className="community-title-box">
-          <h1 className="community-title">r/{name}</h1>
-          <span className="community-description">{description}</span>
+       <div className="community-header-content">
+          <div className="community-title-left">
+            <h1 className="community-title">{community.name}</h1>
+            <span className="community-description">r/{community.name}</span>
+          </div>
+
+        <div className="community-actions">
+            <button className="btn-create-post-outline" 
+              onClick={handleCreatePost}
+            >
+              <Plus size={20} /> Create Post
+            </button>
+
+            <button className="btn-icon-round" title="Notifications">
+              <Bell size={20} />
+            </button>
+
+     
+            {isModerator ? (
+              <button className="btn-mod-tools">
+                Mod Tools
+              </button>
+            ) : (
+              <button 
+                className={isJoined ? "btn-joined" : "btn-join-blue"} 
+                onClick={toggleJoin}
+              >
+                {isJoined ? "Joined" : "Join"}
+              </button>
+            )}
+
+            <div className="menu-container" ref={menuRef}>
+              <button 
+                className="btn-icon-round" 
+                onClick={() => setShowMenu(!showMenu)}
+              >
+                <MoreHorizontal size={20} />
+              </button>
+
+              {showMenu && (
+                <div className="dropdown-menu">
+                  
+
+                  {isModerator && (
+                    <button 
+                      className="dropdown-item danger" 
+                      onClick={() => {
+                        toggleJoin(); 
+                        setShowMenu(false); 
+                      }}
+                    >
+                      Leave Community
+                    </button>
+                  )}
+                  
+
+                  <button 
+                    className="dropdown-item"
+                    onClick={() => setShowMenu(false)}
+                  >
+                    Mute r/{community.name}
+                  </button>
+
+                </div>
+              )}
+            </div>
+
+       
+
+            {(bannerFile || iconFile) && (
+              <button onClick={saveChanges} className="btn-save">
+                Save Changes
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -196,6 +383,7 @@ const createPostRef = useRef(null);
       <div className="community-content">
         {/* LEFT SIDE - FEED */}
         <div className="community-feed">
+<<<<<<< Updated upstream
           {/* CREATE POST SECTION */}
           <div className="create-post-section">
             <CreatePostButton ref={createPostRef} />
@@ -214,32 +402,55 @@ const createPostRef = useRef(null);
 </button>
 
           </div>
+=======
+          {posts.length > 0 ? (
+            
+            // OPTION A: Show the Posts
+            <div className="posts-container">
+               {posts.map((post) => (
+                 <FeedPost key={post.id} post={post} />
+               ))}
+            </div>
+
+          ) : (
+
+            // OPTION B: Show "No Posts Yet" message & Blue Button
+            <div className="empty-feed">
+              <h2>This community doesn't have any posts yet</h2>
+              <p>Make one and get this feed started.</p>
+              <button onClick={handleCreatePost} className="btn-create-post-blue">
+                Create Post
+              </button>
+            </div>
+
+          )}
+>>>>>>> Stashed changes
         </div>
 
         {/* RIGHT SIDEBAR */}
+       {/* RIGHT SIDEBAR */}
         <div className="right-sidebar">
-          {/* COMMUNITY INFO CARD */}
+          
+          {/* --- CARD 1: COMMUNITY INFO (Visible to Everyone) --- */}
           <div className="sidebar-card">
-            <h2 className="sidebar-title">r/{name}</h2>
-            <p className="sidebar-description">{description}</p>
+            <h2 className="sidebar-title">r/{community.name}</h2>
+            <p className="sidebar-description">{community.description}</p>
 
-            {/* Display topics if available */}
-            {topics && topics.length > 0 && (
+            {/* Topics */}
+            {community.topics && community.topics.length > 0 && (
               <div className="topics-section">
                 <h4>Topics</h4>
                 <div className="topics-list">
-                  {topics.slice(0, 3).map((topic, index) => (
+                  {community.topics.slice(0, 3).map((topic, index) => (
                     <span key={index} className="topic-tag">
                       {topic}
                     </span>
                   ))}
-                  {topics.length > 3 && (
-                    <span className="topic-tag">+{topics.length - 3}</span>
-                  )}
                 </div>
               </div>
             )}
 
+            {/* Created Date & Visibility */}
             <div className="sidebar-row">
               {getVisibilityIcon()}
               <span className="private-text">{getVisibilityText()}</span>
@@ -249,7 +460,7 @@ const createPostRef = useRef(null);
               <Shield size={16} />
               <span>
                 Created{" "}
-                {new Date().toLocaleDateString("en-US", {
+                {new Date(community.createdAt).toLocaleDateString("en-US", {
                   month: "short",
                   day: "numeric",
                   year: "numeric",
@@ -257,55 +468,86 @@ const createPostRef = useRef(null);
               </span>
             </div>
 
-            <button className="btn-add-guide">
-              <Plus size={16} /> Add a community guide
-            </button>
+            {isModerator && (
+              <>
+                <button className="btn-add-guide">
+                  <Plus size={16} /> Add a community guide
+                </button>
 
-            {/* INSIGHTS */}
-            <div className="sidebar-insights">
-              <div>
-                <h3>0</h3>
-                <p>Visitors</p>
-              </div>
-              <div>
-                <h3>0</h3>
-                <p>Contributions</p>
-              </div>
-            </div>
+                <div className="sidebar-insights">
+                  <div>
+                    <h3>{community.membersCount || 1}</h3>
+                    <p>Members</p>
+                  </div>
+                  <div>
+                    <h3>0</h3>
+                    <p>Online</p>
+                  </div>
+                </div>
+              </>
+            )}
 
             <div className="sidebar-divider"></div>
 
-            {/* MODERATORS */}
-            <h3 className="sidebar-subtitle">MODERATORS</h3>
+         
+            {community.userFlairs && community.userFlairs.length > 0 && (
+              <div className="flair-widget">
+                <h3 className="sidebar-subtitle">USER FLAIRS</h3>
+                <div className="flair-list">
+                  {community.userFlairs.map((flair, index) => (
+                    <span 
+                      key={index} 
+                      className="flair-tag"
+                      style={{
+                        backgroundColor: flair.backgroundColor || '#eee', 
+                        color: flair.textColor || 'black'
+                      }}
+                    >
+                      {flair.text}
+                    </span>
+                  ))}
+                </div>
+                <div className="sidebar-divider"></div>
+              </div>
+            )}
 
+            {/* --- MODERATORS LIST (Visible to Everyone) --- */}
+            <h3 className="sidebar-subtitle">MODERATORS</h3>
+            
             <button className="btn-message-mods">
               <MessageCircle size={16} /> Message Mods
             </button>
 
-            <button className="btn-add-guide">
-              <Plus size={16} /> Invite Mod
-            </button>
+            {/* Only Mods can Invite other Mods */}
+            {isModerator && (
+              <button className="btn-add-guide">
+                <Plus size={16} /> Invite Mod
+              </button>
+            )}
 
+            {/* List of Mods */}
             <div className="moderator-item">
               <div className="mod-icon">G</div>
-              <span>u/Greedy-Advance-2017</span>
+              <span>u/{community.createdBy?.name || "Unknown"}</span>
             </div>
 
             <button className="btn-view-mods">View all moderators</button>
           </div>
 
-          {/* SETTINGS CARD */}
-          <div className="settings-card">
-            <h3 className="settings-title">COMMUNITY SETTINGS</h3>
-            <div className="settings-item">
-              <span className="settings-item-label">Community Appearance</span>
-              <Settings size={16} className="settings-item-value" />
+          {/* --- CARD 2: SETTINGS (MOD ONLY) --- */}
+          {isModerator && (
+            <div className="settings-card">
+              <h3 className="settings-title">COMMUNITY SETTINGS</h3>
+              <div className="settings-item">
+                <span className="settings-item-label">Community Appearance</span>
+                <Settings size={16} className="settings-item-value" />
+              </div>
+              <div className="settings-item">
+                <span className="settings-item-label">Edit Widgets</span>
+                <Settings size={16} className="settings-item-value" />
+              </div>
             </div>
-            <div className="settings-item">
-              <span className="settings-item-label">Edit Widgets</span>
-              <Settings size={16} className="settings-item-value" />
-            </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

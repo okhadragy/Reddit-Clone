@@ -19,12 +19,15 @@ router.route('/')
   )
   .get(communityController.getAllCommunities);
 
+router.get('/joined', protectRoutes, communityController.getUserCommunities);
+
 
   router.route('/:id')
   .get(communityController.getCommunity) 
   .patch(
     protectRoutes, 
-    uploadTo('communities').fields([]), 
+    uploadTo('communities').fields([{ name: 'icon', maxCount: 1 },
+      { name: 'coverImage', maxCount: 1 }]), 
     multerErrorHandler, 
     communityController.updateCommunity 
   )
@@ -33,8 +36,9 @@ router.route('/')
     communityController.deleteCommunity
   );
 
-router.post('/:id/join', protectRoutes, communityController.joinCommunity);
-router.post('/:id/leave', protectRoutes, communityController.leaveCommunity);
+router.post('/:id/join/:userId', protectRoutes, communityController.joinCommunity);
+router.post('/:id/leave/:userId', protectRoutes, communityController.leaveCommunity);
+router.get('/:id/checkMember/:userId', communityController.checkMembership);
 router.get('/:id/members', communityController.getCommunityMembers);
 
 router.patch('/:id/members/:userId', protectRoutes, communityController.manageMember);

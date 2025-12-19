@@ -6,11 +6,13 @@ import CommunityNameDesc from "./CommunityNameDesc";
 import StyleCommunity from "./StyleCommunity";
 import "../Styles/StartACommunityModal.css";
 import ModalPortal from "./ModalPortal";
+import api from "../api/api";
 
 export default function StartACommunityModal({ onClose }) {
   const navigate = useNavigate();
 
   const [step, setStep] = useState(0);
+  const [error, setError] = useState(null);
 
   const [communityData, setCommunityData] = useState({
     name: "",
@@ -36,14 +38,18 @@ export default function StartACommunityModal({ onClose }) {
   };
 
   const handleCreateCommunity = async (finalData = {}) => {
-    const completeData = { ...communityData, ...finalData };
+    const incomingData = (finalData && typeof finalData.preventDefault === "function") 
+      ? {} 
+      : finalData;
+    setError(null);
+    const completeData = { ...communityData, ...incomingData };
     const formData = new FormData();
-
+    
     formData.append("name", completeData.name);
     formData.append("description", completeData.description);
     formData.append("visibility", completeData.visibility);
     formData.append("topics", JSON.stringify(completeData.topics));
-    const token = localStorage.getItem("token");
+    
     if (completeData.icon) {
         formData.append("icon", completeData.icon);
     }
@@ -51,38 +57,21 @@ export default function StartACommunityModal({ onClose }) {
         formData.append("coverImage", completeData.banner); 
     }
     console.log("Final community data:", completeData);
-    try {
+  try {
+  
+      const response = await api.post("/community", formData);
+      console.log("Community created:", response.data);
+      handleClose();
       
-      const response = await fetch("http://localhost:5000/api/communities", {
-        method: "POST",
-        body: formData, 
-        headers: {"authorization":`Bearer${token}`}
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        console.log("Community created:", data);
-        handleClose();
-        // Navigate to the new community
-        navigate(`/r/${completeData.name}`);
-      } else {
-        console.error("Error:", data.message);
-        // Optional: Add an alert or error state here
-      }
     } catch (error) {
-      console.error("Network Error:", error);
+      setError("name is already taken");
+      console.error("Error:", error.response?.data?.message || error.message);
     }
 
-    // Close the modal
-    handleClose();
 
     // Prepare serializable state for navigation (remove banner and icon)
     const { banner, icon, ...serializableData } = completeData;
 
-    navigate(`/r/${completeData.name}`, {
-      state: serializableData
-    });
   };
 
   return (
@@ -92,7 +81,7 @@ export default function StartACommunityModal({ onClose }) {
           {step === 0 && (
             <AddTopics
               data={communityData}
-              onNext={(topics) => handleNext({ topics })}
+              onNext={(topicArray) => handleNext({ topics:topicArray })}
               onClose={handleClose}
             />
           )}
@@ -115,6 +104,7 @@ export default function StartACommunityModal({ onClose }) {
           {step === 3 && (
             <StyleCommunity
               data={communityData}
+              error={error}
               onUpdate={(newData) => setCommunityData(prev => ({ ...prev, ...newData }))}
               onNext={handleCreateCommunity}
               onBack={(mediaData) => handleBack(mediaData)}

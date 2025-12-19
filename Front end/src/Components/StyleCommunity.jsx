@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import "../Styles/StyleCommunity.css";
 
-export default function StyleCommunity({ data, onUpdate, onNext, onBack, onClose }) {
+export default function StyleCommunity({ data, onUpdate, onNext, onBack, onClose,error }) {
   const [bannerFile, setBannerFile] = useState(null);
   const [iconFile, setIconFile] = useState(null);
   const [bannerPreview, setBannerPreview] = useState(null);
@@ -13,7 +13,7 @@ export default function StyleCommunity({ data, onUpdate, onNext, onBack, onClose
   const bannerInputRef = useRef(null);
   const iconInputRef = useRef(null);
 
-  // Create preview URLs when files are selected
+
   useEffect(() => {
     if (bannerFile) {
       const url = URL.createObjectURL(bannerFile);
@@ -228,6 +228,11 @@ export default function StyleCommunity({ data, onUpdate, onNext, onBack, onClose
 
         {/* FOOTER */}
         <footer className="modal-footer">
+          {error && (
+            <div className="error-message" style={{ color: '#ea0027', fontSize: '14px', fontWeight: '500', marginRight: '10px' }}>
+               {error}
+            </div>
+          )}
           <button className="back-btn" type="button" onClick={onBack}>
             Back
           </button>

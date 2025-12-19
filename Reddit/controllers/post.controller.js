@@ -1,6 +1,7 @@
 const Post = require('../models/post.model');
 const User = require('../models/user.model');
 const Community = require('../models/community.model');
+const CommunityMember = require('../models/membership.model');
 const checkAchievement = require('../utils/achievement.checker');
 const mongoose = require('mongoose');
 const fs = require('fs');
@@ -14,8 +15,6 @@ const deleteUploadedFile = (filename) => {
 };
 
 
-// --------------------Filter posts Helper---------------------
-// --- Reusable Helper Function ---
 const fetchPostsWithStats = async (query, page, limit, userId) => {
   const skip = (page - 1) * limit;
 
@@ -33,6 +32,7 @@ const fetchPostsWithStats = async (query, page, limit, userId) => {
 
   const totalPosts = await Post.countDocuments(query);
 
+<<<<<<< Updated upstream
   const postsWithVotes = posts.map(async post => {
     const postObj = post.toObject();
 
@@ -69,6 +69,29 @@ const fetchPostsWithStats = async (query, page, limit, userId) => {
 
 
 
+=======
+  const postsWithVotes = posts.map(post => ({
+    ...post.toObject(),
+    upvotesCount: post.upvotes?.length || 0,
+    downvotesCount: post.downvotes?.length || 0,
+ 
+    userVote: userId
+      ? post.upvotes.includes(userId)
+        ? 'up'
+        : post.downvotes.includes(userId)
+          ? 'down'
+          : 'none'
+      : 'none',
+    comments: post.comments.map(c => ({
+      ...c.toObject(),
+      upvotesCount: c.upvotes?.length || 0,
+      downvotesCount: c.downvotes?.length || 0
+    }))
+  }));
+
+  return { posts: postsWithVotes, totalPosts };
+};
+>>>>>>> Stashed changes
 // -------------------- Create Post --------------------
 const createPost = async (req, res) => {
   const uploadedFiles = req.files?.map(f => f.filename) || [];
@@ -144,6 +167,10 @@ const getAllPosts = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
     const { type, community, communityId } = req.query;
 
     let query = {};
@@ -158,8 +185,13 @@ const getAllPosts = async (req, res) => {
       query = { community: { $in: communityIds } };
     }
 
+<<<<<<< Updated upstream
     // 🔹 Community feed (by name)
     if (community) {
+=======
+  
+    else if (community) {
+>>>>>>> Stashed changes
       const communityDoc = await Community.findOne({ name: community });
       if (!communityDoc) {
         return res.status(404).json({
@@ -170,6 +202,7 @@ const getAllPosts = async (req, res) => {
       query = { community: communityDoc._id };
     }
 
+<<<<<<< Updated upstream
     // 🔹 Community feed (by id)
     if (communityId) {
       query = { community: communityId };
@@ -177,6 +210,13 @@ const getAllPosts = async (req, res) => {
 
     // 🔹 Popular feed → empty query (all posts)
     // type === 'popular' → no filter
+=======
+
+    else if (communityId) {
+      query = { community: communityId };
+    }
+
+>>>>>>> Stashed changes
 
     const { posts, totalPosts } = await fetchPostsWithStats(
       query,
@@ -201,8 +241,11 @@ const getAllPosts = async (req, res) => {
     });
   }
 };
+<<<<<<< Updated upstream
 
 
+=======
+>>>>>>> Stashed changes
 // -------------------- Get Single Post --------------------
 const getPost = async (req, res) => {
   try {

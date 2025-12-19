@@ -111,8 +111,133 @@
   transition: background 0.2s;
 }
 
+/* Container that holds Title (Left) and Buttons (Right) */
+.community-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+  padding-left: 16px;
+  padding-top: 8px; 
+}
+
+/* The buttons container */
+.community-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.btn-create-post-outline {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: transparent;
+  border: 1px solid #d7dadc;
+  color: #d7dadc;
+  border-radius: 99px;
+  padding: 6px 16px;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.btn-create-post-outline:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: #fff;
+}
+
+
+.btn-icon-round {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  background: transparent;
+  border: 1px solid #d7dadc;
+  color: #d7dadc;
+  cursor: pointer;
+}
+
+.btn-icon-round:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+
+.btn-mod-tools {
+  background: #0079d3;
+  border: none;
+  color: white;
+  border-radius: 99px;
+  padding: 6px 16px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.btn-mod-tools:hover {
+  background: #1484d6;
+}
+
 .btn-change-icon:hover {
   background: rgba(55, 55, 55, 0.95);
+}
+
+.menu-container {
+  position: relative; 
+  display: flex;
+  align-items: center;
+}
+
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%; 
+  right: 0;  
+  margin-top: 4px; 
+  
+  
+  background-color: #1A1A1B; 
+  border: 1px solid #343536;
+  border-radius: 4px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+
+  z-index: 9999; 
+  min-width: 180px; 
+}
+
+.dropdown-item {
+  display: block;
+  width: 100%;
+  padding: 10px 16px; 
+  text-align: left;   
+  background: none;   
+  border: none;       
+  
+  /* Text Style */
+  color: #D7DADC;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap; 
+  transition: background-color 0.2s ease;
+}
+
+
+.dropdown-item:hover {
+  background-color: #272729;
+  outline: none;
+}
+
+.dropdown-item.danger {
+  color: #D7DADC; 
+}
+
+.dropdown-item.danger:hover {
+  background-color: rgba(255, 0, 0, 0.1); 
+  color: #ff4500; 
 }
 
 /* ===== TITLE ===== */
@@ -225,6 +350,33 @@
   margin-bottom: 16px;
 }
 
+/* Flair List Container */
+.flair-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+/* Individual Flair Tag */
+.flair-tag {
+  background-color: #272729; /* Default dark mode grey */
+  color: #d7dadc;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-weight: 500;
+  display: inline-block;
+}
+
+/* Ensure the divider looks correct */
+.sidebar-divider {
+  height: 1px;
+  background-color: #343536;
+  margin: 16px 0;
+  width: 100%;
+}
+
 /* ===== TOPICS SECTION ===== */
 .topics-section {
   margin-bottom: 16px;
@@ -289,8 +441,49 @@
 .btn-add-guide:hover {
   background: #333;
 }
+/* --- 1. The Blue "Join" Button --- */
+.btn-join-blue {
+  background-color: #0079d3; /* Reddit Blue */
+  color: #ffffff;
+  border: 1px solid #0079d3;
+  border-radius: 9999px; /* Full rounded pill shape */
+  padding: 6px 32px; /* Wide padding */
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+  line-height: 20px;
+  white-space: nowrap;
+}
 
-/* ===== INSIGHTS ===== */
+.btn-join-blue:hover {
+  background-color: #1484d6; /* Slightly lighter blue on hover */
+  border-color: #1484d6;
+}
+
+
+.btn-joined {
+  background-color: transparent;
+  color: #d7dadc;
+  border: 1px solid #d7dadc;
+  border-radius: 9999px;
+  padding: 6px 32px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  line-height: 20px;
+  white-space: nowrap;
+}
+
+.btn-joined:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-color: #ffffff;
+  color: #ffffff;
+}
+
+
+
 .sidebar-insights {
   display: flex;
   justify-content: space-between;

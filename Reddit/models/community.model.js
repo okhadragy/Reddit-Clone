@@ -25,7 +25,7 @@ const communitySchema = new mongoose.Schema({
   allowedPostTypes: {
     type: [String],
     enum: ['text', 'image', 'media', 'link'],
-    default: ['text', 'media', 'link'],
+    default: ['text', 'media', 'image'],
   },
   userFlairs: [{
     text: { type: String, required: true },
@@ -48,6 +48,11 @@ const communitySchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: [true, 'Community must have a creator'],
+  },
+  visibility: {
+    type: String,
+    enum: ['public', 'private','restricted'],
+    default: 'user'
   },
 
   rules: [{
