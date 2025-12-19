@@ -5,10 +5,13 @@ export const LoginContext = createContext();
 export function AppProvider({ children }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null);
 
   // Check token on initial load
   useEffect(() => {
     const token = localStorage.getItem("token");
+    const user = localStorage.getItem("user");
+    if (user) setUser(JSON.parse(user));
     setIsLoggedIn(!!token);
     setLoading(false);
   }, []);
@@ -31,6 +34,8 @@ export function AppProvider({ children }) {
         isLoggedIn,
         login,
         logout,
+        setUser,
+        user,
         loading,
       }}
     >

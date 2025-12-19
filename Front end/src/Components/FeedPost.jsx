@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import "../Styles/FeedPost.css";
 import { useNavigate } from "react-router-dom";
+import api from "../api/api";
 // In FeedPost.jsx
 
 const Icons = {
@@ -32,26 +33,36 @@ const Icons = {
   ),
 };
 
-const FeedPost = ({ post, onClick }) => {
+const FeedPost = ({ post, onClick,currentUser }) => {
   const [voteCount, setVoteCount] = useState(post.upvotes);
-  const [voteStatus, setVoteStatus] = useState("none");
+  const [voteStatus, setVoteStatus] = useState(post.voteStatus||0);
   const [isJoined, setIsJoined] = useState(false);
   const [shareText, setShareText] = useState("Share");
   const [awards, setAwards] = useState(0);
   const navigate = useNavigate();
-  const handleVote = (type, e) => {
-    e.stopPropagation();
-    if (voteStatus === type) {
-      setVoteStatus("none");
-      setVoteCount(type === "up" ? voteCount - 1 : voteCount + 1);
-    } else if (type === "up") {
-      setVoteCount(voteStatus === "down" ? voteCount + 2 : voteCount + 1);
-      setVoteStatus("up");
-    } else {
-      setVoteCount(voteStatus === "up" ? voteCount - 2 : voteCount - 1);
-      setVoteStatus("down");
+
+
+const handleVote = async (type) => {
+    if (!currentUser) {
+      navigate("/login");
+      return;
+    }
+    
+    try {
+      const actionValue = type === "up" ? "up" : "down";
+
+      const res = await api.post(`/posts/${post._id}/vote`, { action: actionValue });
+      const { userVote, upvotesCount, downvotesCount } = res.data.data;
+
+      const newVoteCount = upvotesCount - downvotesCount;
+      setVoteCount(newVoteCount);
+
+      setVoteStatus(userVote); // 1, -1, or 0
+    } catch (err) {
+      console.error(err);
     }
   };
+
 
   const handleShare = (e) => {
     e.stopPropagation();
@@ -142,10 +153,7 @@ const FeedPost = ({ post, onClick }) => {
         </div>
 
         <div
-          className="action-pill hover-bg" onClick={(e) => {
-            e.stopPropagation();
-            navigate("/PostPage");
-          }}
+          className="action-pill hover-bg" onClick={onClick}
         >
           <Icons.Comment />
           <span className="action-text">{post.comments}</span>

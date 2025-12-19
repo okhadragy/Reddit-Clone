@@ -25,17 +25,11 @@ function AddTopics({ data, onNext, onClose,onBack }) {
     ));
 
   const handleNext = () => {
-<<<<<<< Updated upstream
-  onNext(selectedTopics); 
-};
-
-=======
     if (onNext) {
       // Pass as object to be consistent with other components
       onNext( selectedTopics );
     }
   };
->>>>>>> Stashed changes
 
   return (
     <div className="AddTopics">

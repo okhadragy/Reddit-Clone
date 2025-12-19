@@ -1,27 +1,12 @@
-<<<<<<< Updated upstream
-import { useState } from "react";
-=======
 import { useState, useEffect } from "react";
 import { useAuth } from "./LoginContext";
 import Toast from "./Toast";
->>>>>>> Stashed changes
 import { useNavigate } from "react-router-dom";
 import api from "../api/api"; // Import your API helper
 import StartACommunityModal from "./StartACommunityModal";
 
 export default function Sidebar({ isLoggedIn }) {
   const [sidebarIsOpened, setSidebarIsOpened] = useState(true);
-<<<<<<< Updated upstream
-  const [resourcesIsOpened, setResourcesIsOpened] = useState(false);
-  const [GamesonRedditIsOpened, SetGamesonRedditIsOpened] = useState(false)
-  const [CustomFeedIsOpened, SetCustomFeedIsOpened] = useState(false)
-  const [RecentIsOpened, SetRecentIsOpened] = useState(false)
-  const [CommunitiesIsOpened, SetCommunitiesIsOpened] = useState(false)
-  const [isCommunityModalOpen, setCommunityModalOpen] = useState(false);
-
-  const navigate = useNavigate();
-
-=======
   
   // Section States
   const [resourcesIsOpened, setResourcesIsOpened] = useState(true);
@@ -58,7 +43,6 @@ export default function Sidebar({ isLoggedIn }) {
     setToastMessage(text);
     setTimeout(() => setToastMessage(""), 3000);
   }
->>>>>>> Stashed changes
 
   return (
     <aside className={"sidebar " + (sidebarIsOpened ? "opened" : "closed")}>
@@ -93,19 +77,11 @@ export default function Sidebar({ isLoggedIn }) {
                   onClick={() => setResourcesIsOpened(!resourcesIsOpened)}
                 >
                   <span className="Resources">RESOURCES</span>
-<<<<<<< Updated upstream
-                  <span className="arrow">{resourcesIsOpened ? <svg rpl="" class="text-secondary-weak undefined" fill="currentColor" height="20" icon-name="caret-down-outline" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M10 13.7a.897.897 0 01-.636-.264l-4.6-4.6a.9.9 0 111.272-1.273L10 11.526l3.964-3.963a.9.9 0 011.272 1.273l-4.6 4.6A.897.897 0 0110 13.7z"></path>
-                  </svg> : <svg rpl="" class="text-secondary-weak undefined" fill="currentColor" height="20" icon-name="caret-down-outline" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M10 13.7a.897.897 0 01-.636-.264l-4.6-4.6a.9.9 0 111.272-1.273L10 11.526l3.964-3.963a.9.9 0 011.272 1.273l-4.6 4.6A.897.897 0 0110 13.7z"></path>
-                  </svg>}</span>
-=======
                   <span className="arrow">{resourcesIsOpened ? <svg className="text-secondary-weak undefined" fill="currentColor" height="20" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg">
       <path d="M10 13.7a.897.897 0 01-.636-.264l-4.6-4.6a.9.9 0 111.272-1.273L10 11.526l3.964-3.963a.9.9 0 011.272 1.273l-4.6 4.6A.897.897 0 0110 13.7z"></path>
     </svg> : <svg className="text-secondary-weak undefined" fill="currentColor" height="20" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg">
       <path d="M10 13.7a.897.897 0 01-.636-.264l-4.6-4.6a.9.9 0 111.272-1.273L10 11.526l3.964-3.963a.9.9 0 011.272 1.273l-4.6 4.6A.897.897 0 0110 13.7z"></path>
     </svg>}</span>
->>>>>>> Stashed changes
                 </div>
 
                 {resourcesIsOpened && (
@@ -147,21 +123,6 @@ export default function Sidebar({ isLoggedIn }) {
             <div className="sidebar-content">
         
               <ul className="part1beforeline">
-<<<<<<< Updated upstream
-                <div className="allbuttonscss">
-                  <li><button onClick={() => navigate("/")}>Home</button></li>
-                  <li><button>Popular</button></li>
-                  <li><button onClick={() => navigate("/explore")}>Explore</button></li>
-                  <li><button>All</button></li>
-                  <li>
-                    <button onClick={() => setCommunityModalOpen(true)}>
-                      <span className="Plus">+</span> Start a community
-                    </button>
-
-                  </li>
-                </div>
-
-=======
                  <div className="allbuttonscss">
                 <li><button onClick={() => navigate("/")}>Home</button></li>
                 <li><button>Popular</button></li>
@@ -173,7 +134,6 @@ export default function Sidebar({ isLoggedIn }) {
                  </button>
                  </li>
               </div>  
->>>>>>> Stashed changes
               </ul>
               {isCommunityModalOpen && (
                 <StartACommunityModal onClose={() => setCommunityModalOpen(false)} />
@@ -182,21 +142,6 @@ export default function Sidebar({ isLoggedIn }) {
 
               <div className="GamesSection">
                 <div
-<<<<<<< Updated upstream
-                  className="GameSectionHeader"
-                  onClick={() => {
-                    const newState = !GamesonRedditIsOpened;
-                    SetGamesonRedditIsOpened(newState);
-                  }}
-                >
-                  <span className="Games">GAMES ON REDDIT </span>
-                  <span className="arrow">{GamesonRedditIsOpened ? <svg rpl="" class="text-secondary-weak undefined" fill="currentColor" height="20" icon-name="caret-down-outline" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M10 13.7a.897.897 0 01-.636-.264l-4.6-4.6a.9.9 0 111.272-1.273L10 11.526l3.964-3.963a.9.9 0 011.272 1.273l-4.6 4.6A.897.897 0 0110 13.7z"></path>
-                  </svg> : <svg rpl="" class="text-secondary-weak undefined" fill="currentColor" height="20" icon-name="caret-down-outline" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M10 13.7a.897.897 0 01-.636-.264l-4.6-4.6a.9.9 0 111.272-1.273L10 11.526l3.964-3.963a.9.9 0 011.272 1.273l-4.6 4.6A.897.897 0 0110 13.7z"></path>
-                  </svg>}</span>
-                </div>
-=======
                     className="GameSectionHeader"
                     onClick={() => {
                       const newState = !GamesonRedditIsOpened;
@@ -215,7 +160,6 @@ export default function Sidebar({ isLoggedIn }) {
       <path d="M10 13.7a.897.897 0 01-.636-.264l-4.6-4.6a.9.9 0 111.272-1.273L10 11.526l3.964-3.963a.9.9 0 011.272 1.273l-4.6 4.6A.897.897 0 0110 13.7z"></path>
     </svg>}</span>
                   </div>
->>>>>>> Stashed changes
 
                 {GamesonRedditIsOpened && (
                   <div className="Gamecontainer">
@@ -237,44 +181,22 @@ export default function Sidebar({ isLoggedIn }) {
                   onClick={() => SetCustomFeedIsOpened(!CustomFeedIsOpened)}
                 >
                   <span className="CustomFeed">CUSTOM FEEDS </span>
-<<<<<<< Updated upstream
-                  <span className="arrow">{CustomFeedIsOpened ? <svg rpl="" class="text-secondary-weak undefined" fill="currentColor" height="20" icon-name="caret-down-outline" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M10 13.7a.897.897 0 01-.636-.264l-4.6-4.6a.9.9 0 111.272-1.273L10 11.526l3.964-3.963a.9.9 0 011.272 1.273l-4.6 4.6A.897.897 0 0110 13.7z"></path>
-                  </svg> : <svg rpl="" class="text-secondary-weak undefined" fill="currentColor" height="20" icon-name="caret-down-outline" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M10 13.7a.897.897 0 01-.636-.264l-4.6-4.6a.9.9 0 111.272-1.273L10 11.526l3.964-3.963a.9.9 0 011.272 1.273l-4.6 4.6A.897.897 0 0110 13.7z"></path>
-                  </svg>}</span>
-=======
                   <span className="arrow">{CustomFeedIsOpened ? <svg className="text-secondary-weak undefined" fill="currentColor" height="20" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg">
       <path d="M10 13.7a.897.897 0 01-.636-.264l-4.6-4.6a.9.9 0 111.272-1.273L10 11.526l3.964-3.963a.9.9 0 011.272 1.273l-4.6 4.6A.897.897 0 0110 13.7z"></path>
     </svg> : <svg className="text-secondary-weak undefined" fill="currentColor" height="20" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg">
       <path d="M10 13.7a.897.897 0 01-.636-.264l-4.6-4.6a.9.9 0 111.272-1.273L10 11.526l3.964-3.963a.9.9 0 011.272 1.273l-4.6 4.6A.897.897 0 0110 13.7z"></path>
     </svg>}</span>
->>>>>>> Stashed changes
                 </div>
 
                 {CustomFeedIsOpened && (
                   <div className="CustomFeedcontainer">
                     <ul className="CustomFeedList">
                       <li><button><span className="Plus">+</span> Create Custom Feed </button></li>
-<<<<<<< Updated upstream
-
-
                     </ul>
-
-
-
-=======
-                    </ul>
->>>>>>> Stashed changes
                   </div>
                 )}
               </div>
-<<<<<<< Updated upstream
-              <hr />
-              <div className="RecentSection">
-=======
               <hr/>
->>>>>>> Stashed changes
 
    
               <div className="RecentSection">
@@ -283,41 +205,20 @@ export default function Sidebar({ isLoggedIn }) {
                   onClick={() => SetRecentIsOpened(!RecentIsOpened)}
                 >
                   <span className="Recent">RECENT </span>
-<<<<<<< Updated upstream
-                  <span className="arrow">{RecentIsOpened ? <svg rpl="" class="text-secondary-weak undefined" fill="currentColor" height="20" icon-name="caret-down-outline" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M10 13.7a.897.897 0 01-.636-.264l-4.6-4.6a.9.9 0 111.272-1.273L10 11.526l3.964-3.963a.9.9 0 011.272 1.273l-4.6 4.6A.897.897 0 0110 13.7z"></path>
-                  </svg> : <svg rpl="" class="text-secondary-weak undefined" fill="currentColor" height="20" icon-name="caret-down-outline" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M10 13.7a.897.897 0 01-.636-.264l-4.6-4.6a.9.9 0 111.272-1.273L10 11.526l3.964-3.963a.9.9 0 011.272 1.273l-4.6 4.6A.897.897 0 0110 13.7z"></path>
-                  </svg>}</span>
-=======
                   <span className="arrow">{RecentIsOpened ? <svg className="text-secondary-weak undefined" fill="currentColor" height="20" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg">
       <path d="M10 13.7a.897.897 0 01-.636-.264l-4.6-4.6a.9.9 0 111.272-1.273L10 11.526l3.964-3.963a.9.9 0 011.272 1.273l-4.6 4.6A.897.897 0 0110 13.7z"></path>
     </svg> : <svg className="text-secondary-weak undefined" fill="currentColor" height="20" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg">
       <path d="M10 13.7a.897.897 0 01-.636-.264l-4.6-4.6a.9.9 0 111.272-1.273L10 11.526l3.964-3.963a.9.9 0 011.272 1.273l-4.6 4.6A.897.897 0 0110 13.7z"></path>
     </svg>}</span>
->>>>>>> Stashed changes
                 </div>
                 {RecentIsOpened && (
                   <div className="Recentcontainer">
                     <ul className="RecentList">
-<<<<<<< Updated upstream
-
                     </ul>
-
-
-
-=======
-                    </ul>
->>>>>>> Stashed changes
                   </div>
                 )}
               </div>
-<<<<<<< Updated upstream
-              <hr />
-              <div className="CommunitiesSection">
-=======
               <hr/>
->>>>>>> Stashed changes
 
               {/* --- COMMUNITIES SECTION (UPDATED) --- */}
               <div className="CommunitiesSection">
@@ -326,33 +227,16 @@ export default function Sidebar({ isLoggedIn }) {
                   onClick={() => SetCommunitiesIsOpened(!CommunitiesIsOpened)}
                 >
                   <span className="Communities">COMMUNITIES </span>
-<<<<<<< Updated upstream
-                  <span className="arrow">{CommunitiesIsOpened ? <svg rpl="" class="text-secondary-weak undefined" fill="currentColor" height="20" icon-name="caret-down-outline" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M10 13.7a.897.897 0 01-.636-.264l-4.6-4.6a.9.9 0 111.272-1.273L10 11.526l3.964-3.963a.9.9 0 011.272 1.273l-4.6 4.6A.897.897 0 0110 13.7z"></path>
-                  </svg> : <svg rpl="" class="text-secondary-weak undefined" fill="currentColor" height="20" icon-name="caret-down-outline" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M10 13.7a.897.897 0 01-.636-.264l-4.6-4.6a.9.9 0 111.272-1.273L10 11.526l3.964-3.963a.9.9 0 011.272 1.273l-4.6 4.6A.897.897 0 0110 13.7z"></path>
-                  </svg>}</span>
-=======
                   <span className="arrow">{CommunitiesIsOpened ? <svg className="text-secondary-weak undefined" fill="currentColor" height="20" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg">
       <path d="M10 13.7a.897.897 0 01-.636-.264l-4.6-4.6a.9.9 0 111.272-1.273L10 11.526l3.964-3.963a.9.9 0 011.272 1.273l-4.6 4.6A.897.897 0 0110 13.7z"></path>
     </svg> : <svg className="text-secondary-weak undefined" fill="currentColor" height="20" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg">
       <path d="M10 13.7a.897.897 0 01-.636-.264l-4.6-4.6a.9.9 0 111.272-1.273L10 11.526l3.964-3.963a.9.9 0 011.272 1.273l-4.6 4.6A.897.897 0 0110 13.7z"></path>
     </svg>}</span>
->>>>>>> Stashed changes
                 </div>
 
                 {CommunitiesIsOpened && (
                   <div className="Communitiescontainer">
                     <ul className="CommunitiesList">
-<<<<<<< Updated upstream
-                      <li><button><svg className="gear" rpl="" fill="currentColor" height="20" icon-name="settings" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M11.145 18.995h-2.29a1.56 1.56 0 01-1.501-1.134l-.051-.18a2.161 2.161 0 00-2.604-1.504l-.185.046a1.561 1.561 0 01-1.731-.734l-1.146-1.985a1.561 1.561 0 01.229-1.864l.132-.137a2.163 2.163 0 000-3.007l-.13-.135a1.561 1.561 0 01-.23-1.866L2.783 4.51a1.56 1.56 0 011.73-.734l.186.046a2.161 2.161 0 002.603-1.504l.05-.18a1.562 1.562 0 011.503-1.134h2.29c.697 0 1.31.463 1.5 1.133l.053.183a2.157 2.157 0 002.599 1.502l.189-.047a1.561 1.561 0 011.73.734l1.147 1.985a1.561 1.561 0 01-.23 1.864l-.133.14a2.162 2.162 0 000 3.004l.132.137c.485.5.578 1.262.23 1.866l-1.145 1.984a1.56 1.56 0 01-1.731.734l-.187-.047a2.16 2.16 0 00-2.601 1.503l-.052.182a1.562 1.562 0 01-1.502 1.134zm-2.11-1.8l1.933-.01a3.947 3.947 0 014.77-2.754l.01.002.967-1.672-.008-.007a3.943 3.943 0 010-5.508l.007-.007-.966-1.672-.01.002a3.945 3.945 0 01-4.771-2.754l-.003-.01-1.933.009A3.946 3.946 0 014.26 5.569l-.01-.002-.966 1.672.008.007a3.943 3.943 0 010 5.508l-.007.007.966 1.672.01-.002a3.947 3.947 0 014.77 2.754l.004.01zM10 13c-1.654 0-3-1.346-3-3s1.346-3 3-3 3 1.346 3 3-1.346 3-3 3zm0-4.2c-.661 0-1.2.539-1.2 1.2 0 .66.539 1.2 1.2 1.2.66 0 1.199-.54 1.199-1.2 0-.661-.538-1.2-1.2-1.2z"></path>
-                      </svg>Manage Communities</button></li>
-                    </ul>
-
-
-
-=======
                       
                       {/* 1. Mapped Communities */}
                       {joinedCommunities.map((community) => (
@@ -373,38 +257,23 @@ export default function Sidebar({ isLoggedIn }) {
                     <path d="M11.145 18.995h-2.29a1.56 1.56 0 01-1.501-1.134l-.051-.18a2.161 2.161 0 00-2.604-1.504l-.185.046a1.561 1.561 0 01-1.731-.734l-1.146-1.985a1.561 1.561 0 01.229-1.864l.132-.137a2.163 2.163 0 000-3.007l-.13-.135a1.561 1.561 0 01-.23-1.866L2.783 4.51a1.56 1.56 0 011.73-.734l.186.046a2.161 2.161 0 002.603-1.504l.05-.18a1.562 1.562 0 011.503-1.134h2.29c.697 0 1.31.463 1.5 1.133l.053.183a2.157 2.157 0 002.599 1.502l.189-.047a1.561 1.561 0 011.73.734l1.147 1.985a1.561 1.561 0 01-.23 1.864l-.133.14a2.162 2.162 0 000 3.004l.132.137c.485.5.578 1.262.23 1.866l-1.145 1.984a1.56 1.56 0 01-1.731.734l-.187-.047a2.16 2.16 0 00-2.601 1.503l-.052.182a1.562 1.562 0 01-1.502 1.134zm-2.11-1.8l1.933-.01a3.947 3.947 0 014.77-2.754l.01.002.967-1.672-.008-.007a3.943 3.943 0 010-5.508l.007-.007-.966-1.672-.01.002a3.945 3.945 0 01-4.771-2.754l-.003-.01-1.933.009A3.946 3.946 0 014.26 5.569l-.01-.002-.966 1.672.008.007a3.943 3.943 0 010 5.508l-.007.007.966 1.672.01-.002a3.947 3.947 0 014.77 2.754l.004.01zM10 13c-1.654 0-3-1.346-3-3s1.346-3 3-3 3 1.346 3 3-1.346 3-3 3zm0-4.2c-.661 0-1.2.539-1.2 1.2 0 .66.539 1.2 1.2 1.2.66 0 1.199-.54 1.199-1.2 0-.661-.538-1.2-1.2-1.2z"></path>
                   </svg>Manage Communities</button></li>
                     </ul>
->>>>>>> Stashed changes
                   </div>
                 )}
               </div>
-<<<<<<< Updated upstream
-              <hr />
-
-              {/* RESOURCES */}
-=======
               <hr/>
               
               {/* RESOURCES (Unchanged) */}
->>>>>>> Stashed changes
               <div className="resourcesSection">
                 <div
                   className="resourcesHeader"
                   onClick={() => setResourcesIsOpened(!resourcesIsOpened)}
                 >
                   <span className="Resources">RESOURCES</span>
-<<<<<<< Updated upstream
-                  <span className="arrow">{resourcesIsOpened ? <svg rpl="" class="text-secondary-weak undefined" fill="currentColor" height="20" icon-name="caret-down-outline" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M10 13.7a.897.897 0 01-.636-.264l-4.6-4.6a.9.9 0 111.272-1.273L10 11.526l3.964-3.963a.9.9 0 011.272 1.273l-4.6 4.6A.897.897 0 0110 13.7z"></path>
-                  </svg> : <svg rpl="" class="text-secondary-weak undefined" fill="currentColor" height="20" icon-name="caret-down-outline" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M10 13.7a.897.897 0 01-.636-.264l-4.6-4.6a.9.9 0 111.272-1.273L10 11.526l3.964-3.963a.9.9 0 011.272 1.273l-4.6 4.6A.897.897 0 0110 13.7z"></path>
-                  </svg>}</span>
-=======
                   <span className="arrow">{resourcesIsOpened ?<svg className="text-secondary-weak undefined" fill="currentColor" height="20" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg">
       <path d="M10 13.7a.897.897 0 01-.636-.264l-4.6-4.6a.9.9 0 111.272-1.273L10 11.526l3.964-3.963a.9.9 0 011.272 1.273l-4.6 4.6A.897.897 0 0110 13.7z"></path>
     </svg> : <svg className="text-secondary-weak undefined" fill="currentColor" height="20" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg">
       <path d="M10 13.7a.897.897 0 01-.636-.264l-4.6-4.6a.9.9 0 111.272-1.273L10 11.526l3.964-3.963a.9.9 0 011.272 1.273l-4.6 4.6A.897.897 0 0110 13.7z"></path>
     </svg>}</span>
->>>>>>> Stashed changes
                 </div>
 
                 {resourcesIsOpened && (

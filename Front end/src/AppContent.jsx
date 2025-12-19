@@ -46,7 +46,8 @@ import { useAuth } from "./Components/LoginContext";
 /*==============================Styles==============================*/
 
 function AppContent() {
-    const { isLoggedIn, loading } = useAuth();
+    const { isLoggedIn, loading,user } = useAuth();
+
     if (loading) return null;
 
     return (
@@ -57,7 +58,7 @@ function AppContent() {
 
             <div className='FeedLayout'>
                 <Routes>
-                    <Route path="/" element={<Home isLoggedIn={isLoggedIn} />} />
+                    <Route path="/" element={<Home currentUser={user} />} />
                     <Route path="/login" element={<AuthRoute><Login_Signup /></AuthRoute>} />
                     <Route path="/explore" element={<ExplorePage />} />
                     <Route path="/post/:id" element={<PostPage isLoggedIn={isLoggedIn} />} />

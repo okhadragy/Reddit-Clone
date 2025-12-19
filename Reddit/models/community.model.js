@@ -25,7 +25,7 @@ const communitySchema = new mongoose.Schema({
   allowedPostTypes: {
     type: [String],
     enum: ['text', 'image', 'media', 'link'],
-    default: ['text', 'media', 'image'],
+    default: ['text', 'media', 'image','link'],
   },
   userFlairs: [{
     text: { type: String, required: true },

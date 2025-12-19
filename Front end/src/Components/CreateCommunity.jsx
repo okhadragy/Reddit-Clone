@@ -36,19 +36,11 @@ export default function CreateCommunity() {
   const menuRef = useRef(null);
 
   // Use state for banner and icon URLs
-<<<<<<< Updated upstream
-  const [bannerUrl, setBannerUrl] = useState(null);
-  const [iconUrl, setIconUrl] = useState(null);
-  const [localBannerFile, setLocalBannerFile] = useState(bannerFile);
-  const [localIconFile, setLocalIconFile] = useState(iconFile);
-const createPostRef = useRef(null);
-=======
   const [previewIcon, setPreviewIcon] = useState(null);
   const [previewBanner, setPreviewBanner] = useState(null);
   const [iconFile, setIconFile] = useState(null);
   const [bannerFile, setBannerFile] = useState(null);
 
->>>>>>> Stashed changes
 
   const bannerInputRef = useRef(null);
   const iconInputRef = useRef(null);
@@ -113,7 +105,8 @@ const createPostRef = useRef(null);
             // Handle User Vote status (up/down/none)
             userVoteStatus: post.userVote
         }));
-
+        console.log("Mapped Posts:", mappedPosts);
+        
         setPosts(mappedPosts);
         setError(null);
       } catch (err) {
@@ -383,26 +376,6 @@ const createPostRef = useRef(null);
       <div className="community-content">
         {/* LEFT SIDE - FEED */}
         <div className="community-feed">
-<<<<<<< Updated upstream
-          {/* CREATE POST SECTION */}
-          <div className="create-post-section">
-            <CreatePostButton ref={createPostRef} />
-
-          </div>
-
-          {/* EMPTY FEED */}
-          <div className="empty-feed">
-            <h2>This community doesn't have any posts yet</h2>
-            <p>Make one and get this feed started.</p>
-            <button
-              className="btn-create-post-blue"
-              onClick={() => createPostRef.current?.openCreatePost()}
-            >
-  Create Post
-</button>
-
-          </div>
-=======
           {posts.length > 0 ? (
             
             // OPTION A: Show the Posts
@@ -424,7 +397,6 @@ const createPostRef = useRef(null);
             </div>
 
           )}
->>>>>>> Stashed changes
         </div>
 
         {/* RIGHT SIDEBAR */}

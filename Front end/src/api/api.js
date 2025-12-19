@@ -1,11 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-<<<<<<< Updated upstream
   baseURL: "http://localhost:5000",
-=======
-  baseURL: "http://localhost:5000/",
->>>>>>> Stashed changes
   timeout: 10000,
 });
 
