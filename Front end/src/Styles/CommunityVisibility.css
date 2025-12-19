@@ -9,6 +9,7 @@
   color: white;
   position: relative;
   height: 520px;
+  padding: 30px;
 }
 
 .radio-group h1 {
@@ -72,7 +73,7 @@
   /* Push buttons to the bottom */
   position: absolute;
   bottom: 20px;
-  right: 20px;
+  right: 50px;
 }
 
 .Back,

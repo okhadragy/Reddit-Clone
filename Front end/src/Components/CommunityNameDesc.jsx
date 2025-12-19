@@ -37,7 +37,7 @@ export default function CommunityNameDesc({ data, onNext, onBack, onClose }) {
             maxLength={30}
             required
           />
-          <span className="char-count">{name.length}/30</span>
+          <span className="char-count-name">{name.length}/30</span>
         </div>
 
         {/* Description Input */}
@@ -51,16 +51,16 @@ export default function CommunityNameDesc({ data, onNext, onBack, onClose }) {
             maxLength={500}
             rows={4}
           />
-          <span className="char-count">{description.length}/500</span>
+          <span className="char-count-desc">{description.length}/500</span>
         </div>
 
         {/* Buttons */}
         <div className="buttons">
-          <button className="back-btn" onClick={handleBack}>
+          <button className="Back" onClick={handleBack}>
             Back
           </button>
           <button 
-            className="next-btn" 
+            className="Next" 
             onClick={handleNext}
             disabled={!name.trim()}
           >
