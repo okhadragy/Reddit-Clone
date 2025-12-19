@@ -49,7 +49,31 @@ const preventLoggedInAccess = (req, res, next) => {
   }
 };
 
+const getUserIdRoutes = async (req, res, next) => {
+  try {
+    let token = req.headers.authorization;
+
+    if (token && token.startsWith("Bearer ")) {
+      token = token.split(" ")[1];
+    }
+
+    if (!token) {
+      return next();
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.userId = decoded.id;
+    next();
+  } catch (error) {
+    res.status(401).json({
+      status: "fail",
+      message: "Invalid or expired token",
+    });
+  }
+};
+
 module.exports = {
   protectRoutes,
-  preventLoggedInAccess
+  preventLoggedInAccess,
+  getUserIdRoutes,
 };

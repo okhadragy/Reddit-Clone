@@ -1,5 +1,6 @@
 const Comment = require('../models/comment.model');
 const Post = require('../models/post.model');
+const User = require('../models/user.model');
 const checkAchievement = require('../utils/achievement.checker');
 const mongoose = require('mongoose');
 
@@ -10,11 +11,14 @@ const addComment = async (req, res) => {
     const { text, parentComment } = req.body;
     const userId = req.userId;
 
-    if (!text) return res.status(400).json({ status: 'fail', message: 'Comment text is required' });
+    if (!text) 
+      return res.status(400).json({ status: 'fail', message: 'Comment text is required' });
 
     const post = await Post.findById(postId);
-    if (!post) return res.status(404).json({ status: 'fail', message: 'Post not found' });
+    if (!post) 
+      return res.status(404).json({ status: 'fail', message: 'Post not found' });
 
+    // Create the comment
     const comment = await Comment.create({
       post: postId,
       user: userId,
@@ -22,25 +26,47 @@ const addComment = async (req, res) => {
       parentComment: parentComment || null,
     });
 
-    await User.findByIdAndUpdate(userId, {
-    $push: { comments: comment._id }
-    });
-
+    // Update user and post references
+    await User.findByIdAndUpdate(userId, { $push: { comments: comment._id } });
     post.comments.push(comment._id);
     await post.save();
 
-
     await checkAchievement(userId, { type: 'comment', communityId: post.community });
 
+    // Populate user and parentComment
     const populated = await Comment.findById(comment._id)
       .populate('user', 'name photo')
       .populate('parentComment', 'text user');
 
-    res.status(201).json({ status: 'success', data: { comment: populated } });
+    // Prepare response with votes info
+    const commentObj = populated.toObject();
+    const upvotesCount = populated.upvotes?.length || 0;
+    const downvotesCount = populated.downvotes?.length || 0;
+    const userVote = userId
+      ? populated.upvotes?.includes(userId)
+        ? 1
+        : populated.downvotes?.includes(userId)
+          ? -1
+          : 0
+      : 0;
+
+    res.status(201).json({ 
+      status: 'success', 
+      data: { 
+        comment: {
+          ...commentObj,
+          upvotesCount,
+          downvotesCount,
+          userVote
+        } 
+      } 
+    });
+
   } catch (error) {
     res.status(500).json({ status: 'error', message: error.message });
   }
 };
+
 
 // -------------------- Update Comment --------------------
 const updateComment = async (req, res) => {
@@ -93,54 +119,67 @@ const voteComment = async (req, res) => {
     const { action } = req.body;
     const userId = req.userId;
 
-    if (!['up', 'down'].includes(action)) return res.status(400).json({ status: 'fail', message: 'Invalid action' });
+    if (!['up', 'down'].includes(action))
+      return res.status(400).json({ status: 'fail', message: 'Invalid action' });
 
     const comment = await Comment.findById(commentId).populate('post');
-    if (!comment) return res.status(404).json({ status: 'fail', message: 'Comment not found' });
+    if (!comment)
+      return res.status(404).json({ status: 'fail', message: 'Comment not found' });
 
-    const authorId = comment.user; 
+    const authorId = comment.user;
+
     const wasUpvoted = comment.upvotes.includes(userId);
     const wasDownvoted = comment.downvotes.includes(userId);
-    
 
-    let oldVoteValue = (wasUpvoted ? 1 : 0) + (wasDownvoted ? -1 : 0);
+    const oldVoteValue = wasUpvoted ? 1 : wasDownvoted ? -1 : 0;
     let newVoteValue = 0;
 
-
+    // Remove any previous vote
     comment.upvotes.pull(userId);
     comment.downvotes.pull(userId);
 
-    if (action === 'up') {
-        comment.upvotes.push(userId);
-        newVoteValue = 1;
-    } else if (action === 'down') {
-        comment.downvotes.push(userId);
-        newVoteValue = -1;
+    // Toggle logic
+    if (action === 'up' && !wasUpvoted) {
+      comment.upvotes.push(userId);
+      newVoteValue = 1;
     } 
+    else if (action === 'down' && !wasDownvoted) {
+      comment.downvotes.push(userId);
+      newVoteValue = -1;
+    }
+    // else → same vote clicked again → unvote
 
+    await comment.save();
 
     const karmaChange = newVoteValue - oldVoteValue;
 
-    await comment.save();
-    
     if (karmaChange !== 0) {
-        await User.findByIdAndUpdate(authorId, {
-            $inc: { commentKarma: karmaChange }
-        });
+      await User.findByIdAndUpdate(authorId, {
+        $inc: { commentKarma: karmaChange }
+      });
     }
 
     const communityId = comment.post.community;
 
-    await checkAchievement(authorId, { type: 'karma',communityId: communityId });
+    await checkAchievement(authorId, {
+      type: 'karma',
+      communityId
+    });
 
     res.status(200).json({
       status: 'success',
-      data: { upvotesCount: comment.upvotes.length, downvotesCount: comment.downvotes.length }
+      data: {
+        upvotesCount: comment.upvotes.length,
+        downvotesCount: comment.downvotes.length,
+        userVote: newVoteValue
+      }
     });
+
   } catch (error) {
     res.status(500).json({ status: 'error', message: error.message });
   }
 };
+
 
 module.exports = {
   addComment,

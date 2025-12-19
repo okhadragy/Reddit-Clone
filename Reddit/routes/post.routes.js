@@ -2,7 +2,7 @@ const express = require("express");
 const postControllers = require("../controllers/post.controller");
 const uploadTo = require("../middleware/image.upload.middleware");
 const multerErrorHandler = require("../middleware/multer.error.handler");
-const { protectRoutes } = require("../middleware/auth");
+const { protectRoutes, getUserIdRoutes } = require("../middleware/auth");
 
 const router = express.Router();
 
@@ -15,13 +15,14 @@ router
     postControllers.createPost
   )
   .get(
+    getUserIdRoutes,
     postControllers.getAllPosts
   );
 
 router
   .route("/:id")
   .get(
-    protectRoutes, 
+    getUserIdRoutes,
     postControllers.getPost
   )
   .patch(
@@ -42,7 +43,7 @@ router
   );
 router
   .route("/:id/save")
-  .get(
+  .post(
     protectRoutes, 
     postControllers.toggleSavePost
   );

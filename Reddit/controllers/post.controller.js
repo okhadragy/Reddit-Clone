@@ -33,26 +33,40 @@ const fetchPostsWithStats = async (query, page, limit, userId) => {
 
   const totalPosts = await Post.countDocuments(query);
 
-  const postsWithVotes = posts.map(post => ({
-    ...post.toObject(),
-    upvotesCount: post.upvotes?.length || 0,
-    downvotesCount: post.downvotes?.length || 0,
-    userVote: userId
-      ? post.upvotes.includes(userId)
-        ? 'up'
-        : post.downvotes.includes(userId)
-          ? 'down'
-          : 'none'
-      : 'none',
-    comments: post.comments.map(c => ({
-      ...c.toObject(),
-      upvotesCount: c.upvotes?.length || 0,
-      downvotesCount: c.downvotes?.length || 0
-    }))
-  }));
+  const postsWithVotes = posts.map(async post => {
+    const postObj = post.toObject();
+
+    delete postObj.upvotes;
+    delete postObj.downvotes;
+    delete postObj.comments;
+
+    let isSaved = false;
+    if (userId) {
+      const user = await User.findById(userId).select('savedPosts');
+      if (user && user.savedPosts.includes(post._id)) {
+        isSaved = true;
+      }
+    }
+
+    return {
+      ...postObj,
+      upvotesCount: post.upvotes?.length || 0,
+      downvotesCount: post.downvotes?.length || 0,
+      commentsCount: post.comments?.length || 0,
+      isSaved,
+      userVote: userId
+        ? post.upvotes.includes(userId)
+          ? 1   // 1 = upvoted
+          : post.downvotes.includes(userId)
+            ? -1  // -1 = downvoted
+            : 0   // 0 = none
+        : 0,
+    };
+  });
 
   return { posts: postsWithVotes, totalPosts };
 };
+
 
 
 // -------------------- Create Post --------------------
@@ -115,7 +129,7 @@ const createPost = async (req, res) => {
       isDraft: isDraft === 'true' || isDraft === true,
     });
 
-    await User.findByIdAndUpdate(author, { $push: { posts: newPost._id } ,$inc: { postKarma: 1 }});
+    await User.findByIdAndUpdate(author, { $push: { posts: newPost._id }, $inc: { postKarma: 1 } });
     await checkAchievement(author, { type: 'post', communityId });
     res.status(201).json({ status: 'success', data: { post: newPost } });
   } catch (error) {
@@ -193,31 +207,68 @@ const getAllPosts = async (req, res) => {
 const getPost = async (req, res) => {
   try {
     const { id } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({ status: 'fail', message: 'Invalid Post ID' });
+    const userId = req.userId; // assume you have authentication middleware
+
+    if (!mongoose.Types.ObjectId.isValid(id))
+      return res.status(400).json({ status: 'fail', message: 'Invalid Post ID' });
 
     const post = await Post.findById(id)
       .populate('author', 'name photo')
       .populate('community', 'name coverImage')
       .populate({
         path: 'comments',
+        options: { sort: { createdAt: -1 } }, // sort latest first
         populate: [
           { path: 'user', select: 'name photo' },
           { path: 'parentComment', select: 'text user' },
-        ]
+        ],
       })
       .select('-__v');
 
     if (!post) return res.status(404).json({ status: 'fail', message: 'Post not found' });
 
+    let isSaved = false;
+    if (userId) {
+      const user = await User.findById(userId).select('savedPosts');
+      if (user && user.savedPosts.includes(post._id)) {
+        isSaved = true;
+      }
+    }
+
+    const postObj = post.toObject();
+    delete postObj.upvotes;
+    delete postObj.downvotes;
+
     const postWithVotes = {
-      ...post.toObject(),
-      upvotesCount: post.upvotes.length,
-      downvotesCount: post.downvotes.length,
-      comments: post.comments.map(c => ({
-        ...c.toObject(),
-        upvotesCount: c.upvotes?.length || 0,
-        downvotesCount: c.downvotes?.length || 0
-      }))
+      ...postObj,
+      upvotesCount: post.upvotes?.length || 0,
+      downvotesCount: post.downvotes?.length || 0,
+      userVote: userId
+        ? post.upvotes.includes(userId)
+          ? 1
+          : post.downvotes.includes(userId)
+            ? -1
+            : 0
+        : 0,
+      isSaved,
+      comments: post.comments.map(c => {
+        const commentObj = c.toObject();
+        delete commentObj.upvotes;
+        delete commentObj.downvotes;
+
+        return {
+          ...commentObj,
+          upvotesCount: c.upvotes?.length || 0,
+          downvotesCount: c.downvotes?.length || 0,
+          userVote: userId
+            ? c.upvotes?.includes(userId)
+              ? 1
+              : c.downvotes?.includes(userId)
+                ? -1
+                : 0
+            : 0
+        };
+      })
     };
 
     res.status(200).json({ status: 'success', data: { post: postWithVotes } });
@@ -225,6 +276,8 @@ const getPost = async (req, res) => {
     res.status(500).json({ status: 'error', message: error.message });
   }
 };
+
+
 
 // -------------------- Update Post --------------------
 const updatePost = async (req, res) => {
@@ -312,53 +365,71 @@ const votePost = async (req, res) => {
     const { action } = req.body;
     const userId = req.userId;
 
-    if (!['up', 'down'].includes(action)) return res.status(400).json({ status: 'fail', message: 'Invalid action' });
+    if (!['up', 'down'].includes(action))
+      return res.status(400).json({ status: 'fail', message: 'Invalid action' });
 
     const post = await Post.findById(id);
-    if (!post) return res.status(404).json({ status: 'fail', message: 'Post not found' });
-
+    if (!post)
+      return res.status(404).json({ status: 'fail', message: 'Post not found' });
 
     const authorId = post.author;
+
     const wasUpvoted = post.upvotes.includes(userId);
     const wasDownvoted = post.downvotes.includes(userId);
 
-    let oldVoteValue = (wasUpvoted ? 1 : 0) + (wasDownvoted ? -1 : 0);
+    const oldVoteValue = wasUpvoted ? 1 : wasDownvoted ? -1 : 0;
     let newVoteValue = 0;
-    let karmaChange = 0;
 
+    // Always remove previous vote first
     post.upvotes.pull(userId);
     post.downvotes.pull(userId);
-    if (action === 'up') {
-        post.upvotes.push(userId);
-        newVoteValue = 1; 
-    } else if (action === 'down') {
-        post.downvotes.push(userId);
-        newVoteValue = -1;
-    } 
-    await post.save();
-    karmaChange = newVoteValue - oldVoteValue;
 
+    // Toggle logic
+    if (action === 'up' && !wasUpvoted) {
+      post.upvotes.push(userId);
+      newVoteValue = 1;
+    }
+    else if (action === 'down' && !wasDownvoted) {
+      post.downvotes.push(userId);
+      newVoteValue = -1;
+    }
+    // else → same vote clicked again → unvote (newVoteValue = 0)
+
+    await post.save();
+
+    const karmaChange = newVoteValue - oldVoteValue;
 
     if (karmaChange !== 0) {
       await User.findByIdAndUpdate(authorId, {
-          $inc: { postKarma: karmaChange } 
-    });
+        $inc: { postKarma: karmaChange }
+      });
     }
-    await checkAchievement(authorId, { type: 'karma' ,communityId: post.community});
+
+    await checkAchievement(authorId, {
+      type: 'karma',
+      communityId: post.community
+    });
+
     res.status(200).json({
       status: 'success',
-      data: { upvotesCount: post.upvotes.length, downvotesCount: post.downvotes.length }
+      data: {
+        upvotesCount: post.upvotes.length,
+        downvotesCount: post.downvotes.length,
+        userVote: newVoteValue // helpful for frontend
+      }
     });
+
   } catch (error) {
     res.status(500).json({ status: 'error', message: error.message });
   }
 };
 
+
 // -------------------- Toggle Save Post --------------------
 const toggleSavePost = async (req, res) => {
   try {
     const userId = req.userId;
-    const postId = req.params.postId;
+    const postId = req.params.id;
 
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ status: "fail", message: "User not found" });

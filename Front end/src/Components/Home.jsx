@@ -45,12 +45,12 @@ const initialPosts = [
   }
 ];
 
-function Home() {
+function Home({ isLoggedIn }) {
   const [selectedPost, setSelectedPost] = useState(null);
 
   // If a post is selected, show PostPage
   if (selectedPost) {
-    return <PostPage post={selectedPost} onBack={() => setSelectedPost(null)} />;
+    return <PostPage post={selectedPost} onBack={() => setSelectedPost(null)} isLoggedIn={isLoggedIn} />;
   }
 
   return (

@@ -96,14 +96,14 @@ const Icons = {
   ),
 };
 
-const PostPage = () => {
+const PostPage = ({ isLoggedIn }) => {
   const { id } = useParams();
   const navigate = useNavigate();
 
   const [post, setPost] = useState(null);
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
-  const [voteStatus, setVoteStatus] = useState("none");
+  const [voteStatus, setVoteStatus] = useState(0);
   const [isSaved, setIsSaved] = useState(false);
   const [shareText, setShareText] = useState("Share");
   const [loading, setLoading] = useState(true);
@@ -117,6 +117,8 @@ const PostPage = () => {
 
         setPost(fetchedPost);
         setComments(fetchedPost.comments || []);
+        setVoteStatus(fetchedPost.userVote || 0);
+        setIsSaved(fetchedPost.isSaved || false);
       } catch (err) {
         console.error(err);
         navigate("/");
@@ -133,32 +135,43 @@ const PostPage = () => {
 
   /* ---------------- Voting ---------------- */
   const handleVote = async (type) => {
+    if (!isLoggedIn) {
+      navigate("/login");
+      return;
+    }
+    
     try {
-      await api.post(`/posts/${post._id}/vote`, { action: type });
+      const actionValue = type === "up" ? "up" : "down";
 
+      const res = await api.post(`/posts/${post._id}/vote`, { action: actionValue });
+      const { userVote, upvotesCount, downvotesCount } = res.data.data;
+
+      // Update state based on server response
       setPost((prev) => ({
         ...prev,
-        upvotesCount:
-          type === "up"
-            ? prev.upvotesCount + 1
-            : prev.upvotesCount,
-        downvotesCount:
-          type === "down"
-            ? prev.downvotesCount + 1
-            : prev.downvotesCount,
+        upvotesCount,
+        downvotesCount
       }));
 
-      setVoteStatus(type);
+      setVoteStatus(userVote); // 1, -1, or 0
     } catch (err) {
       console.error(err);
     }
   };
 
+
   /* ---------------- Save Post ---------------- */
   const toggleSave = async () => {
+    if (!isLoggedIn) {
+      navigate("/login");
+      return;
+    }
+
     try {
-      await api.post(`/posts/${post._id}/save`);
-      setIsSaved((prev) => !prev);
+      const res = await api.post(`/posts/${post._id}/save`);
+      if (res.data.status === "success"){
+        setIsSaved((prev) => !prev);
+      }
     } catch (err) {
       console.error(err);
     }
@@ -167,9 +180,13 @@ const PostPage = () => {
   /* ---------------- Add Comment ---------------- */
   const handleCommentSubmit = async () => {
     if (!newComment.trim()) return;
+    if (!isLoggedIn) {
+      navigate("/login");
+      return;
+    }
 
     try {
-      const res = await api.post(`/comments/${post._id}`, {
+      const res = await api.post(`/comments/post/${post._id}`, {
         text: newComment,
       });
 
@@ -182,30 +199,33 @@ const PostPage = () => {
 
   /* ---------------- Vote Comment ---------------- */
   const handleCommentVote = async (commentId, action) => {
+    if (!isLoggedIn) {
+      navigate("/login");
+      return;
+    }
+
     try {
-      await api.post(`/comments/vote/${commentId}`, { action });
+      const res = await api.post(`/comments/${commentId}/vote`, { action });
+      const { userVote, upvotesCount, downvotesCount } = res.data.data;
 
       setComments((prev) =>
         prev.map((c) =>
           c._id === commentId
             ? {
               ...c,
-              upvotesCount:
-                action === "up"
-                  ? c.upvotesCount + 1
-                  : c.upvotesCount,
-              downvotesCount:
-                action === "down"
-                  ? c.downvotesCount + 1
-                  : c.downvotesCount,
+              upvotesCount,
+              downvotesCount,
+              userVote, // track each comment's user vote
             }
             : c
         )
       );
+
     } catch (err) {
       console.error(err);
     }
   };
+
 
   /* ---------------- Share ---------------- */
   const handleShare = () => {
@@ -315,8 +335,7 @@ const PostPage = () => {
             <div className="post-footer-actions">
               <div className="vote-pill">
                 <button
-                  className={`icon-btn up ${voteStatus === "up" ? "active" : ""
-                    }`}
+                  className={`icon-btn up ${voteStatus === 1 ? "active" : ""}`}
                   onClick={() => handleVote("up")}
                 >
                   <Icons.Up />
@@ -327,8 +346,7 @@ const PostPage = () => {
                 </span>
 
                 <button
-                  className={`icon-btn down ${voteStatus === "down" ? "active" : ""
-                    }`}
+                  className={`icon-btn down ${voteStatus === -1 ? "active" : ""}`}
                   onClick={() => handleVote("down")}
                 >
                   <Icons.Down />
@@ -381,13 +399,19 @@ const PostPage = () => {
                   <p className="c-text">{c.text}</p>
 
                   <div className="c-actions">
-                    <button onClick={() => handleCommentVote(c._id, "up")}>
+                    <button
+                      className={`icon-btn up ${c.userVote === 1 ? "active" : ""}`}
+                      onClick={() => handleCommentVote(c._id, "up")}
+                    >
                       <Icons.Up />
                     </button>
                     <span>
                       {c.upvotesCount - c.downvotesCount}
                     </span>
-                    <button onClick={() => handleCommentVote(c._id, "down")}>
+                    <button
+                      className={`icon-btn down ${c.userVote === -1 ? "active" : ""}`}
+                      onClick={() => handleCommentVote(c._id, "down")}
+                    >
                       <Icons.Down />
                     </button>
                   </div>

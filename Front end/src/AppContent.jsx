@@ -57,10 +57,10 @@ function AppContent() {
 
             <div className='FeedLayout'>
                 <Routes>
-                    <Route path="/" element={<Home />} />
+                    <Route path="/" element={<Home isLoggedIn={isLoggedIn} />} />
                     <Route path="/login" element={<AuthRoute><Login_Signup /></AuthRoute>} />
                     <Route path="/explore" element={<ExplorePage />} />
-                    <Route path="/post/:id" element={<PostPage />} />
+                    <Route path="/post/:id" element={<PostPage isLoggedIn={isLoggedIn} />} />
                     <Route path="/custom-feed" element={<ProtectedRoute><CustomFeed /></ProtectedRoute>} />
                     <Route path="/settings" element={<ProtectedRoute><SettingsLayout /></ProtectedRoute>} />
                     <Route path="/:username" element={<ProtectedRoute><UserProfile/></ProtectedRoute>} />

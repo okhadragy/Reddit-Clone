@@ -68,7 +68,8 @@
 .post-footer-actions { display:flex; gap:8px; align-items:center; margin-top:8px; }
 .vote-pill { display:flex; border-radius:6px; border:1px solid #343536; overflow:hidden; background-color:#2a2a2b; }
 .vote-pill button { border:none; background:none; cursor:pointer; display:flex; align-items:center; justify-content:center; padding:4px 6px; }
-.vote-pill button.active svg { color:#ff4500; }
+button.up.active svg { color:#ff4500; }
+button.down.active svg { color:#7193ff; }
 .vote-score { padding:0 8px; font-weight:600; color:#d7dadc; }
 
 .action-pill { display:flex; align-items:center; gap:4px; padding:4px 8px; border-radius:6px; border:1px solid #343536; background:#2a2a2b; cursor:pointer; font-size:12px; color:#d7dadc; }
