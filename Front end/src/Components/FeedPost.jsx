@@ -33,36 +33,53 @@ const Icons = {
   ),
 };
 
-const FeedPost = ({ post, onClick,currentUser }) => {
-  const [voteCount, setVoteCount] = useState(post.upvotes);
-  const [voteStatus, setVoteStatus] = useState(post.voteStatus||0);
-  const [isJoined, setIsJoined] = useState(false);
+const FeedPost = ({ post, onClick, currentUser }) => {
+  const [votesCount, setVotesCount] = useState(post.votesCount || 0);
+  const [voteStatus, setVoteStatus] = useState(post.voteStatus || 0);
+  const [isJoined, setIsJoined] = useState(post.isJoined || false);
   const [shareText, setShareText] = useState("Share");
   const [awards, setAwards] = useState(0);
   const navigate = useNavigate();
 
 
-const handleVote = async (type) => {
+  const handleVote = async (e, type) => {
+    e.stopPropagation();
     if (!currentUser) {
       navigate("/login");
       return;
     }
-    
+
     try {
       const actionValue = type === "up" ? "up" : "down";
-
-      const res = await api.post(`/posts/${post._id}/vote`, { action: actionValue });
+      const res = await api.post(`/posts/${post.id}/vote`, { action: actionValue });
       const { userVote, upvotesCount, downvotesCount } = res.data.data;
 
-      const newVoteCount = upvotesCount - downvotesCount;
-      setVoteCount(newVoteCount);
-
+      const newVotesCount = upvotesCount - downvotesCount;
+      setVotesCount(newVotesCount);
       setVoteStatus(userVote); // 1, -1, or 0
     } catch (err) {
       console.error(err);
     }
   };
 
+  const handleJoin = async (e) => {
+    e.stopPropagation();
+    if (!currentUser) {
+      navigate("/login");
+      return;
+    }
+
+    try {
+      if (isJoined) {
+        await api.post(`/community/${post.communityName}/leave/${currentUser.id}`);
+      } else {
+        await api.post(`/community/${post.communityName}/join/${currentUser.id}`);
+      }
+      setIsJoined(!isJoined);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const handleShare = (e) => {
     e.stopPropagation();
@@ -76,15 +93,14 @@ const handleVote = async (type) => {
     <div className="feed-post-container" onClick={onClick}>
       <div className="post-meta-header">
         <div className="sub-icon-img"></div>
-        <span className="sub-name-text">{post.subreddit}</span>
+        <span className="sub-name-text" onClick={(e)=> {e.stopPropagation(); navigate(`/r/${post.communityName}`)}}>{post.subreddit}</span>
         <span className="meta-dot">•</span>
         <span className="time-text">{post.time}</span>
 
         <button
           className={`join-btn-small ${isJoined ? "joined" : ""}`}
           onClick={(e) => {
-            e.stopPropagation();
-            setIsJoined(!isJoined);
+            handleJoin(e);
           }}
         >
           {isJoined ? "Joined" : "Join"}
@@ -96,9 +112,8 @@ const handleVote = async (type) => {
       </div>
 
       <div
-        className={`post-main-content ${
-          isThumbnailLayout ? "flex-content" : ""
-        }`}
+        className={`post-main-content ${isThumbnailLayout ? "flex-content" : ""
+          }`}
       >
         <div className="post-text-area">
           <h3 className="post-headline">{post.title}</h3>
@@ -132,21 +147,19 @@ const handleVote = async (type) => {
       <div className="post-footer-actions">
         <div className={`action-pill vote-pill ${voteStatus}`}>
           <button
-            className={`icon-btn vote-up ${
-              voteStatus === "up" ? "active" : ""
-            }`}
-            onClick={(e) => handleVote("up", e)}
+            className={`icon-btn vote-up ${voteStatus === 1 ? "active" : ""
+              }`}
+            onClick={(e) => handleVote(e, "up")}
           >
             <Icons.Up />
           </button>
 
-          <span className={`vote-number ${voteStatus}`}>{voteCount}</span>
+          <span className={`vote-number ${voteStatus}`}>{votesCount}</span>
 
           <button
-            className={`icon-btn vote-down ${
-              voteStatus === "down" ? "active" : ""
-            }`}
-            onClick={(e) => handleVote("down", e)}
+            className={`icon-btn vote-down ${voteStatus === -1 ? "active" : ""
+              }`}
+            onClick={(e) => handleVote(e, "down")}
           >
             <Icons.Down />
           </button>

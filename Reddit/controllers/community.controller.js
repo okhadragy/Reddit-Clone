@@ -225,7 +225,6 @@ exports.deleteCommunity = async (req, res) => {
 
 exports.joinCommunity = async (req, res) => {
   try {
-    console.log(`User ${req.params.userId} is attempting to join community ${req.params.id}`);
     const communityName = req.params.id; 
 
     const community = await Community.findOne({ name: communityName });
@@ -241,7 +240,6 @@ exports.joinCommunity = async (req, res) => {
     });
 
    res.status(200).json({ status: 'success', message: 'Joined successfully' });
-    console.log(`User,${req.params.userId}, joined community successfully`);
   } catch (error) {
     if (error.code === 11000) {
       return res.status(400).json({ status: 'fail', message: 'You are already a member.' });

@@ -25,13 +25,13 @@ function Home({ currentUser }) {
       setLoading(true);
       try {
 
-        let endpoint = '/posts'; 
+        let endpoint = '/posts';
 
         if (currentUser) {
-            endpoint = '/posts?type=home';
+          endpoint = '/posts?type=home';
         } else {
- 
-            endpoint = '/posts?type=popular'; 
+
+          endpoint = '/posts?type=popular';
         }
 
         // 3. FETCH DATA
@@ -40,26 +40,19 @@ function Home({ currentUser }) {
 
         // 4. MAP DATA (Database Format -> UI Format)
         const formattedPosts = backendPosts.map(post => ({
-            id: post._id,
-            // Handle Community Name (Safely check if community exists)
-            subreddit: post.community ? `r/${post.community.name}` : 'r/Unknown',
-            
-            // Format Date
-            time: new Date(post.createdAt).toLocaleDateString(),
-            
-            title: post.title,
-            content: post.content,
-            
-            // Handle Image URL
-            image: (post.media && post.media.length > 0) 
-              ? `${POST_IMAGE_URL}${post.media[0]}` 
-              : null,
-            
-            votesCount: post.upvotesCount - post.downvotesCount,
-            commentsCount: post.commentsCount,
-            
-            // User Vote Status (for coloring arrows)
-            voteStatus: post.userVote
+          id: post._id,
+          subreddit: post.community ? `r/${post.community.name}` : 'r/Unknown',
+          communityName: post.community ? post.community.name : null,
+          time: new Date(post.createdAt).toLocaleDateString(),
+          title: post.title,
+          content: post.content,
+          image: (post.media && post.media.length > 0)
+            ? `${POST_IMAGE_URL}${post.media[0]}`
+            : null,
+          votesCount: post.upvotesCount - post.downvotesCount,
+          commentsCount: post.commentsCount,
+          voteStatus: post.userVote,
+          isJoined: post.isJoined || false,
         }));
 
         setPosts(formattedPosts);
@@ -77,19 +70,16 @@ function Home({ currentUser }) {
 
   if (loading) return <div className="loading-spinner">Loading your feed...</div>;
   if (error) return <div className="error-message">{error}</div>;
-    
+
 
   return (
     <div className="feed-grid">
       {/* POSTS CONTAINER */}
       <div className="posts-container">
-        
+
         {posts.length > 0 ? (
           posts.map((post) => (
- 
-    
-            <FeedPost key={post.id} post={post}  onClick={() => navigate(`/post/${post.id}`)}/>
-           
+            <FeedPost key={post.id} post={post} onClick={() => navigate(`/post/${post.id}`)} currentUser={currentUser} />
           ))
         ) : (
           // Empty State for Home Feed
@@ -97,11 +87,11 @@ function Home({ currentUser }) {
             <h3>Your feed is empty!</h3>
             <p>Join some communities to see posts here.</p>
             <button onClick={() => navigate('/r/popular')} className="btn-primary">
-                Browse Popular Communities
+              Browse Popular Communities
             </button>
           </div>
         )}
-        
+
       </div>
     </div>
   );

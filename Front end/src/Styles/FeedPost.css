@@ -32,6 +32,7 @@
 .sub-name-text {
   color: #D7DADC;
   font-weight: 600;
+  cursor: pointer;
 }
 
 .join-btn-small {

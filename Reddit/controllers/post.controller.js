@@ -62,7 +62,7 @@ const fetchPostsWithStats = async (query, page, limit, userId) => {
         : 0,
     };
   });
-  
+
   return { posts: await Promise.all(postsWithVotes), totalPosts };
 };
 
@@ -146,15 +146,22 @@ const getAllPosts = async (req, res) => {
     const { type, community, communityId } = req.query;
 
     let query = {};
+    let joinedCommunityIds = [];
 
-    // 🔹 Home feed (joined communities)
-    if (type === 'home' && req.userId) {
+    // 🔹 Fetch joined communities ONCE
+    if (req.userId) {
       const memberships = await CommunityMember
         .find({ user: req.userId })
         .select('community');
 
-      const communityIds = memberships.map(m => m.community);
-      query = { community: { $in: communityIds } };
+      joinedCommunityIds = memberships.map(m =>
+        m.community.toString()
+      );
+
+      // 🔹 userCommunities feed
+      if (type === 'userCommunities') {
+        query = { community: { $in: joinedCommunityIds } };
+      }
     }
 
     // 🔹 Community feed (by name)
@@ -174,9 +181,6 @@ const getAllPosts = async (req, res) => {
       query = { community: communityId };
     }
 
-    // 🔹 Popular feed → empty query (all posts)
-    // type === 'popular' → no filter
-
     const { posts, totalPosts } = await fetchPostsWithStats(
       query,
       page,
@@ -184,13 +188,21 @@ const getAllPosts = async (req, res) => {
       req.userId
     );
 
+    const postsWithJoinStatus = posts.map(post => ({
+      ...post,
+      isJoined: joinedCommunityIds.includes(
+        post.community._id.toString()
+      )
+    }));
+
+
     res.status(200).json({
       status: 'success',
       page,
       limit,
       totalPosts,
       totalPages: Math.ceil(totalPosts / limit),
-      data: { posts },
+      data: { posts: postsWithJoinStatus },
     });
 
   } catch (error) {
@@ -200,6 +212,7 @@ const getAllPosts = async (req, res) => {
     });
   }
 };
+
 
 
 // -------------------- Get Single Post --------------------

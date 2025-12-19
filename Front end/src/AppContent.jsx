@@ -46,7 +46,7 @@ import { useAuth } from "./Components/LoginContext";
 /*==============================Styles==============================*/
 
 function AppContent() {
-    const { isLoggedIn, loading,user } = useAuth();
+    const { isLoggedIn, loading, user } = useAuth();
 
     if (loading) return null;
 
