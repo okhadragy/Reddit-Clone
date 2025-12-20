@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import api from "../api/api"; 
 import { Sparkles, Bot } from "lucide-react"; 
-export default function HivemindInsight({ title, content }) {
+
+export default function GaslighterInsight({ title, content }) {
   const [insight, setInsight] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -16,7 +17,7 @@ export default function HivemindInsight({ title, content }) {
       const response = await api.post("/ai/analyze", { title, content });
       setInsight(response.data.result);
     } catch (err) {
-      setError("The Hivemind is asleep. Try again later.");
+      setError("The Gaslighter emind is asleep. Try again later.");
     } finally {
       setLoading(false);
     }
@@ -46,7 +47,7 @@ export default function HivemindInsight({ title, content }) {
       >
         <Sparkles size={18} color="#8a5ebd" />
         <span style={{ fontWeight: "bold", fontSize: "14px" }}>
-           {isOpen ? "Hide Hivemind Insight" : "Ask the Hivemind (AI Analysis)"}
+           {isOpen ? "Hide Gaslighter Insight" : "Ask the Gaslighter emind (AI Analysis)"}
         </span>
       </div>
 
