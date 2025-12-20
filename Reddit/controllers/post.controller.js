@@ -149,14 +149,12 @@ const getAllPosts = async (req, res) => {
     let query = {};
     let joinedCommunityIds = [];
 
-    const isDraft = draft === 'true'; // flag for drafts
+    const isDraft = draft === 'true'; 
 
-    // 🔹 Only allow drafts if user is logged in
     if (isDraft && !req.userId) {
       return res.status(401).json({ status: 'fail', message: 'Login required to view drafts' });
     }
 
-    // 🔹 Fetch joined communities ONCE (for feed and join status)
     if (req.userId) {
       const memberships = await CommunityMember.find({ user: req.userId }).select('community');
       joinedCommunityIds = memberships.map(m => m.community.toString());
@@ -166,7 +164,6 @@ const getAllPosts = async (req, res) => {
       }
     }
 
-    // 🔹 Community filter by name
     if (community) {
       const communityDoc = await Community.findOne({ name: community });
       if (!communityDoc) {
@@ -175,10 +172,8 @@ const getAllPosts = async (req, res) => {
       query.community = communityDoc._id;
     }
 
-    // 🔹 Community filter by ID
     if (communityId) query.community = communityId;
 
-    // 🔹 Drafts filter (only show user’s own drafts)
     if (isDraft) {
       query.author = req.userId;
       query.isDraft = true;
@@ -188,8 +183,12 @@ const getAllPosts = async (req, res) => {
 
     const { posts, totalPosts } = await fetchPostsWithStats(query, page, limit, req.userId);
 
-    const postsWithJoinStatus = posts.map(post => ({
+
+    const validPosts = posts.filter(post => post.community !== null);
+
+    const postsWithJoinStatus = validPosts.map(post => ({
       ...post,
+
       isJoined: joinedCommunityIds.includes(post.community._id.toString())
     }));
 
@@ -197,18 +196,18 @@ const getAllPosts = async (req, res) => {
       status: 'success',
       page,
       limit,
-      totalPosts,
+      totalPosts, 
       totalPages: Math.ceil(totalPosts / limit),
       data: { posts: postsWithJoinStatus },
     });
   } catch (error) {
+    console.error("Error in getAllPosts:", error); // Add log to see errors in future
     res.status(500).json({
       status: 'error',
       message: error.message
     });
   }
 };
-
 
 
 // -------------------- Get Single Post --------------------
