@@ -16,22 +16,8 @@ services:
     build: ./frontend
     container_name: reddit-frontend
     ports:
-      - "4200:80"
+      - "3000:80"
     depends_on:
       - backend
-
-  mongo:
-    image: mongo:7
-    container_name: reddit-mongo
-    restart: always
-    ports:
-      - "27017:27017"
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: okhadragy
-      MONGO_INITDB_ROOT_PASSWORD: Omar2005
-      MONGO_INITDB_DATABASE: RedditClone
-    volumes:
-      - mongo-data:/data/db
-
 volumes:
   mongo-data:
