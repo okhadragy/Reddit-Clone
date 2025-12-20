@@ -11,7 +11,7 @@ services:
       - ./Reddit/uploads:/app/uploads
 
   frontend:
-    build: ./Front end
+    build: "./Front end"
     container_name: reddit-frontend
     ports:
       - "3000:80"
