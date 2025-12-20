@@ -1,44 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import FeedPost from './FeedPost.jsx';
-import PostPage from './PostPage.jsx';
 import '../Styles/FeedPost.css';
 
 
 import { useNavigate } from "react-router-dom";
 import api from "../api/api"; // Ensure you import your configured axios instance
 
-function Home({ currentUser }) {
+function Drafts({ currentUser }) {
   const navigate = useNavigate();
-
-
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-
-
-  // CONSTANT: Your server's image path
   const POST_IMAGE_URL = "http://localhost:5000/uploads/posts/";
 
   useEffect(() => {
-    const fetchHomeFeed = async () => {
+    const fetchDrafts = async () => {
+      if (!currentUser) {
+        navigate("/login");
+        return;
+      }
+
       setLoading(true);
       try {
 
-        let endpoint = '/posts';
+        let endpoint = '/posts?draft=true';
 
-        if (currentUser) {
-          endpoint = '/posts?type=home';
-        } else {
-
-          endpoint = '/posts?type=popular';
-        }
-
-        // 3. FETCH DATA
         const response = await api.get(endpoint);
         const backendPosts = response.data.data.posts;
 
-        // 4. MAP DATA (Database Format -> UI Format)
         const formattedPosts = backendPosts.map(post => ({
           id: post._id,
           subreddit: post.community ? `r/${post.community.name}` : 'r/Unknown',
@@ -65,12 +55,11 @@ function Home({ currentUser }) {
       }
     };
 
-    fetchHomeFeed();
-  }, []); // Run once on mount
+    fetchDrafts();
+  }, [currentUser, navigate]);
 
   if (loading) return <div className="loading-spinner">Loading your feed...</div>;
   if (error) return <div className="error-message">{error}</div>;
-
 
   return (
     <div className="feed-grid">
@@ -79,16 +68,12 @@ function Home({ currentUser }) {
 
         {posts.length > 0 ? (
           posts.map((post) => (
-            <FeedPost key={post.id} post={post} currentUser={currentUser} />
+            <FeedPost key={post.id} post={post} currentUser={currentUser} isDraft={true} />
           ))
         ) : (
           // Empty State for Home Feed
           <div className="empty-feed-message">
-            <h3>Your feed is empty!</h3>
-            <p>Join some communities to see posts here.</p>
-            <button onClick={() => navigate('/r/popular')} className="btn-primary">
-              Browse Popular Communities
-            </button>
+            <h3>No Drafts!</h3>
           </div>
         )}
 
@@ -97,4 +82,4 @@ function Home({ currentUser }) {
   );
 }
 
-export default Home;
+export default Drafts;

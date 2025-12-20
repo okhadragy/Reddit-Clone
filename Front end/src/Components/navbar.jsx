@@ -98,7 +98,7 @@ function Navbar({ isLoggedIn }) {
 
   return (
     <header className="Navbar">
-      <div className="redditname_logo" onClick={() => navigate("/")}>
+      <div className="redditname_logo" onClick={() => {navigate("/"); setSearchQuery(""); setSearchResults([]); setIsUserMenuOpen(false);}}>
         <img className="redditlogo" src="\Reddit-symbol.png" alt="Reddit Logo" />
         <h1>reddit</h1>
       </div>
@@ -126,7 +126,7 @@ function Navbar({ isLoggedIn }) {
         {searchResults.length > 0 && (
           <div className="search-results">
             {searchResults.map((item, index) => (
-              <div key={index} className="search-item" onClick={() => {navigate(`/${item.split('/')[1]}`); setSearchQuery(""); setSearchResults([]);}}>
+              <div key={index} className="search-item" onClick={() => {navigate(`/${item}`); setSearchQuery(""); setSearchResults([]); setIsUserMenuOpen(false);}}>
                 {item}
               </div>
             ))}
@@ -176,13 +176,13 @@ function Navbar({ isLoggedIn }) {
                 <div className="user-menu-dropdown">
 
                   {/* PROFILE */}
-                  <div className="menu-section profile">
+                  <div className="menu-section profile" onClick={() => {navigate(`/u/${user?.name}`); setIsUserMenuOpen(false);}}>
                     <img
                       src={user?.photo ? `http://localhost:5000/uploads/profiles/${user.photo}` : "https://www.redditstatic.com/avatars/defaults/v2/avatar_default_5.png"}
                       className="menu-avatar-img"
                       alt="User"
                     />
-                    <div className="profile-text-block" onClick={() => navigate(`/${user?.name}`)}>
+                    <div className="profile-text-block">
                       <span className="menu-main-text">View Profile</span>
                       <span className="menu-sub-text">u/{user?.name}</span>
                     </div>
@@ -191,7 +191,7 @@ function Navbar({ isLoggedIn }) {
                   {/* MAIN MENU ITEMS */}
                   <div className="menu-section">
                     <MenuItem icon={<Shirt size={18} />} label="Edit Avatar" />
-                    <MenuItem icon={<FileText size={18} />} label="Drafts" />
+                    <MenuItem icon={<FileText size={18} />} label="Drafts" onClick={()=> {navigate('/drafts'); setIsUserMenuOpen(false);}}/>
                     <MenuItem icon={<Trophy size={18} />} label="Achievements" subLabel="2 unlocked" />
                     <MenuItem icon={<DollarSign size={18} />} label="Earn" subLabel="Earn cash on Reddit" />
                     <MenuItem icon={<Shield size={18} />} label="Premium" />
@@ -215,12 +215,12 @@ function Navbar({ isLoggedIn }) {
                   <div className="menu-section">
                     <MenuItem icon={<Megaphone size={18} />} label="Advertise on Reddit" />
                     <MenuItem icon={<Zap size={18} />} label="Try Reddit Pro" badge="BETA" />
-                    <MenuItem icon={<Settings size={18} />} label="Settings" onClick={() => navigate("/settings")} />
+                    <MenuItem icon={<Settings size={18} />} label="Settings" onClick={() => {navigate("/settings"); setIsUserMenuOpen(false);}} />
                   </div>
 
                   {/* LOGOUT */}
                   <div className="menu-section no-border">
-                    <MenuItem icon={<LogOut size={18} />} label="Log Out" onClick={() => { logout(); navigate("/"); }} />
+                    <MenuItem icon={<LogOut size={18} />} label="Log Out" onClick={() => { logout(); navigate("/"); setIsUserMenuOpen(false); }} />
                   </div>
 
                 </div>

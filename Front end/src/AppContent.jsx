@@ -9,6 +9,7 @@ import CustomFeed from './Components/CustomFeed.jsx';
 import ExplorePage from './Components/ExplorePage.jsx';
 import FeedPost from "./Components/FeedPost.jsx"
 import Home from './Components/Home.jsx';
+import Drafts from './Components/Drafts.jsx';
 import Login_Signup from "./Components/Login_Signup.jsx";
 import ManageCommunties from './Components/ManageCommunities.jsx';
 import Navbar from './Components/navbar.jsx';
@@ -59,13 +60,15 @@ function AppContent() {
             <div className='FeedLayout'>
                 <Routes>
                     <Route path="/" element={<Home currentUser={user} />} />
+                    <Route path="/drafts" element={<ProtectedRoute><Drafts currentUser={user} /></ProtectedRoute>} />
                     <Route path="/login" element={<AuthRoute><Login_Signup /></AuthRoute>} />
                     <Route path="/explore" element={<ExplorePage />} />
                     <Route path="/post/:id" element={<PostPage isLoggedIn={isLoggedIn} />} />
                     <Route path="/custom-feed" element={<ProtectedRoute><CustomFeed /></ProtectedRoute>} />
                     <Route path="/settings" element={<ProtectedRoute><SettingsLayout /></ProtectedRoute>} />
-                    <Route path="/:username" element={<ProtectedRoute><UserProfile/></ProtectedRoute>} />
-                    <Route path="/create-post" element={<ProtectedRoute><CreatePost /></ProtectedRoute>} />
+                    <Route path="/u/:username" element={<ProtectedRoute><UserProfile/></ProtectedRoute>} />
+                    <Route path="/r/:communityName/update-draft/:postId" element={<ProtectedRoute><CreatePost/></ProtectedRoute>} />
+                    <Route path="/r/:communityName/create-post" element={<ProtectedRoute><CreatePost/></ProtectedRoute>} />
                     <Route path="/r/:communityName" element={<ProtectedRoute><CreateCommunity /></ProtectedRoute>} />
                     <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>

@@ -57,12 +57,13 @@ export default function StartACommunityModal({ onClose }) {
         formData.append("coverImage", completeData.banner); 
     }
     console.log("Final community data:", completeData);
+
   try {
   
       const response = await api.post("/community", formData);
       console.log("Community created:", response.data);
       handleClose();
-      
+      window.location.reload()
     } catch (error) {
       setError("name is already taken");
       console.error("Error:", error.response?.data?.message || error.message);

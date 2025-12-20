@@ -33,14 +33,14 @@ const Icons = {
   ),
 };
 
-const FeedPost = ({ post, onClick, currentUser }) => {
+const FeedPost = ({ post, currentUser, isDraft = false }) => {
   const [votesCount, setVotesCount] = useState(post.votesCount || 0);
   const [voteStatus, setVoteStatus] = useState(post.voteStatus || 0);
   const [isJoined, setIsJoined] = useState(post.isJoined || false);
+  const [alreadyJoined, setAlreadyJoined] = useState(post.isJoined || false);
   const [shareText, setShareText] = useState("Share");
   const [awards, setAwards] = useState(0);
   const navigate = useNavigate();
-
 
   const handleVote = async (e, type) => {
     e.stopPropagation();
@@ -90,21 +90,23 @@ const FeedPost = ({ post, onClick, currentUser }) => {
   const isThumbnailLayout = post.thumbnail && !post.image;
 
   return (
-    <div className="feed-post-container" onClick={onClick}>
+    <div className="feed-post-container" onClick={() => {if (isDraft) navigate(`/r/${post.communityName}/update-draft/${post.id}`); else navigate(`/post/${post.id}`);}}>
       <div className="post-meta-header">
         <div className="sub-icon-img"></div>
-        <span className="sub-name-text" onClick={(e)=> {e.stopPropagation(); navigate(`/r/${post.communityName}`)}}>{post.subreddit}</span>
+        <span className="sub-name-text" onClick={(e) => { e.stopPropagation(); navigate(`/r/${post.communityName}`) }}>{post.subreddit}</span>
         <span className="meta-dot">•</span>
         <span className="time-text">{post.time}</span>
 
-        <button
-          className={`join-btn-small ${isJoined ? "joined" : ""}`}
-          onClick={(e) => {
-            handleJoin(e);
-          }}
-        >
-          {isJoined ? "Joined" : "Join"}
-        </button>
+        {!alreadyJoined && (
+          <button
+            className={`join-btn-small ${isJoined ? "joined" : ""}`}
+            onClick={(e) => {
+              handleJoin(e);
+            }}
+          >
+            {isJoined ? "Joined" : "Join"}
+          </button>
+        )}
 
         <button className="dots-btn" onClick={(e) => e.stopPropagation()}>
           •••
@@ -166,10 +168,10 @@ const FeedPost = ({ post, onClick, currentUser }) => {
         </div>
 
         <div
-          className="action-pill hover-bg" onClick={onClick}
+          className="action-pill hover-bg" onClick={() => {if (isDraft) navigate(`/r/${post.communityName}/update-draft/${post.id}`); else navigate(`/post/${post.id}`);}}
         >
           <Icons.Comment />
-          <span className="action-text">{post.comments}</span>
+          <span className="action-text">{post.commentsCount}</span>
         </div>
 
         <div

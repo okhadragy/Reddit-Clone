@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { useNavigate } from "react-router-dom"; 
+import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import CreatePostButton from "./CreatePostButton";
 import FeedPost from './FeedPost.jsx';
@@ -13,12 +13,12 @@ import {
   Users,
   Plus,
   Settings,
-  Bell, 
+  Bell,
   MoreHorizontal
 } from "lucide-react";
 
 export default function CreateCommunity() {
-  
+
   const [isJoined, setIsJoined] = useState(false);// State to track if user has joined
   const navigate = useNavigate();//to go to create post page
 
@@ -72,41 +72,38 @@ export default function CreateCommunity() {
         const response = await api.get(`/community/${communityName}`);
         setCommunity(response.data.data.community);
 
-       if (userObj ) {
-            const memberRes = await api.get(
-                `/community/${communityName}/checkMember/${userObj.id}`
-            );
-            console.log("Membership response:", memberRes.data);
+        if (userObj) {
+          const memberRes = await api.get(
+            `/community/${communityName}/checkMember/${userObj.id}`
+          );
 
-            setIsJoined(memberRes.data.isMember);
-            if(memberRes.data.role=="moderator"){
-              setIsModerator(true);
-            }
-            else{setIsModerator(false);}
-            
-        
+          setIsJoined(memberRes.data.isMember);
+          if (memberRes.data.role == "moderator") {
+            setIsModerator(true);
+          }
+          else { setIsModerator(false); }
+
         }
-        
 
-        else{console.log("No user logged in");}
+
+        else { console.log("No user logged in"); }
         const postsRes = await api.get(`/posts?community=${communityName}`);
         const mappedPosts = postsRes.data.data.posts.map(post => ({
-            id: post._id,
-            subreddit: `r/${communityName}`,
-            time: new Date(post.createdAt).toLocaleDateString(), 
-            title: post.title,
-            content: post.content, 
-            image: (post.media && post.media.length > 0) 
-                ? `${POST_IMAGE_URL}${post.media[0]}` 
-                : null, 
-            // Handle Vote Math
-            upvotes: (post.upvotesCount || 0) - (post.downvotesCount || 0),
-            comments: post.comments ? post.comments.length : 0,
-            // Handle User Vote status (up/down/none)
-            userVoteStatus: post.userVote
+          id: post._id,
+          subreddit: post.community ? `r/${post.community.name}` : 'r/Unknown',
+          communityName: post.community ? post.community.name : null,
+          time: new Date(post.createdAt).toLocaleDateString(),
+          title: post.title,
+          content: post.content,
+          image: (post.media && post.media.length > 0)
+            ? `${POST_IMAGE_URL}${post.media[0]}`
+            : null,
+          votesCount: post.upvotesCount - post.downvotesCount,
+          commentsCount: post.commentsCount,
+          voteStatus: post.userVote,
+          isJoined: post.isJoined || false,
         }));
-        console.log("Mapped Posts:", mappedPosts);
-        
+
         setPosts(mappedPosts);
         setError(null);
       } catch (err) {
@@ -124,9 +121,9 @@ export default function CreateCommunity() {
   const handleBannerUpload = (e) => {
     const file = e.target.files?.[0];
     if (file) {
-        setBannerFile(file); // Save file to send to backend later
-        setPreviewBanner(URL.createObjectURL(file)); // Show it immediately
-      }
+      setBannerFile(file); // Save file to send to backend later
+      setPreviewBanner(URL.createObjectURL(file)); // Show it immediately
+    }
   };
 
   const handleIconUpload = (e) => {
@@ -139,9 +136,6 @@ export default function CreateCommunity() {
 
   if (loading) return <div>Loading r/{communityName}...</div>;
   if (error) return <div>{error}</div>;
-
-
-
 
 
   const getVisibilityIcon = () => {
@@ -172,7 +166,7 @@ export default function CreateCommunity() {
   };
 
   const handleCreatePost = () => {
-    navigate(`/r/${communityName}/submit`); 
+    navigate(`/r/${communityName}/create-post`);
   };
 
   const saveChanges = async () => {
@@ -185,37 +179,37 @@ export default function CreateCommunity() {
       await api.patch(`/community/${communityName}`, formData);
       setBannerFile(null);
       setIconFile(null);
-      
+
     } catch (err) {
       setError("This community does not exist.")
     }
   };
-  function getDefaultImage(imageName){
+  function getDefaultImage(imageName) {
     return `http://localhost:5000/uploads/communities/${imageName}`
   }
-  async function toggleJoin(){
+  async function toggleJoin() {
     if (!currentUser) {
-        alert("You must be logged in to join.");
-        return;
+      alert("You must be logged in to join.");
+      return;
     }
-    if(isJoined){
+    if (isJoined) {
       api.post(`/community/${communityName}/leave/${currentUser.id}`)
-      .then(()=>{
-        setIsJoined(false);
-      })
-      .catch((err)=>{
-        console.error("Error leaving community:", err);
-      });
+        .then(() => {
+          setIsJoined(false);
+        })
+        .catch((err) => {
+          console.error("Error leaving community:", err);
+        });
 
     }
-    else{
+    else {
       api.post(`/community/${communityName}/join/${currentUser.id}`)
-      .then(()=>{
-        setIsJoined(true);
-      })
-      .catch((err)=>{
-        console.error("Error joining community:", err);
-      });
+        .then(() => {
+          setIsJoined(true);
+        })
+        .catch((err) => {
+          console.error("Error joining community:", err);
+        });
 
     }
 
@@ -224,14 +218,14 @@ export default function CreateCommunity() {
 
   return (
     <div className="community-page">
-    
+
       <div className="community-banner">
-          <img 
-            src={previewBanner || getDefaultImage(community.coverImage)} 
-            alt="banner" 
-            className="banner-img"
-            onError={(e) => e.target.style.display = 'none'} 
-          />
+        <img
+          src={previewBanner || getDefaultImage(community.coverImage)}
+          alt="banner"
+          className="banner-img"
+          onError={(e) => e.target.style.display = 'none'}
+        />
 
         <button
           className="btn-change-banner"
@@ -262,28 +256,28 @@ export default function CreateCommunity() {
       {/* ---------- COMMUNITY HEADER ---------- */}
       <div className="community-header">
         <div className="community-icon-wrapper">
-         <img 
-            src={previewIcon || getDefaultImage(community.icon)} 
-            alt="icon" 
-            className="community-icon" 
+          <img
+            src={previewIcon || getDefaultImage(community.icon)}
+            alt="icon"
+            className="community-icon"
           />
 
           <button
             className="btn-change-icon"
             onClick={() => iconInputRef.current.click()}
           >
-           <svg
-            rpl=""
-            fill="currentColor"
-            height="16"
-            icon-name="edit"
-            viewBox="0 0 20 20"
-            width="16"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            {" "}
-            <path d="M14.016 3.8c.583 0 1.132.227 1.545.64.413.413.64.961.64 1.545a2.17 2.17 0 01-.64 1.545l-8.67 8.67-3.079-.01-.01-3.079 8.669-8.671c.413-.413.962-.64 1.545-.64zm0-1.8a3.97 3.97 0 00-2.817 1.167l-8.948 8.947a.858.858 0 00-.251.609l.014 4.408a.858.858 0 00.855.855L7.277 18h.003c.227 0 .446-.09.606-.251l8.947-8.947A3.985 3.985 0 0014.016 2z"></path>
-          </svg>
+            <svg
+              rpl=""
+              fill="currentColor"
+              height="16"
+              icon-name="edit"
+              viewBox="0 0 20 20"
+              width="16"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              {" "}
+              <path d="M14.016 3.8c.583 0 1.132.227 1.545.64.413.413.64.961.64 1.545a2.17 2.17 0 01-.64 1.545l-8.67 8.67-3.079-.01-.01-3.079 8.669-8.671c.413-.413.962-.64 1.545-.64zm0-1.8a3.97 3.97 0 00-2.817 1.167l-8.948 8.947a.858.858 0 00-.251.609l.014 4.408a.858.858 0 00.855.855L7.277 18h.003c.227 0 .446-.09.606-.251l8.947-8.947A3.985 3.985 0 0014.016 2z"></path>
+            </svg>
           </button>
           <input
             type="file"
@@ -294,14 +288,14 @@ export default function CreateCommunity() {
           />
         </div>
 
-       <div className="community-header-content">
+        <div className="community-header-content">
           <div className="community-title-left">
             <h1 className="community-title">{community.name}</h1>
             <span className="community-description">r/{community.name}</span>
           </div>
 
-        <div className="community-actions">
-            <button className="btn-create-post-outline" 
+          <div className="community-actions">
+            <button className="btn-create-post-outline"
               onClick={handleCreatePost}
             >
               <Plus size={20} /> Create Post
@@ -311,14 +305,14 @@ export default function CreateCommunity() {
               <Bell size={20} />
             </button>
 
-     
+
             {isModerator ? (
               <button className="btn-mod-tools">
                 Mod Tools
               </button>
             ) : (
-              <button 
-                className={isJoined ? "btn-joined" : "btn-join-blue"} 
+              <button
+                className={isJoined ? "btn-joined" : "btn-join-blue"}
                 onClick={toggleJoin}
               >
                 {isJoined ? "Joined" : "Join"}
@@ -326,8 +320,8 @@ export default function CreateCommunity() {
             )}
 
             <div className="menu-container" ref={menuRef}>
-              <button 
-                className="btn-icon-round" 
+              <button
+                className="btn-icon-round"
                 onClick={() => setShowMenu(!showMenu)}
               >
                 <MoreHorizontal size={20} />
@@ -335,22 +329,22 @@ export default function CreateCommunity() {
 
               {showMenu && (
                 <div className="dropdown-menu">
-                  
+
 
                   {isModerator && (
-                    <button 
-                      className="dropdown-item danger" 
+                    <button
+                      className="dropdown-item danger"
                       onClick={() => {
-                        toggleJoin(); 
-                        setShowMenu(false); 
+                        toggleJoin();
+                        setShowMenu(false);
                       }}
                     >
                       Leave Community
                     </button>
                   )}
-                  
 
-                  <button 
+
+                  <button
                     className="dropdown-item"
                     onClick={() => setShowMenu(false)}
                   >
@@ -361,7 +355,7 @@ export default function CreateCommunity() {
               )}
             </div>
 
-       
+
 
             {(bannerFile || iconFile) && (
               <button onClick={saveChanges} className="btn-save">
@@ -377,12 +371,12 @@ export default function CreateCommunity() {
         {/* LEFT SIDE - FEED */}
         <div className="community-feed">
           {posts.length > 0 ? (
-            
+
             // OPTION A: Show the Posts
             <div className="posts-container">
-               {posts.map((post) => (
-                 <FeedPost key={post.id} post={post} />
-               ))}
+              {posts.map((post) => (
+                <FeedPost key={post.id} post={post} currentUser={currentUser} />
+              ))}
             </div>
 
           ) : (
@@ -400,9 +394,9 @@ export default function CreateCommunity() {
         </div>
 
         {/* RIGHT SIDEBAR */}
-       {/* RIGHT SIDEBAR */}
+        {/* RIGHT SIDEBAR */}
         <div className="right-sidebar">
-          
+
           {/* --- CARD 1: COMMUNITY INFO (Visible to Everyone) --- */}
           <div className="sidebar-card">
             <h2 className="sidebar-title">r/{community.name}</h2>
@@ -461,17 +455,17 @@ export default function CreateCommunity() {
 
             <div className="sidebar-divider"></div>
 
-         
+
             {community.userFlairs && community.userFlairs.length > 0 && (
               <div className="flair-widget">
                 <h3 className="sidebar-subtitle">USER FLAIRS</h3>
                 <div className="flair-list">
                   {community.userFlairs.map((flair, index) => (
-                    <span 
-                      key={index} 
+                    <span
+                      key={index}
                       className="flair-tag"
                       style={{
-                        backgroundColor: flair.backgroundColor || '#eee', 
+                        backgroundColor: flair.backgroundColor || '#eee',
                         color: flair.textColor || 'black'
                       }}
                     >
@@ -485,7 +479,7 @@ export default function CreateCommunity() {
 
             {/* --- MODERATORS LIST (Visible to Everyone) --- */}
             <h3 className="sidebar-subtitle">MODERATORS</h3>
-            
+
             <button className="btn-message-mods">
               <MessageCircle size={16} /> Message Mods
             </button>

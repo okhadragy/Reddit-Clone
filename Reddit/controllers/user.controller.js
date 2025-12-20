@@ -3,6 +3,7 @@ const Achievement = require("../models/achievement.model");
 const checkAchievement = require('../utils/achievement.checker');
 const Post = require("../models/post.model");
 const Community = require("../models/community.model");
+const CommunityMember = require('../models/membership.model');
 const JWT = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const mongoose = require('mongoose');
@@ -23,7 +24,7 @@ const signup = async (req, res) => {
   const uploadedBanner = req.files?.banner?.[0]?.filename || "banner.png";
 
   try {
-    let {email, password, confirmPassword, role, name  } = req.body;
+    let { email, password, confirmPassword, role, name } = req.body;
 
     role = role || "user"; // default role
 
@@ -259,15 +260,52 @@ const getUserProfile = async (req, res) => {
 
     const queries = [];
 
+    // Helper to add vote info and isJoined
+    const addVoteAndJoinInfo = async (posts) => {
+      const communityIds = [...new Set(posts.map(p => p.community?._id.toString()))];
+
+      let joinedSet = new Set();
+      if (requesterId && communityIds.length > 0) {
+        const memberships = await CommunityMember.find({
+          user: requesterId,
+          community: { $in: communityIds },
+        }).select("community");
+        joinedSet = new Set(memberships.map(m => m.community.toString()));
+      }
+
+      return posts.map(post => {
+        const upvotesCount = post.upvotes?.length || 0;
+        const downvotesCount = post.downvotes?.length || 0;
+
+        let userVote = 0;
+        if (requesterId) {
+          const uid = requesterId.toString();
+          if (post.upvotes?.map(u => u.toString()).includes(uid)) userVote = 1;
+          else if (post.downvotes?.map(u => u.toString()).includes(uid)) userVote = -1;
+        }
+
+        const postObj = { ...post };
+        delete postObj.upvotes;
+        delete postObj.downvotes;
+
+        return {
+          ...postObj,
+          upvotesCount,
+          downvotesCount,
+          userVote,
+          isJoined: post.community?._id ? joinedSet.has(post.community._id.toString()) : false,
+        };
+      });
+    };
+
     // Posts
     if (includes.includes("posts")) {
       queries.push(
         Post.find({ author: targetUserId })
-          .select("title mediaType community upvotes downvotes createdAt")
           .populate("community", "name coverImage")
           .populate("author", "name photo")
           .lean()
-          .then(posts => (user.posts = posts))
+          .then(posts => addVoteAndJoinInfo(posts).then(postsWithInfo => { user.posts = postsWithInfo; }))
       );
     }
 
@@ -307,33 +345,33 @@ const getUserProfile = async (req, res) => {
       if (includes.includes("saved")) {
         queries.push(
           Post.find({ _id: { $in: user.savedPosts || [] } })
-            .select("title mediaType community author createdAt")
             .populate("community", "name coverImage")
             .populate("author", "name photo")
+            .sort({ updatedAt: -1 })
             .lean()
-            .then(saved => (user.saved = saved))
+            .then(posts => addVoteAndJoinInfo(posts).then(postsWithInfo => { user.saved = postsWithInfo; }))
         );
       }
 
       if (includes.includes("upvoted")) {
         queries.push(
           Post.find({ upvotes: targetUserId })
-            .select("title mediaType community author createdAt")
             .populate("community", "name coverImage")
             .populate("author", "name photo")
+            .sort({ updatedAt: -1 })
             .lean()
-            .then(upvoted => (user.upvoted = upvoted))
+            .then(posts => addVoteAndJoinInfo(posts).then(postsWithInfo => { user.upvoted = postsWithInfo; }))
         );
       }
 
       if (includes.includes("downvoted")) {
         queries.push(
           Post.find({ downvotes: targetUserId })
-            .select("title mediaType community author createdAt")
             .populate("community", "name coverImage")
             .populate("author", "name photo")
+            .sort({ updatedAt: -1 })
             .lean()
-            .then(downvoted => (user.downvoted = downvoted))
+            .then(posts => addVoteAndJoinInfo(posts).then(postsWithInfo => { user.downvoted = postsWithInfo; }))
         );
       }
     }
@@ -347,6 +385,7 @@ const getUserProfile = async (req, res) => {
     res.status(500).json({ status: "fail", message: error.message });
   }
 };
+
 
 
 
@@ -385,7 +424,7 @@ const updateUser = async (req, res) => {
       req.body,
       { new: true, runValidators: true, select: "-password -__v" }
     );
-    
+
     await checkAchievement(user._id, { type: "custom" });
 
     if (req.files?.photo && user.photo && user.photo !== "profile.png")

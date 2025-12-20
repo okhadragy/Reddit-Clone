@@ -18,6 +18,7 @@ const deleteUploadedFile = (filename) => {
 const fetchPostsWithStats = async (query, page, limit, userId) => {
   const skip = (page - 1) * limit;
 
+
   const posts = await Post.find(query)
     .populate('author', 'name photo')
     .populate('community', 'name coverImage icon')
@@ -25,7 +26,7 @@ const fetchPostsWithStats = async (query, page, limit, userId) => {
       path: 'comments',
       populate: { path: 'user', select: 'name photo' }
     })
-    .sort({ createdAt: -1 })
+    .sort({ updatedAt: -1 })
     .skip(skip)
     .limit(limit)
     .select('-__v');
@@ -55,10 +56,10 @@ const fetchPostsWithStats = async (query, page, limit, userId) => {
       isSaved,
       userVote: userId
         ? post.upvotes.includes(userId)
-          ? 1   // 1 = upvoted
+          ? 1
           : post.downvotes.includes(userId)
-            ? -1  // -1 = downvoted
-            : 0   // 0 = none
+            ? -1
+            : 0
         : 0,
     };
   });
@@ -143,58 +144,54 @@ const getAllPosts = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
-    const { type, community, communityId } = req.query;
+    const { type, community, communityId, draft } = req.query;
 
     let query = {};
     let joinedCommunityIds = [];
 
-    // 🔹 Fetch joined communities ONCE
+    const isDraft = draft === 'true'; // flag for drafts
+
+    // 🔹 Only allow drafts if user is logged in
+    if (isDraft && !req.userId) {
+      return res.status(401).json({ status: 'fail', message: 'Login required to view drafts' });
+    }
+
+    // 🔹 Fetch joined communities ONCE (for feed and join status)
     if (req.userId) {
-      const memberships = await CommunityMember
-        .find({ user: req.userId })
-        .select('community');
+      const memberships = await CommunityMember.find({ user: req.userId }).select('community');
+      joinedCommunityIds = memberships.map(m => m.community.toString());
 
-      joinedCommunityIds = memberships.map(m =>
-        m.community.toString()
-      );
-
-      // 🔹 userCommunities feed
-      if (type === 'userCommunities') {
-        query = { community: { $in: joinedCommunityIds } };
+      if (type === 'userCommunities' && !isDraft) {
+        query.community = { $in: joinedCommunityIds };
       }
     }
 
-    // 🔹 Community feed (by name)
+    // 🔹 Community filter by name
     if (community) {
       const communityDoc = await Community.findOne({ name: community });
       if (!communityDoc) {
-        return res.status(404).json({
-          status: 'fail',
-          message: 'Community not found'
-        });
+        return res.status(404).json({ status: 'fail', message: 'Community not found' });
       }
-      query = { community: communityDoc._id };
+      query.community = communityDoc._id;
     }
 
-    // 🔹 Community feed (by id)
-    if (communityId) {
-      query = { community: communityId };
+    // 🔹 Community filter by ID
+    if (communityId) query.community = communityId;
+
+    // 🔹 Drafts filter (only show user’s own drafts)
+    if (isDraft) {
+      query.author = req.userId;
+      query.isDraft = true;
+    } else {
+      query.isDraft = false;
     }
 
-    const { posts, totalPosts } = await fetchPostsWithStats(
-      query,
-      page,
-      limit,
-      req.userId
-    );
+    const { posts, totalPosts } = await fetchPostsWithStats(query, page, limit, req.userId);
 
     const postsWithJoinStatus = posts.map(post => ({
       ...post,
-      isJoined: joinedCommunityIds.includes(
-        post.community._id.toString()
-      )
+      isJoined: joinedCommunityIds.includes(post.community._id.toString())
     }));
-
 
     res.status(200).json({
       status: 'success',
@@ -204,7 +201,6 @@ const getAllPosts = async (req, res) => {
       totalPages: Math.ceil(totalPosts / limit),
       data: { posts: postsWithJoinStatus },
     });
-
   } catch (error) {
     res.status(500).json({
       status: 'error',
@@ -229,7 +225,7 @@ const getPost = async (req, res) => {
       .populate('community', 'name coverImage')
       .populate({
         path: 'comments',
-        options: { sort: { createdAt: -1 } }, // sort latest first
+        options: { sort: { updatedAt: -1 } }, // sort latest first
         populate: [
           { path: 'user', select: 'name photo' },
           { path: 'parentComment', select: 'text user' },
