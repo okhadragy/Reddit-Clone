@@ -22,6 +22,7 @@ import Sidebar from './Components/sidebar.jsx';
 import StyleCommunity from './Components/StyleCommunity.jsx';
 import UserProfile from './Components/UserProfile.jsx';
 import CreateCommunity from './Components/CreateCommunity.jsx';
+import ChatsPage from './Components/ChatsPage.jsx';
 
 /*==============================Components==============================*/
 
@@ -42,7 +43,7 @@ import './Styles/SettingsLayout.css';
 import AuthRoute from './guards/AuthRoute.jsx';
 import ProtectedRoute from './guards/ProtectedRoute.jsx';
 import { useAuth } from "./Components/LoginContext";
-
+import HomeLayout from './Components/HomeLayout.jsx';
 
 /*==============================Styles==============================*/
 
@@ -53,28 +54,23 @@ function AppContent() {
 
     return (
 
-        <div className='Homepage'>
-            <Navbar isLoggedIn={isLoggedIn} />
-            <Sidebar isLoggedIn={isLoggedIn} />
-
-            <div className='FeedLayout'>
-                <Routes>
-                    <Route path="/" element={<Home currentUser={user} />} />
-                    <Route path="/drafts" element={<ProtectedRoute><Drafts currentUser={user} /></ProtectedRoute>} />
-                    <Route path="/login" element={<AuthRoute><Login_Signup /></AuthRoute>} />
-                    <Route path="/explore" element={<ExplorePage />} />
-                    <Route path="/post/:id" element={<PostPage isLoggedIn={isLoggedIn} />} />
-                    <Route path="/custom-feed" element={<ProtectedRoute><CustomFeed /></ProtectedRoute>} />
-                    <Route path="/settings" element={<ProtectedRoute><SettingsLayout /></ProtectedRoute>} />
-                    <Route path="/u/:username" element={<ProtectedRoute><UserProfile/></ProtectedRoute>} />
-                    <Route path="/r/:communityName/update-draft/:postId" element={<ProtectedRoute><CreatePost/></ProtectedRoute>} />
-                    <Route path="/r/:communityName/create-post" element={<ProtectedRoute><CreatePost/></ProtectedRoute>} />
-                    <Route path="/r/:communityName" element={<ProtectedRoute><CreateCommunity /></ProtectedRoute>} />
-                    <Route path="*" element={<Navigate to="/" replace />} />
-                </Routes>
-            </div>
-
-        </div>
+        <Routes>
+            <Route path="/chat" element={<ChatsPage />} />
+            <Route element={<HomeLayout isLoggedIn={isLoggedIn} />} >
+                <Route path="/" element={<Home currentUser={user} />} />
+                <Route path="/drafts" element={<ProtectedRoute><Drafts currentUser={user} /></ProtectedRoute>} />
+                <Route path="/login" element={<AuthRoute><Login_Signup /></AuthRoute>} />
+                <Route path="/explore" element={<ExplorePage />} />
+                <Route path="/post/:id" element={<PostPage isLoggedIn={isLoggedIn} />} />
+                <Route path="/custom-feed" element={<ProtectedRoute><CustomFeed /></ProtectedRoute>} />
+                <Route path="/settings" element={<ProtectedRoute><SettingsLayout /></ProtectedRoute>} />
+                <Route path="/u/:username" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
+                <Route path="/r/:communityName/update-draft/:postId" element={<ProtectedRoute><CreatePost /></ProtectedRoute>} />
+                <Route path="/r/:communityName/create-post" element={<ProtectedRoute><CreatePost /></ProtectedRoute>} />
+                <Route path="/r/:communityName" element={<ProtectedRoute><CreateCommunity /></ProtectedRoute>} />
+                <Route path="*" element={<Navigate to="/" replace />} />
+            </Route>
+        </Routes>
     );
 }
 
