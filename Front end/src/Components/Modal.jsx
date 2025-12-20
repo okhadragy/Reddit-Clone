@@ -276,3 +276,19 @@ export const SocialLinksModal = ({ show, onClose, tempLinks, setTempLinks, onSav
     </Modal>
   );
 };
+
+export const DeleteAccountModal = ({ show, onClose, onConfirm, loading  }) => {
+  if (!show) return null;
+
+  return (
+    <Modal title="Delete Account">
+      <p>Are you sure you want to delete your account?</p>
+      <div className="modal-actions">
+        <button className="modal-button modal-button-cancel" onClick={onClose}>Cancel</button>
+        <button className="modal-button modal-button-delete" onClick={onConfirm} disabled={loading}>
+          {loading ? "Deleting..." : "Delete"}
+        </button>
+      </div>
+    </Modal>
+  );
+};

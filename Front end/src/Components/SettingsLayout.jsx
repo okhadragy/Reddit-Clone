@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
-import { GenderModal, EmailModal, LocationModal, AboutModal, DisplayNameModal, SocialLinksModal } from "./Modal";
+import { useNavigate } from 'react-router-dom';
+import { GenderModal, EmailModal, LocationModal, AboutModal, DisplayNameModal, SocialLinksModal,  DeleteAccountModal} from "./Modal";
 import { AccountTab, ProfileTab, EmailTab, PrivacyTab, PreferencesTab, NotificationsTab } from "./Tabs";
 import '../Styles/SettingsLayout.css';
 import api from '../api/api.js';
+import { useAuth } from './LoginContext.jsx';
 
 const SettingsLayout = () => {
   const [activeTab, setActiveTab] = useState('Account');
+  const { logout } = useAuth();
 
   const user = JSON.parse(localStorage.getItem("user"));
   const [settings, setSettings] = useState({
@@ -89,7 +92,7 @@ const SettingsLayout = () => {
   const [showDisplayNameModal, setShowDisplayNameModal] = useState(false);
   const [showAboutModal, setShowAboutModal] = useState(false);
   const [showSocialModal, setShowSocialModal] = useState(false);
-
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const [tempDisplayName, setTempDisplayName] = useState('');
   const [tempAbout, setTempAbout] = useState('');
@@ -101,7 +104,8 @@ const SettingsLayout = () => {
 
   const [emailError, setEmailError] = useState('');
   const [emailLoading, setEmailLoading] = useState(false);
-
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const navigate = useNavigate();
 
   const isValidEmail = (email) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -137,6 +141,18 @@ const SettingsLayout = () => {
     }
   };
 
+  const deleteUser = async () => {
+    try {
+      setDeleteLoading(true);
+      const res = await api.delete(`/users/${user.name}`);
+      if (res.data.status === "success") {
+        logout();
+        navigate('/Login');
+      }
+    } catch (err) {
+      console.error("Failed to delete account:", err);
+    }
+  };
 
   const handleGenderSave = () => {
     setSettings({
@@ -244,6 +260,7 @@ const SettingsLayout = () => {
               setLocationOption(settings.location === 'Use approximate location (based on IP)' ? 'auto' : 'custom');
               setShowLocationModal(true);
             }}
+            openDeleteModal={() => setShowDeleteModal(true)}
           />
         )}
 
@@ -309,7 +326,6 @@ const SettingsLayout = () => {
         loading={emailLoading}
       />
 
-
       <GenderModal
         show={showGenderModal}
         onClose={() => setShowGenderModal(false)}
@@ -329,8 +345,6 @@ const SettingsLayout = () => {
         setLocationOption={setLocationOption}
         onSave={handleLocationSave}
       />
-
-
 
       <DisplayNameModal
         show={showDisplayNameModal}
@@ -354,6 +368,16 @@ const SettingsLayout = () => {
         tempLinks={tempLinks}
         setTempLinks={setTempLinks}
         onSave={handleSocialSave}
+      />
+
+      <DeleteAccountModal
+        show={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={() => {
+          deleteUser();
+          setShowDeleteModal(false);
+        }}
+        loading={deleteLoading}
       />
 
     </div>

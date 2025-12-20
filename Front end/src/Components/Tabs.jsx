@@ -4,7 +4,7 @@ import { AuthorizationItem } from "./SettingItem";
 import SettingItem from "./SettingItem";
 
 // Account Tab
-export const AccountTab = ({ settings, setSettings, onOpenEmailModal, onOpenGenderModal, onOpenLocationModal }) => (
+export const AccountTab = ({ settings, setSettings, onOpenEmailModal, onOpenGenderModal, onOpenLocationModal, openDeleteModal }) => (
     <>
       <section className="settings-section">
         <h2 className="settings-section-title">General</h2>
@@ -84,7 +84,7 @@ export const AccountTab = ({ settings, setSettings, onOpenEmailModal, onOpenGend
       <section className="settings-section">
         <h2 className="settings-section-title">Advanced</h2>
         
-        <button className="advanced-button">
+        <button className="advanced-button" onClick={openDeleteModal}>
           <span className="advanced-text">Delete account</span>
           <ChevronRight className="chevron-icon" />
         </button>

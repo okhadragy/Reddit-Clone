@@ -417,6 +417,15 @@
   background-color: #0060AB;
 }
 
+.modal-button-delete {
+  color: white;
+  background-color: #d30000;
+}
+
+.modal-button-delete:hover {
+  background-color: #ab0000;
+}
+
 
 /* Premium Link */
 .premium-link {
@@ -1075,6 +1084,7 @@
 .toggle-input:checked + .toggle-slider::after {
   transform: translateX(1.25rem);
 }
+
 
 .modal-error {
   color: #ff4d4f;
