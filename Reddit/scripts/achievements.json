@@ -1,0 +1,15 @@
+[
+  {
+    "title": "Conversation Starter",
+    "description": "Created your first post",
+    "icon": "default-badge.png",
+    "type": "post",
+    "condition": { "posts": 1 }
+  },
+  {
+    "title": "Top Commenter",
+    "description": "Received 100 upvotes on comments",
+    "type": "karma",
+    "condition": { "upvotes": 100 }
+  }
+]
