@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../api/api";
+import CounterArgument from "./CounterArgument";  
 import "../Styles/PostPage.css";
 
-/* ---- ICONS (unchanged, keep yours) ---- */
 const Icons = {
-  // Uses stroke (Outline style)
+  
   Back: () => (
     <svg
       width="20"
@@ -21,7 +21,7 @@ const Icons = {
       <polyline points="12 19 5 12 12 5"></polyline>
     </svg>
   ),
-  // Uses fill (Solid style)
+
   Up: () => (
     <svg
       width="20"
@@ -33,7 +33,7 @@ const Icons = {
       <path d="M12.781 2.375c-.381-.475-1.181-.475-1.562 0l-8 10A1.001 1.001 0 0 0 4 14h4v7a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-7h4a1.001 1.001 0 0 0 .781-1.625l-8-10zM15 12h-1v8h-4v-8H6.081L12 4.601 17.919 12H15z" />
     </svg>
   ),
-  // Uses fill (Solid style)
+
   Down: () => (
     <svg
       width="20"
@@ -45,7 +45,7 @@ const Icons = {
       <path d="M20.901 10.566A1.001 1.001 0 0 0 20 10h-4V3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v7H4a1.001 1.001 0 0 0-.781 1.625l8 10a1 1 0 0 0 1.562 0l8-10c.24-.301.286-.712.12-1.059zM12 19.399 6.081 12H10V4h4v8h3.919L12 19.399z" />
     </svg>
   ),
-  // Uses fill
+
   Comment: () => (
     <svg
       width="20"
@@ -57,7 +57,7 @@ const Icons = {
       <path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z" />
     </svg>
   ),
-  // ... rest of your icons (Save, Share, etc.)
+
   Save: () => (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
       <path d="M17 3H7c-1.1 0-1.99.9-1.99 2L5 21l7-3 7 3V5c0-1.1-.9-2-2-2z" />
@@ -108,7 +108,6 @@ const PostPage = ({ isLoggedIn }) => {
   const [shareText, setShareText] = useState("Share");
   const [loading, setLoading] = useState(true);
 
-  /* ---------------- Fetch Post ---------------- */
   useEffect(() => {
     const fetchPost = async () => {
       try {
@@ -133,7 +132,7 @@ const PostPage = ({ isLoggedIn }) => {
   if (loading) return <div className="post-loading">Loading...</div>;
   if (!post) return null;
 
-  /* ---------------- Voting ---------------- */
+
   const handleVote = async (type) => {
     if (!isLoggedIn) {
       navigate("/login");
@@ -146,21 +145,20 @@ const PostPage = ({ isLoggedIn }) => {
       const res = await api.post(`/posts/${post._id}/vote`, { action: actionValue });
       const { userVote, upvotesCount, downvotesCount } = res.data.data;
 
-      // Update state based on server response
+    
       setPost((prev) => ({
         ...prev,
         upvotesCount,
         downvotesCount
       }));
 
-      setVoteStatus(userVote); // 1, -1, or 0
+      setVoteStatus(userVote); 
     } catch (err) {
       console.error(err);
     }
   };
 
 
-  /* ---------------- Save Post ---------------- */
   const toggleSave = async () => {
     if (!isLoggedIn) {
       navigate("/login");
@@ -177,7 +175,7 @@ const PostPage = ({ isLoggedIn }) => {
     }
   };
 
-  /* ---------------- Add Comment ---------------- */
+  
   const handleCommentSubmit = async () => {
     if (!newComment.trim()) return;
     if (!isLoggedIn) {
@@ -369,6 +367,8 @@ const PostPage = ({ isLoggedIn }) => {
               </button>
             </div>
           </div>
+
+          <CounterArgument title={post.title} content={post.content}/>
 
           {/* -------- Comment Input -------- */}
           <div className="comment-input-area">

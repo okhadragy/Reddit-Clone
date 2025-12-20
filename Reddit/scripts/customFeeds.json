@@ -1,0 +1,19 @@
+[
+  {
+    "name": "My Tech Feed",
+    "description": "A collection of my favorite tech communities",
+    "user": "65d4c9f8a2b1e3001c4d9e11",
+    "communities": [
+      "65d4c9f8a2b1e3001c4d9e22",
+      "65d4c9f8a2b1e3001c4d9e33"
+    ]
+  },
+  {
+    "name": "Sports Mix",
+    "description": "Football and Basketball together",
+    "user": "65d4c9f8a2b1e3001c4d9e11",
+    "communities": [
+      "65d4c9f8a2b1e3001c4d9e44"
+    ]
+  }
+]
