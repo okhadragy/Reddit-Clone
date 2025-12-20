@@ -1,6 +1,6 @@
 import { useAuth } from "./LoginContext";
 import { useNavigate } from "react-router-dom";
-import React, { useState, useRef  } from 'react';
+import React, { useState, useRef } from 'react';
 import api from "../api/api";
 
 import {
@@ -29,16 +29,21 @@ function Navbar({ isLoggedIn }) {
   const [searchResults, setSearchResults] = useState([]);
   const debounceRef = useRef(null); // Ref for debouncing
 
-  const communities = [
-    "r/reactjs",
-    "r/webdev",
-    "r/javascript",
-    "r/programming",
-    "r/Football",
-    "r/Messi",
-    "r/Barcelona",
-    "r/Tottenham",
-  ];
+  const fetchCommunities = async (query) => {
+    try {
+      // Adjust limit as needed
+      const res = await api.get(`/community?search=${query}&limit=5`);
+
+      if (res.data.status === "success") {
+        // Format them as 'r/Name'
+        return res.data.data.communities.map((c) => `r/${c.name}`);
+      }
+      return [];
+    } catch (err) {
+      console.error(err);
+      return [];
+    }
+  };
 
   const fetchUsers = async (query) => {
     try {
@@ -71,15 +76,15 @@ function Navbar({ isLoggedIn }) {
     }
 
     debounceRef.current = setTimeout(async () => {
-      const matchedCommunities = communities.filter((c) =>
-        c.toLowerCase().includes(query)
-      );
+      // Run both requests at the same time for speed
+      const [fetchedCommunities, fetchedUsers] = await Promise.all([
+        fetchCommunities(query),
+        fetchUsers(query)
+      ]);
 
-      // users from backend
-      const matchedUsers = await fetchUsers(query);
-
-      setSearchResults([...matchedCommunities, ...matchedUsers]);
-    }, 300); // debounce delay
+      // Combine results: Communities first, then Users
+      setSearchResults([...fetchedCommunities, ...fetchedUsers]);
+    }, 300);
   };
 
 
@@ -98,7 +103,7 @@ function Navbar({ isLoggedIn }) {
 
   return (
     <header className="Navbar">
-      <div className="redditname_logo" onClick={() => {navigate("/"); setSearchQuery(""); setSearchResults([]); setIsUserMenuOpen(false);}}>
+      <div className="redditname_logo" onClick={() => { navigate("/"); setSearchQuery(""); setSearchResults([]); setIsUserMenuOpen(false); }}>
         <img className="redditlogo" src="\Reddit-symbol.png" alt="Reddit Logo" />
         <h1>reddit</h1>
       </div>
@@ -126,7 +131,7 @@ function Navbar({ isLoggedIn }) {
         {searchResults.length > 0 && (
           <div className="search-results">
             {searchResults.map((item, index) => (
-              <div key={index} className="search-item" onClick={() => {navigate(`/${item}`); setSearchQuery(""); setSearchResults([]); setIsUserMenuOpen(false);}}>
+              <div key={index} className="search-item" onClick={() => { navigate(`/${item}`); setSearchQuery(""); setSearchResults([]); setIsUserMenuOpen(false); }}>
                 {item}
               </div>
             ))}
@@ -176,7 +181,7 @@ function Navbar({ isLoggedIn }) {
                 <div className="user-menu-dropdown">
 
                   {/* PROFILE */}
-                  <div className="menu-section profile" onClick={() => {navigate(`/u/${user?.name}`); setIsUserMenuOpen(false);}}>
+                  <div className="menu-section profile" onClick={() => { navigate(`/u/${user?.name}`); setIsUserMenuOpen(false); }}>
                     <img
                       src={user?.photo ? `http://localhost:5000/uploads/profiles/${user.photo}` : "https://www.redditstatic.com/avatars/defaults/v2/avatar_default_5.png"}
                       className="menu-avatar-img"
@@ -191,7 +196,7 @@ function Navbar({ isLoggedIn }) {
                   {/* MAIN MENU ITEMS */}
                   <div className="menu-section">
                     <MenuItem icon={<Shirt size={18} />} label="Edit Avatar" />
-                    <MenuItem icon={<FileText size={18} />} label="Drafts" onClick={()=> {navigate('/drafts'); setIsUserMenuOpen(false);}}/>
+                    <MenuItem icon={<FileText size={18} />} label="Drafts" onClick={() => { navigate('/drafts'); setIsUserMenuOpen(false); }} />
                     <MenuItem icon={<Trophy size={18} />} label="Achievements" subLabel="2 unlocked" />
                     <MenuItem icon={<DollarSign size={18} />} label="Earn" subLabel="Earn cash on Reddit" />
                     <MenuItem icon={<Shield size={18} />} label="Premium" />
@@ -215,7 +220,7 @@ function Navbar({ isLoggedIn }) {
                   <div className="menu-section">
                     <MenuItem icon={<Megaphone size={18} />} label="Advertise on Reddit" />
                     <MenuItem icon={<Zap size={18} />} label="Try Reddit Pro" badge="BETA" />
-                    <MenuItem icon={<Settings size={18} />} label="Settings" onClick={() => {navigate("/settings"); setIsUserMenuOpen(false);}} />
+                    <MenuItem icon={<Settings size={18} />} label="Settings" onClick={() => { navigate("/settings"); setIsUserMenuOpen(false); }} />
                   </div>
 
                   {/* LOGOUT */}
