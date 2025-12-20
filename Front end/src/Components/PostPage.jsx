@@ -319,7 +319,7 @@ const PostPage = ({ isLoggedIn }) => {
                 {post.media.map((mediaUrl, index) => (
                   <img
                     key={index}
-                    src={`http://localhost:5000/uploads/posts/${mediaUrl}`}
+                    src={`${process.env.REACT_APP_STATIC_URL}/posts/${mediaUrl}`}
                     alt={`Post media ${index + 1}`}
                     className="post-image-content"
                   />

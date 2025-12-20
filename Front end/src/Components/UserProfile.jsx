@@ -114,7 +114,7 @@ export default function UserProfile() {
   const now = new Date();
   let years = now.getFullYear() - createdAt.getFullYear();
   let redditAge = years > 0 ? `${years} y` : `${now.getMonth() - createdAt.getMonth()} m`;
-  const POST_IMAGE_URL = "http://localhost:5000/uploads/posts/";
+  const POST_IMAGE_URL = `${process.env.REACT_APP_STATIC_URL}/posts/`;
   const userobj = {
     username: user.name,
     photo: user.photo,
@@ -122,7 +122,7 @@ export default function UserProfile() {
   }
 
   const currentAvatarUrl = previewUrl || (user?.photo
-    ? `http://localhost:5000/uploads/profiles/${user.photo}`
+    ? `${process.env.REACT_APP_STATIC_URL}/profiles/${user.photo}`
     : "https://www.redditstatic.com/avatars/defaults/v2/avatar_default_3.png");
 
   return (

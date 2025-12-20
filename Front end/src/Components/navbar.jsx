@@ -172,7 +172,7 @@ function Navbar({ isLoggedIn }) {
               <button className="avatar" onClick={toggleMenu}>
                 <div className="avatar-status-dot"></div>
                 <img
-                  src={user?.photo ? `http://localhost:5000/uploads/profiles/${user.photo}` : "https://www.redditstatic.com/avatars/defaults/v2/avatar_default_5.png"}
+                  src={user?.photo ? `${process.env.REACT_APP_STATIC_URL}/profiles/${user.photo}` : "https://www.redditstatic.com/avatars/defaults/v2/avatar_default_5.png"}
                   alt="User Avatar"
                 />
               </button>
@@ -183,7 +183,7 @@ function Navbar({ isLoggedIn }) {
                   {/* PROFILE */}
                   <div className="menu-section profile" onClick={() => { navigate(`/u/${user?.name}`); setIsUserMenuOpen(false); }}>
                     <img
-                      src={user?.photo ? `http://localhost:5000/uploads/profiles/${user.photo}` : "https://www.redditstatic.com/avatars/defaults/v2/avatar_default_5.png"}
+                      src={user?.photo ? `${process.env.REACT_APP_STATIC_URL}/profiles/${user.photo}` : "https://www.redditstatic.com/avatars/defaults/v2/avatar_default_5.png"}
                       className="menu-avatar-img"
                       alt="User"
                     />

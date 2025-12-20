@@ -57,7 +57,7 @@ const CreatePost = () => {
         }
 
         if (post.mediaType === "image" && post.media) {
-          setImagePreview(`http://localhost:5000/uploads/posts/${post.media[0]}`); // existing image
+          setImagePreview(`${process.env.REACT_APP_STATIC_URL}/posts/${post.media[0]}`); // existing image
           setImageFile(null);              // reset file, only set if user uploads new
         }
       } catch (err) {

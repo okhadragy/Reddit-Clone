@@ -70,7 +70,7 @@ export default function CreateCommunity() {
   useEffect(() => {
     let userObj = null;
     const storedUserString = localStorage.getItem("user");
-    const POST_IMAGE_URL = "http://localhost:5000/uploads/posts/";
+    const POST_IMAGE_URL = `${process.env.REACT_APP_STATIC_URL}/posts/`;
     if (storedUserString) {
       userObj = JSON.parse(storedUserString);
       setCurrentUser(userObj);
@@ -195,7 +195,7 @@ export default function CreateCommunity() {
   };
 
   function getDefaultImage(imageName) {
-    return `http://localhost:5000/uploads/communities/${imageName}`
+    return `${process.env.REACT_APP_STATIC_URL}/communities/${imageName}`
   }
 
   async function toggleJoin() {

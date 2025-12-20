@@ -12,7 +12,7 @@ function Drafts({ currentUser }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const POST_IMAGE_URL = "http://localhost:5000/uploads/posts/";
+  const POST_IMAGE_URL = `${process.env.REACT_APP_STATIC_URL}/posts/`;
 
   useEffect(() => {
     const fetchDrafts = async () => {
