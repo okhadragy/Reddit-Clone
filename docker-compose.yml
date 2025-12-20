@@ -2,18 +2,18 @@ version: '3.9'
 
 services:
   backend:
-    build: ./backend
+    build: ./Reddit
     container_name: reddit-backend
-    env_file: ./backend/.env
+    env_file: ./Reddit/.env
     ports:
       - "5000:5000"
     volumes:
-      - ./backend/uploads:/app/uploads
+      - ./Reddit/uploads:/app/uploads
     depends_on:
       - mongo
 
   frontend:
-    build: ./frontend
+    build: ./Front end
     container_name: reddit-frontend
     ports:
       - "3000:80"
