@@ -1,40 +1,28 @@
 import React, { useState, useEffect, useRef } from 'react';
+import api from '../api/api';
+import { useNavigate } from "react-router-dom";
 import '../Styles/ChatPage.css';
 
-const MOCK_USER_ID = 'currentUser';
 
 const formatTime = (timestamp) => {
   return new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 };
 
-const MOCK_AVAILABLE_USERS = [
-  { id: 'user_A', name: 'Alice_Riddit' },
-  { id: 'user_B', name: 'Bob_Dev' },
-  { id: 'user_C', name: 'Charlie_Coder' },
-  { id: 'user_D', name: 'Messi' },
-  { id: 'user_E', name: 'Ayham' },
-  { id: 'user_F', name: 'Zeyad_Gowaily' },
-];
-
-const findUserByUsername = (username) => {
-  return MOCK_AVAILABLE_USERS.find(user => user.name.toLowerCase() === username.toLowerCase());
-};
-
 // --- Message Sub-Component ---
-const Message = ({ message }) => {
-  const isMine = message.senderId === MOCK_USER_ID;
+const Message = ({ message, user }) => {
+  const isMine = message.sender._id === user.id;
   return (
     <div className={`message-row ${isMine ? 'mine' : 'theirs'}`}>
       <div className="message-bubble">
         {message.text}
-        <span className="message-time">{formatTime(message.timestamp)}</span>
+        <span className="message-time">{formatTime(message.createdAt)}</span>
       </div>
     </div>
   );
 };
 
 // --- View: Conversation ---
-const ConversationView = ({ activeChat, onSendMessage }) => {
+const ConversationView = ({ activeChat, onSendMessage, user, onNavigate }) => {
   const [inputText, setInputText] = useState('');
   const messagesEndRef = useRef(null);
 
@@ -57,13 +45,13 @@ const ConversationView = ({ activeChat, onSendMessage }) => {
         <div className="threads-controls">
           <button className="control-btn" title="Expand">⤢</button>
           <button className="control-btn" title="Minimize">_</button>
-          <button className="control-btn" title="Close">X</button>
+          <button className="control-btn" title="Close" onClick={() => onNavigate("HOME")}>X</button>
         </div>
       </div>
 
       <div className="message-list">
         {activeChat.messages.map((msg, index) => (
-          <Message key={index} message={msg} />
+          <Message key={index} message={msg} user={user} />
         ))}
         <div ref={messagesEndRef} />
       </div>
@@ -83,25 +71,45 @@ const ConversationView = ({ activeChat, onSendMessage }) => {
 
 // --- View: New Chat ---
 const NewChatView = ({ onStartNewChat, onNavigate }) => {
-  const [username, setUsername] = useState('');
-  const [isUserFound, setIsUserFound] = useState(false);
-  const [foundUser, setFoundUser] = useState(null);
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const debounceRef = useRef(null);
 
-  useEffect(() => {
-    if (username.trim()) {
-      const user = findUserByUsername(username);
-      setFoundUser(user);
-      setIsUserFound(!!user);
-    } else {
-      setIsUserFound(false);
-      setFoundUser(null);
-    }
-  }, [username]);
+  /* ---------------- SEARCH USERS ---------------- */
+  const searchUsers = async (text) => {
+    try {
+      setLoading(true);
+      const res = await api.get(`/users?search=${text}&limit=5`);
 
-  const handleStartChat = () => {
-    if (foundUser) {
-      onStartNewChat(foundUser);
+      if (res.data.status === "success") {
+        setResults(res.data.data); // expect array of users
+      } else {
+        setResults([]);
+      }
+    } catch (err) {
+      console.error("Search error:", err);
+      setResults([]);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  /* ---------------- HANDLE INPUT ---------------- */
+  const handleChange = (e) => {
+    const value = e.target.value;
+    setQuery(value);
+
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+
+    if (!value.trim()) {
+      setResults([]);
+      return;
+    }
+
+    debounceRef.current = setTimeout(() => {
+      searchUsers(value.trim());
+    }, 300);
   };
 
   return (
@@ -109,44 +117,57 @@ const NewChatView = ({ onStartNewChat, onNavigate }) => {
       <div className="new-chat-page-header">
         <h2>New Chat</h2>
         <div className="threads-controls">
-          <button className="control-btn" title="Expand">⤢</button>
-          <button className="control-btn" title="Minimize">_</button>
-          <button className="control-btn" title="Close">X</button>
+          <button className="control-btn">⤢</button>
+          <button className="control-btn">_</button>
+          <button className="control-btn" onClick={() => onNavigate("HOME")}>X</button>
         </div>
       </div>
+
       <div className="new-chat-form-area">
         <div className="username-input-container">
           <input
             type="text"
-            placeholder="Type username(s) *"
+            placeholder="Search username..."
             className="username-input"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            value={query}
+            onChange={handleChange}
           />
-          <p className="search-info">Search for people by username to chat with them.</p>
 
-          {username.trim() && (
+          <p className="search-info">
+            Search for people by username to chat with them.
+          </p>
+
+          {/* ---------------- RESULTS ---------------- */}
+          {query.trim() && (
             <div className="search-results-list">
-              {isUserFound ? (
-                <div className="user-found-item" onClick={() => setUsername(foundUser.name)}>
-                  <span className="found-name">{foundUser.name}</span>
-                  <span className="user-status">Click to Select</span>
+              {loading && <div className="user-not-found">Searching...</div>}
+
+              {!loading && results.length === 0 && (
+                <div className="user-not-found">
+                  No users found for "{query}"
                 </div>
-              ) : (
-                <div className="user-not-found">No user found matching "{username}"</div>
               )}
+
+              {results.map((user) => (
+                <div
+                  key={user._id}
+                  className="user-found-item"
+                  onClick={() => onStartNewChat(user)}
+                >
+                  <span className="found-name">{user.name}</span>
+                  <span className="user-status">Start chat</span>
+                </div>
+              ))}
             </div>
           )}
         </div>
 
         <div className="new-chat-footer">
-          <button className="cancel-button" onClick={() => onNavigate('THREADS')}>Cancel</button>
           <button
-            className="start-chat-button"
-            onClick={handleStartChat}
-            disabled={!isUserFound}
+            className="cancel-button"
+            onClick={() => onNavigate("THREADS")}
           >
-            Start Chat
+            Cancel
           </button>
         </div>
       </div>
@@ -155,14 +176,15 @@ const NewChatView = ({ onStartNewChat, onNavigate }) => {
 };
 
 // --- View: Threads (Empty State) ---
-const ThreadsView = ({ onNavigate }) => (
+const ThreadsView = ({ onNavigate }) => {
+  return (
   <div className="chat-panel threads-content">
     <div className="threads-page-header">
       <h2>Threads</h2>
       <div className="threads-controls">
         <button className="control-btn" title="Expand">⤢</button>
         <button className="control-btn" title="Minimize">_</button>
-        <button className="control-btn" title="Close">X</button>
+        <button className="control-btn" title="Close" onClick={() => onNavigate("HOME")}>X</button>
       </div>
     </div>
     <div className="threads-empty-state">
@@ -173,12 +195,13 @@ const ThreadsView = ({ onNavigate }) => (
       </button>
     </div>
   </div>
-);
+)};
 
 
 // --- Main ChatPanel Component ---
-const ChatPanel = ({ activeView, activeChat, onStartNewChat, onSendMessage, onNavigate }) => {
+const ChatPanel = ({ activeView, activeChat, onStartNewChat, onSendMessage, onNavigate, user }) => {
   let ContentComponent;
+  
 
   switch (activeView) {
     case 'NEW_CHAT':
@@ -186,7 +209,7 @@ const ChatPanel = ({ activeView, activeChat, onStartNewChat, onSendMessage, onNa
       break;
     case 'CONVERSATION':
       if (activeChat) {
-        ContentComponent = <ConversationView activeChat={activeChat} onSendMessage={onSendMessage} />;
+        ContentComponent = <ConversationView activeChat={activeChat} onSendMessage={onSendMessage} user={user} onNavigate={onNavigate} />;
       } else {
         ContentComponent = <ThreadsView onNavigate={onNavigate} />;
       }

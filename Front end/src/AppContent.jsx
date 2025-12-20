@@ -55,7 +55,7 @@ function AppContent() {
     return (
 
         <Routes>
-            <Route path="/chat" element={<ChatsPage />} />
+            <Route path="/chat" element={<ChatsPage user={user} />} />
             <Route element={<HomeLayout isLoggedIn={isLoggedIn} />} >
                 <Route path="/" element={<Home currentUser={user} />} />
                 <Route path="/drafts" element={<ProtectedRoute><Drafts currentUser={user} /></ProtectedRoute>} />

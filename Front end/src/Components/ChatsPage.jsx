@@ -1,127 +1,164 @@
-import React, { useState, useCallback, useMemo } from 'react';
-import LeftPanel from './LeftPanel';
-import ChatPanel from './ChatPanel';
-import '../Styles/ChatPage.css';
+import React, { useState, useCallback, useMemo, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import LeftPanel from "./LeftPanel";
+import ChatPanel from "./ChatPanel";
+import api from "../api/api";
+import { socket } from "../hooks/userSocket";
+import "../Styles/ChatPage.css";
+
+const ChatsPage = ({ user }) => {
+  const [chats, setChats] = useState([]);
+  const [activeView, setActiveView] = useState("THREADS");
+  const [activeChatId, setActiveChatId] = useState(null);
+  const navigate = useNavigate();
+
+  /* ---------------- LOAD USER CHATS ---------------- */
+  useEffect(() => {
+    if (!user?.id) return;
+
+    api.get("/chats").then(res => {
+      const formatted = res.data.data.map(chat => {
+        const partner = chat.participants.find(
+          p => p._id !== user.id
+        );
+
+        return {
+          id: chat._id,
+          partnerId: partner._id,
+          name: partner.name,
+          lastMessage: chat.lastMessage?.text || "",
+          messages: [],
+        };
+      });
+
+      setChats(formatted);
+    });
+  }, [user]);
+
+  /* ---------------- JOIN CHAT & LOAD MESSAGES ---------------- */
+  useEffect(() => {
+    if (!activeChatId) return;
+
+    socket.emit("join_chat", activeChatId);
+
+    api.get(`/chats/${activeChatId}/messages`).then(res => {
+      setChats(prev =>
+        prev.map(c =>
+          c.id === activeChatId
+            ? { ...c, messages: res.data.data }
+            : c
+        )
+      );
+    });
+
+    return () => {
+      socket.emit("leave_chat", activeChatId);
+    };
+  }, [activeChatId]);
+
+  /* ---------------- SOCKET LISTENERS ---------------- */
+  useEffect(() => {
+    socket.on("new_message", msg => {
+      setChats(prev => {
+        const existingChat = prev.find(c => c.id === msg.chat);
+        console.log("Received message for chat:", msg.chat, "Existing chat:", existingChat);
+        if (existingChat) {
+          return prev.map(c =>
+            c.id === msg.chat
+              ? { ...c, messages: [...c.messages, msg], lastMessage: msg.text }
+              : c
+          );
+        } else {
+          const partner = msg.sender._id === user.id ? msg.receiver : msg.sender;
+          const newChat = {
+            id: msg.chat,
+            partnerId: partner._id,
+            name: partner.name,
+            lastMessage: msg.text,
+            messages: [msg],
+          };
+          return [newChat, ...prev];
+        }
+      });
+    });
+
+    return () => socket.off("new_message");
+  }, [user]);
 
 
-const MOCK_USER_ID = 'currentUser';
+  /* ---------------- NAVIGATION ---------------- */
+  const handleNavigate = useCallback(view => {
+    if (view === "HOME") {
+      navigate('/');
+      return;
+    }
 
-const INITIAL_CHATS = [
-    { 
-        id: 'chat_1', 
-        name: 'Alice_Riddit', 
-        partnerId: 'user_A',
-        lastMessage: 'Sure, I can help with that.',
-        messages: [
-            { senderId: 'user_A', text: 'Hey, are you free for a call?', timestamp: Date.now() - 3600000 },
-            { senderId: MOCK_USER_ID, text: 'I am. What time?', timestamp: Date.now() - 3500000 },
-            { senderId: 'user_A', text: 'In 5 minutes works.', timestamp: Date.now() - 3400000 },
-        ]
-    },
-    { 
-        id: 'chat_2', 
-        name: 'Bob_Dev', 
-        partnerId: 'user_B',
-        lastMessage: 'Don\'t forget the meeting on Monday.',
-        messages: [
-            { senderId: 'user_B', text: 'Project status update is done.', timestamp: Date.now() - 86400000 },
-            { senderId: MOCK_USER_ID, text: 'Got it, thanks.', timestamp: Date.now() - 85400000 },
-        ]
-    },
-];
-
-
-
-const ChatsPage = () => {
-  const [chats, setChats] = useState(INITIAL_CHATS);
-  // activeView: THREADS, NEW_CHAT, CONVERSATION
-  const [activeView, setActiveView] = useState('THREADS'); 
-  const [activeChatId, setActiveChatId] = useState(INITIAL_CHATS.length > 0 ? INITIAL_CHATS[0].id : null);
-
-  // --- Handlers ---
-
-  const handleNavigate = useCallback((view) => {
     setActiveView(view);
-    // When navigating to THREADS or NEW_CHAT, we often deselect the conversation
-    if (view !== 'CONVERSATION') {
-        setActiveChatId(null);
-    }
+    if (view !== "CONVERSATION") setActiveChatId(null);
   }, []);
-  
-  const handleChatSelect = useCallback((chatId) => {
+
+  const handleChatSelect = useCallback(chatId => {
     setActiveChatId(chatId);
-    setActiveView('CONVERSATION');
+    setActiveView("CONVERSATION");
   }, []);
 
-  const handleSendMessage = useCallback((chatId, text) => {
-    const newMessage = {
-      senderId: MOCK_USER_ID,
-      text: text,
-      timestamp: Date.now(),
-    };
+  /* ---------------- SEND MESSAGE ---------------- */
+  const handleSendMessage = (chatId, text) => {
+    socket.emit("send_message", {
+      chatId,
+      text,
+    });
+  };
 
-    setChats(prevChats => 
-      prevChats.map(chat => 
-        chat.id === chatId 
-          ? { 
-              ...chat, 
-              messages: [...chat.messages, newMessage], 
-              lastMessage: text 
-            }
-          : chat
-      ).sort((a, b) => {
-        // Sort by the last message timestamp (mock data doesn't have it, so we sort by last message creation time)
-        const aTime = a.messages.length > 0 ? a.messages[a.messages.length - 1].timestamp : 0;
-        const bTime = b.messages.length > 0 ? b.messages[b.messages.length - 1].timestamp : 0;
-        return bTime - aTime;
-      })
-    );
-  }, []);
+  /* ---------------- START NEW CHAT ---------------- */
+  const handleStartNewChat = async foundUser => {
 
-  const handleStartNewChat = useCallback((foundUser) => {
-    const existingChat = chats.find(c => c.partnerId === foundUser.id);
-
-    if (existingChat) {
-        handleChatSelect(existingChat.id);
-        return;
+    const existing = chats.find(c => c.partnerId === foundUser._id);
+    if (existing) {
+      handleChatSelect(existing.id);
+      return;
     }
-    
-    // Create new chat
+
+    const res = await api.post("/chats", {
+      userId: foundUser._id,
+    });
+
+    const chat = res.data.data;
+    const partner = chat.participants.find(p => p._id !== user.id);
+
     const newChat = {
-        id: `chat_${Date.now()}`,
-        name: foundUser.name,
-        partnerId: foundUser.id,
-        lastMessage: 'Chat started.',
-        messages: [{ 
-            senderId: MOCK_USER_ID, 
-            text: `You started a chat with ${foundUser.name}.`,
-            timestamp: Date.now(),
-        }],
+      id: chat._id,
+      partnerId: partner._id,
+      name: partner.name,
+      lastMessage: "",
+      messages: [],
     };
 
-    setChats(prevChats => [newChat, ...prevChats]);
-    handleChatSelect(newChat.id); // Navigate to the new conversation
-  }, [chats, handleChatSelect]);
-  
-  // Memoized value for the currently active chat object
-  const activeChat = useMemo(() => 
-      chats.find(c => c.id === activeChatId), 
-  [chats, activeChatId]);
+    setChats(prev => [newChat, ...prev]);
+    handleChatSelect(newChat.id);
+  };
+
+  /* ---------------- ACTIVE CHAT ---------------- */
+  const activeChat = useMemo(
+    () => chats.find(c => c.id === activeChatId),
+    [chats, activeChatId]
+  );
 
   return (
     <div className="chats-page-container">
-      <LeftPanel 
+      <LeftPanel
         chats={chats}
         activeChatId={activeChatId}
         onNavigate={handleNavigate}
         onChatSelect={handleChatSelect}
       />
-      <ChatPanel 
-        activeView={activeView} 
+      <ChatPanel
+        activeView={activeView}
         activeChat={activeChat}
         onStartNewChat={handleStartNewChat}
         onSendMessage={handleSendMessage}
         onNavigate={handleNavigate}
+        user={user}
       />
     </div>
   );
