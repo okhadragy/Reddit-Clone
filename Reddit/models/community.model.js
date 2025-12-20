@@ -65,5 +65,29 @@ const communitySchema = new mongoose.Schema({
   }],
 }, { timestamps: true });
 
+communitySchema.post('findOneAndDelete', async function(doc) {
+  if (doc) {
+    console.log(`🗑️ CASCADE: Deleting data for community: ${doc.name}`);
+
+ 
+    try {
+      const Post = mongoose.model('Post'); 
+      const deletedPosts = await Post.deleteMany({ community: doc._id });
+      console.log(`   - Deleted ${deletedPosts.deletedCount} posts.`);
+    } catch (err) {
+      console.error("   ! Error deleting associated posts:", err);
+    }
+
+    try {
+      const CommunityMember = mongoose.model('CommunityMember');
+      const deletedMembers = await CommunityMember.deleteMany({ community: doc._id });
+      console.log(`   - Removed ${deletedMembers.deletedCount} members.`);
+    } catch (err) {
+      console.error("   ! Error deleting memberships:", err);
+    }
+  }
+});
+
+// Create the model
 const Community = mongoose.model('Community', communitySchema);
 module.exports = Community;

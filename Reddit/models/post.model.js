@@ -16,7 +16,7 @@ const postSchema = new mongoose.Schema(
     },
     mediaType: {
       type: String,
-      enum: ['image', 'media' , 'text', 'link'],
+      enum: ['image', 'media', 'text', 'link'],
       default: 'text',
     },
     media: [{
@@ -67,4 +67,17 @@ const postSchema = new mongoose.Schema(
 );
 
 const Post = mongoose.model('Post', postSchema);
+postSchema.post('findOneAndDelete', async function (doc) {
+  if (doc) {
+
+
+    try {
+      const Comment = mongoose.model('Comment');
+      await Comment.deleteMany({ post: doc._id });
+      console.log(`Deleted associated comments.`);
+    } catch (err) {
+      console.error(" Error deleting comments:", err);
+    }
+  }
+});
 module.exports = Post;
