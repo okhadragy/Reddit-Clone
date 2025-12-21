@@ -3,7 +3,7 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 const router = express.Router();
 
 // Initialize Gemini (Use your env variable in production!)
-const genAI = new GoogleGenerativeAI("AIzaSyBFHRn29-WinSZhjrK5ErYpvgrOmG1a4sA");
+const genAI = new GoogleGenerativeAI(process.env.AI_TOKEN);
 const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
 
 router.post("/analyze", async (req, res) => {
